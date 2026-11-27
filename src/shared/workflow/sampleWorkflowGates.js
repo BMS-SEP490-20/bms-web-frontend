@@ -83,24 +83,30 @@ export function canReceiveSample(status) {
   return st === 'Collected' || st === 'InTransit';
 }
 
-/** Advance processing (Đang xử lý / Testing) */
+/** Advance processing (Received / Processing → Testing) */
 export function canAdvanceProcessing(status) {
   const st = normalizeSampleStatus(status);
   return st === 'Received' || st === 'Processing';
 }
 
+/** Aliquot (Chiết mẫu phụ): chỉ thực hiện sau khi Lab đã tiếp nhận mẫu và trước khi chạy máy (Received / Processing). */
+export function canCreateAliquot(status) {
+  const st = normalizeSampleStatus(status);
+  return st === 'Received' || st === 'Processing';
+}
+
 /**
- * Enter / edit results: only when sample is in lab analysis window.
- * Completed / WaitingReview / Rejected → view-only (no re-enter).
+ * Enter / edit results: chỉ khi mẫu đã vào bước Đang xét nghiệm (Testing) hoặc Yêu cầu chạy lại (RerunRequested).
+ * Completed / WaitingReview / Rejected → chỉ xem (không nhập lại).
  */
 export function canEnterTestResults(status) {
   const st = normalizeSampleStatus(status);
-  return st === 'Received' || st === 'Processing' || st === 'Testing' || st === 'RerunRequested';
+  return st === 'Testing' || st === 'RerunRequested';
 }
 
 export function canViewTestResults(status) {
   const st = normalizeSampleStatus(status);
-  return st === 'Completed' || st === 'WaitingReview' || st === 'Testing' || st === 'RerunRequested';
+  return st === 'Completed' || st === 'WaitingReview';
 }
 
 export function canRejectSample(status) {
@@ -116,10 +122,12 @@ export function canValidateSampleQc(status) {
 }
 
 /**
- * Queue UI chỉ 3 CTA nghiệp vụ:
- * - Lấy Mẫu (PendingCollection)
- * - Đang xét nghiệm (Collected…Processing → nhảy tới Testing)
- * - Nhập KQ (Testing / Rerun) | Xem KQ (Completed)
+ * Queue UI chuẩn luồng 1 chiều ISO 15189 (không nhảy cóc, không chồng chéo chức năng):
+ * - PendingCollection       → Lấy Mẫu (+ từ chối)
+ * - Collected / InTransit   → Tiếp nhận Lab (điều hướng sang /laboratory/checkinsample)
+ * - Received / Processing   → Bắt đầu XN (+ Chiết mẫu)
+ * - Testing / RerunRequested→ Nhập KQ (điều hướng sang /laboratory/enter-test-results)
+ * - Completed / WaitingReview → Xem KQ
  */
 export function primaryForwardAction(status) {
   const st = normalizeSampleStatus(status);
@@ -128,9 +136,10 @@ export function primaryForwardAction(status) {
       return { next: 'Collected', label: 'Lấy Mẫu', kind: 'collect' };
     case 'Collected':
     case 'InTransit':
+      return { next: 'Received', label: 'Tiếp nhận Lab', kind: 'receive' };
     case 'Received':
     case 'Processing':
-      return { next: 'Testing', label: 'Đang xét nghiệm', kind: 'toTesting' };
+      return { next: 'Testing', label: 'Bắt đầu XN', kind: 'startTesting' };
     case 'Testing':
     case 'RerunRequested':
       return { next: null, label: 'Nhập KQ', kind: 'enter' };
@@ -144,21 +153,13 @@ export function primaryForwardAction(status) {
   }
 }
 
-/** Chuỗi bước hợp lệ BE để tới Testing (không nhảy cóc 1 PUT). */
+/** Chỉ cho phép chuyển sang Testing từ bước đã tiếp nhận Lab (Received / Processing) — không nhảy cóc từ Collected. */
 export function pathToTesting(fromStatus) {
   const st = normalizeSampleStatus(fromStatus);
   switch (st) {
-    case 'Collected':
-      return ['Received', 'Testing'];
-    case 'InTransit':
-      return ['Received', 'Testing'];
     case 'Received':
-      return ['Testing'];
     case 'Processing':
       return ['Testing'];
-    case 'Testing':
-    case 'RerunRequested':
-      return [];
     default:
       return null;
   }

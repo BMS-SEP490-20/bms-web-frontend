@@ -23,6 +23,7 @@ import {
   Modal
 } from 'react-bootstrap';
 import { Plus, Search as LucideSearch, Stethoscope, HeartPulse, Eye, SquarePen, Trash2, Printer, Lock, Clock, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { useNavigate } from 'react-router-dom';
 import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
@@ -32,6 +33,7 @@ export default function MedicalAssessmentListPage() {
   const currentUser = getStoredUser();
   const canManageAssessments = hasRole(currentUser, ROLES.DOCTOR);
   const [assessments, setAssessments] = useState([]);
+  const assessPag = usePagination(assessments, 10);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -289,7 +291,7 @@ export default function MedicalAssessmentListPage() {
                 </tr>
               </thead>
               <tbody>
-                {assessments.map((item) => (
+                {assessPag.paginatedItems.map((item) => (
                   <tr key={item.id}>
                     <td className="ps-4 text-start">
                       <span className="fw-bold font-monospace" style={{ color: '#1E60E6' }}>
@@ -386,6 +388,17 @@ export default function MedicalAssessmentListPage() {
                 ))}
               </tbody>
             </Table>
+          )}
+          {!loading && assessments.length > 0 && (
+            <TablePagination
+              page={assessPag.page}
+              totalPages={assessPag.totalPages}
+              totalItems={assessPag.totalItems}
+              pageSize={assessPag.pageSize}
+              onPageChange={assessPag.setPage}
+              onPageSizeChange={assessPag.setPageSize}
+              itemLabel="đánh giá lâm sàng"
+            />
           )}
         </div>
       </section>

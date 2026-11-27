@@ -5,13 +5,17 @@
  */
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Barcode as LucideBarcode, CheckCircle2, AlertTriangle, TestTube2, X as LucideX, Search, ArrowLeftRight, Clock, MapPin, User, Loader2, ShieldCheck, RefreshCw, Lock, Eye } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Barcode as LucideBarcode, CheckCircle2, AlertTriangle, TestTube2, X as LucideX, Search, ArrowLeftRight, Clock, MapPin, User, Loader2, ShieldCheck, RefreshCw, Lock, Eye, FlaskConical, Package } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { Modal } from 'react-bootstrap';
 import { sampleApi } from '../api/sampleApi';
 import api from '../../../config/api';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { getStoredUser } from '../../../constants/roles';
-import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
+import { canCreateAliquot, canReceiveSample, canStartTesting, normalizeSampleStatus, pathToTesting } from '../../../shared/workflow/sampleWorkflowGates';
+import { formatTubeColorVi, formatSampleTypeVi, matchSuppliesFromInventory } from '../../../shared/workflow/labConsumables';
+import { getInventory, consumeInventory } from '../../inventory/api/inventoryApi';
 
 const REJECTION_CODES = [
   { code: 'REJ-01', label: 'Tán huyết (Hemolysis) — Khóa phân tích & Lấy lại mẫu', isHemolysis: true },
@@ -64,16 +68,6 @@ function formatSampleStatusVi(status) {
   return map[status] || { label: status || '—', cls: 'bg-secondary-subtle text-secondary border' };
 }
 
-function formatTubeColorVi(colorOrType) {
-  const key = String(colorOrType || '').toLowerCase();
-  if (key.includes('purple') || key.includes('edta')) return 'Ống Tím (EDTA)';
-  if (key.includes('gold') || key.includes('yellow') || key.includes('sst') || key.includes('serum')) return 'Ống Vàng (SST)';
-  if (key.includes('blue') || key.includes('citrate')) return 'Ống Xanh Dương (Citrate)';
-  if (key.includes('gray') || key.includes('grey') || key.includes('naf')) return 'Ống Xám (NaF)';
-  if (key.includes('green') || key.includes('heparin')) return 'Ống Xanh Lá (Heparin)';
-  return colorOrType || '—';
-}
-
 function formatStaffOption(s) {
   const code = s.employeeCode || s.username || s.id;
   const parts = [s.fullName];
@@ -83,6 +77,8 @@ function formatStaffOption(s) {
 }
 
 export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechName = '' } = {}) {
+  const [searchParams] = useSearchParams();
+  const initialQueryCode = (searchParams.get('code') || searchParams.get('sampleId') || '').trim();
   const currentUser = useMemo(() => {
     try { return getStoredUser(); } catch { return null; }
   }, []);
@@ -98,7 +94,13 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const [handoverStaffId, setHandoverStaffId] = useState('');
   const [receiverTechId, setReceiverTechId] = useState('');
   const [code, setCode] = useState('');
+  const [activeTab, setActiveTab] = useState('PENDING'); // 'PENDING' | 'RECEIVED'
+  const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [showRejectBox, setShowRejectBox] = useState(false);
   const [pending, setPending] = useState([]);
+  const [receivedSamples, setReceivedSamples] = useState([]);
+  const [receivedLoading, setReceivedLoading] = useState(false);
+  const [actionBusyId, setActionBusyId] = useState('');
   const [current, setCurrent] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -122,6 +124,47 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const [detailSample, setDetailSample] = useState(null);
   const [detailOrderInfo, setDetailOrderInfo] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+
+  // Vật tư y tế tiêu hao & hóa chất phân tích nạp trực tiếp từ Kho Vật Tư (/api/inventory)
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [inventoryLoading, setInventoryLoading] = useState(false);
+  const [selectedSupplies, setSelectedSupplies] = useState([]); // [{ id, code, name, lotNumber, unit, stock, quantity, checked }]
+
+  const loadInventorySupplies = useCallback(async () => {
+    setInventoryLoading(true);
+    try {
+      const data = await getInventory({ page: 1, pageSize: 100 });
+      const list = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+      setInventoryItems(list);
+      return list;
+    } catch {
+      return [];
+    } finally {
+      setInventoryLoading(false);
+    }
+  }, []);
+
+  const syncSuppliesForSample = useCallback((sample, sourceInventory) => {
+    const inv = Array.isArray(sourceInventory) && sourceInventory.length > 0 ? sourceInventory : inventoryItems;
+    const { recommended } = matchSuppliesFromInventory(
+      inv,
+      sample?.testPackageName || sample?.packageName || '',
+      sample?.tubeColor || sample?.sampleType || '',
+      'ANALYSIS'
+    );
+    setSelectedSupplies(
+      recommended.map((item) => ({
+        id: item.id,
+        code: item.code,
+        name: item.name,
+        lotNumber: item.lotNumber,
+        unit: item.unit,
+        stock: Number(item.quantity || 0),
+        quantity: 1,
+        checked: true,
+      }))
+    );
+  }, [inventoryItems]);
 
   // Tự động cập nhật thời điểm hiện tại mỗi giây
   useEffect(() => {
@@ -154,6 +197,26 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     return labOnly.length > 0 ? labOnly : staffOptions;
   }, [staffOptions]);
 
+  const loadReceivedSamples = useCallback(async () => {
+    setReceivedLoading(true);
+    try {
+      const res = await api.get('/laboratory/samples/queue', { params: { page: 1, pageSize: 100 } });
+      const list = Array.isArray(res.data?.data) ? res.data.data : [];
+      const ready = list
+        .filter((s) => canStartTesting(s?.status))
+        .sort((a, b) => {
+          const tA = new Date(a?.updatedAt || a?.receivedAt || a?.collectedAt || 0).getTime() || 0;
+          const tB = new Date(b?.updatedAt || b?.receivedAt || b?.collectedAt || 0).getTime() || 0;
+          return tB - tA;
+        });
+      setReceivedSamples(ready);
+    } catch {
+      setReceivedSamples([]);
+    } finally {
+      setReceivedLoading(false);
+    }
+  }, []);
+
   const loadPending = useCallback(async () => {
     setPendingLoading(true);
     try {
@@ -170,6 +233,59 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       setPendingLoading(false);
     }
   }, []);
+
+  const handleCreateAliquot = async (sample) => {
+    if (!sample?.id || !canCreateAliquot(sample.status)) return;
+    setError(null);
+    setSuccess(null);
+    setActionBusyId(`aliquot:${sample.id}`);
+    try {
+      const res = await api.post(`/laboratory/samples/${encodeURIComponent(sample.id)}/aliquot`, {
+        volumeMl: 1.0,
+        targetLabRoom: selectedRoom || sample.labRoom || 'LAB-ROOM-01',
+        notes: `Chiết mẫu phụ từ ống gốc ${sample.barcode || sample.id}`
+      });
+      const created = res.data?.data;
+      setSuccess(
+        res.data?.message ||
+        `Đã chiết mẫu phụ (Aliquot) ${created?.barcode || ''} từ ống gốc ${sample.barcode || sample.id}.`
+      );
+      await loadReceivedSamples();
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Không thể chiết mẫu phụ (Aliquot).');
+    } finally {
+      setActionBusyId('');
+    }
+  };
+
+  const handleStartTesting = async (sample) => {
+    const steps = pathToTesting(sample?.status);
+    if (!sample?.id || !steps || steps.length === 0) {
+      setError('Chỉ có thể bấm Bắt đầu XN đối với ống mẫu đã tiếp nhận Lab (Received / Processing).');
+      return;
+    }
+    setError(null);
+    setSuccess(null);
+    setActionBusyId(`testing:${sample.id}`);
+    try {
+      for (const nextStatus of steps) {
+        await api.put(`/laboratory/samples/${encodeURIComponent(sample.id)}/status`, {
+          status: nextStatus,
+          technicianId: selectedReceiverStaff?.employeeCode || selectedReceiverStaff?.id || currentUser?.employeeCode || currentUser?.id,
+          technicianName: selectedReceiverStaff?.fullName || technicianName || currentUser?.fullName || currentUser?.name,
+          labRoom: selectedRoom || sample.labRoom || 'LAB-ROOM-01',
+          timestamp: new Date().toISOString(),
+          notes: `Bắt đầu phân tích trên máy xét nghiệm (${nextStatus})`
+        });
+      }
+      setSuccess(`Ống mẫu ${sample.barcode || sample.id} đã chuyển sang Đang xét nghiệm (Testing). Vui lòng sang Bước 3 (Nhập Kết Quả Xét Nghiệm) để nhập chỉ số.`);
+      await loadReceivedSamples();
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.message || 'Không thể chuyển ống mẫu sang Đang xét nghiệm.');
+    } finally {
+      setActionBusyId('');
+    }
+  };
 
   const loadLookups = useCallback(async () => {
     setStaffLoading(true);
@@ -221,20 +337,66 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     }
   }, [currentUser, labRoomId, technicianName]);
 
-  const selectFromList = (p) => {
+  const openCheckInModal = (p) => {
     const key = p.barcode || p.sampleId || p.id || '';
     setCode(key);
     setCurrent(p);
     setError(null);
     setSuccess(null);
     setRejectCode('');
+    setRejectNote('');
+    setShowRejectBox(false);
     setChecks({ idMatch: false, intact: false, tubeOk: false, labeled: false });
+    setShowCheckInModal(true);
+    if (inventoryItems.length > 0) {
+      syncSuppliesForSample(p, inventoryItems);
+    } else {
+      loadInventorySupplies().then((list) => syncSuppliesForSample(p, list));
+    }
   };
 
   useEffect(() => {
     loadPending();
+    loadReceivedSamples();
     loadLookups();
-  }, [loadPending, loadLookups]);
+    loadInventorySupplies();
+  }, [loadPending, loadReceivedSamples, loadLookups, loadInventorySupplies]);
+
+  // Tự động tra cứu ống mẫu khi điều hướng có ?code=...
+  useEffect(() => {
+    if (!initialQueryCode) return;
+    let active = true;
+    setCode(initialQueryCode);
+    setLookupLoading(true);
+    setError(null);
+    setSuccess(null);
+    setChecks({ idMatch: false, intact: false, tubeOk: false, labeled: false });
+    sampleApi
+      .lookup(initialQueryCode)
+      .then((s) => {
+        if (!active || !s) return;
+        const st = normalizeSampleStatus(s.status);
+        if (st === 'PendingCollection') {
+          setError('Mẫu đang ở trạng thái Chờ lấy mẫu (PendingCollection). Vui lòng thực hiện Bước 1 (Lấy Mẫu) trước khi Tiếp nhận Lab.');
+        } else if (canReceiveSample(st)) {
+          setCurrent(s);
+          setActiveTab('PENDING');
+          setShowCheckInModal(true);
+        } else if (canStartTesting(st)) {
+          setActiveTab('RECEIVED');
+          setListFilter(initialQueryCode);
+        } else {
+          setError(`Ống mẫu ${s.barcode || initialQueryCode} đang ở trạng thái "${formatSampleStatusVi(s.status).label}".`);
+        }
+      })
+      .catch((e) => {
+        if (active) setError(e instanceof Error ? e.message : 'Không thể tìm thấy mẫu bệnh phẩm.');
+      })
+      .finally(() => {
+        if (active) setLookupLoading(false);
+      });
+    return () => { active = false; };
+  }, [initialQueryCode]);
 
   // Auto-align Người Bàn Giao with the sample's collector/handover staff once a specimen is loaded.
   useEffect(() => {
@@ -281,19 +443,29 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   }, []);
 
   const onLookup = async () => {
-    const trimmed = code.trim();
+    const trimmed = listFilter.trim() || code.trim();
     if (!trimmed) {
-      setError('Vui lòng quét mã vạch hoặc nhập mã ống mẫu.');
+      setError('Vui lòng quét mã vạch hoặc nhập mã ống mẫu để tra cứu.');
       return;
     }
     setError(null);
     setSuccess(null);
-    setCurrent(null);
     setLookupLoading(true);
 
     try {
       const s = await sampleApi.lookup(trimmed);
-      setCurrent(s);
+      const st = normalizeSampleStatus(s?.status);
+      if (st === 'PendingCollection') {
+        setError(`Mẫu ${s.barcode || trimmed} đang ở trạng thái Chờ lấy mẫu. Vui lòng thực hiện Bước 1 (Lấy Mẫu) trước.`);
+      } else if (canReceiveSample(st)) {
+        openCheckInModal(s);
+      } else if (canStartTesting(st)) {
+        setActiveTab('RECEIVED');
+        setListFilter(s.barcode || trimmed);
+        setSuccess(`Ống mẫu ${s.barcode || trimmed} đã tiếp nhận Lab — bạn có thể Chiết mẫu hoặc bấm Bắt đầu XN ngay bên dưới.`);
+      } else {
+        setError(`Ống mẫu ${s?.barcode || trimmed} hiện đang ở trạng thái "${formatSampleStatusVi(s?.status).label}".`);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Không thể tìm thấy mẫu bệnh phẩm.');
     } finally {
@@ -309,7 +481,12 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const onCheckIn = async (reject = false) => {
     setError(null);
     setSuccess(null);
-    // PendingCollection → Collected rồi Received (không nhảy cóc BE)
+    // Bước 2 chỉ tiếp nhận mẫu ĐÃ LẤY MẪU (Collected / InTransit) — không lấy mẫu hộ Bước 1
+    if (!reject && current && !canReceiveSample(current.status)) {
+      setError('Chỉ được tiếp nhận các ống mẫu đã hoàn tất Bước 1 (Đã lấy mẫu / Đang vận chuyển). Vui lòng thực hiện Lấy Mẫu tại Hàng Đợi & Lấy Mẫu Bệnh Phẩm trước.');
+      return;
+    }
+
     // Prefer stable sample Id over barcode — barcodes can collide after reject/recollect.
     const targetCode =
       current?.id ||
@@ -327,17 +504,31 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       ? `${selectedHandoverStaff.fullName}${selectedHandoverStaff.department ? ` (${selectedHandoverStaff.department})` : ''}`
       : undefined;
 
+    const checkedSupplies = selectedSupplies.filter((s) => s.checked && Number(s.quantity) > 0);
+    if (!reject && checkedSupplies.length === 0) {
+      setError('Vui lòng xác nhận ít nhất 1 vật tư y tế / hóa chất sử dụng cho gói xét nghiệm này (ISO 15189).');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Ống vừa in nhãn thường PendingCollection → Collected rồi mới Received
-      if (!reject && current?.status === 'PendingCollection') {
-        await api.put(`/laboratory/samples/${encodeURIComponent(targetCode)}/status`, {
-          status: 'Collected',
-          labRoom: selectedRoom,
-          technicianName,
-          timestamp: new Date().toISOString(),
-          notes: 'Ghi nhận lấy mẫu tại bàn trước khi tiếp nhận Lab'
+      let consumedSummaryText = '';
+      if (!reject && checkedSupplies.length > 0) {
+        const consumeRes = await consumeInventory({
+          sampleId: current?.barcode || targetCode,
+          testPackageCode: current?.testPackageName || '',
+          stage: 'Tiếp nhận & Chuẩn bị xét nghiệm Lab',
+          notes: handoverNote,
+          items: checkedSupplies.map((s) => ({
+            reagentId: s.id,
+            quantity: Number(s.quantity) || 1
+          }))
         });
+        const consumedList = Array.isArray(consumeRes?.data) ? consumeRes.data : [];
+        if (consumedList.length > 0) {
+          consumedSummaryText = ` | Vật tư đã xuất kho: ${consumedList.map((c) => `${c.code} (${c.lotNumber}) x${c.consumedQuantity} ${c.unit}`).join(', ')}`;
+        }
+        loadInventorySupplies();
       }
 
       const res = await sampleApi.checkIn({
@@ -345,7 +536,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         labRoomId: selectedRoom,
         rejectionCode: reject ? rejectCode : undefined,
         rejectionNote: reject ? rejectNote : undefined,
-        notes: handoverNote,
+        notes: `${handoverNote}${consumedSummaryText}`,
         technicianId: selectedReceiverStaff?.employeeCode || selectedReceiverStaff?.id || currentUser?.employeeCode || currentUser?.id,
         technicianName: selectedReceiverStaff?.fullName || technicianName || currentUser?.fullName || currentUser?.name,
         handoverById: selectedHandoverStaff?.employeeCode || selectedHandoverStaff?.id,
@@ -353,20 +544,23 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
       });
 
       if (reject) {
-        let msg = `Đã từ chối tiếp nhận mẫu ${targetCode} với lý do: ${rejectCode}`;
+        let msg = `Đã từ chối tiếp nhận mẫu ${current?.barcode || targetCode} với lý do: ${rejectCode}`;
         if (isHemolysisSelected) {
           msg += ' — [Đã khóa phân tích và chuyển yêu cầu lấy lại mẫu]';
         }
         setSuccess(msg);
       } else {
-        setSuccess(`Tiếp nhận ống mẫu ${targetCode} vào phòng xét nghiệm thành công (Trạng thái: Đã tiếp nhận - Received).`);
+        setSuccess(`Đã tiếp nhận ống mẫu ${current?.barcode || targetCode} vào Phòng Lab (Received) & xuất ${checkedSupplies.length} vật tư y tế từ kho.`);
+        setActiveTab('RECEIVED');
       }
 
+      setShowCheckInModal(false);
+      setShowRejectBox(false);
       setCurrent(res);
       setCode('');
       setRejectCode('');
       setRejectNote('');
-      await loadPending();
+      await Promise.all([loadPending(), loadReceivedSamples()]);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Thao tác tiếp nhận mẫu thất bại.');
     } finally {
@@ -374,282 +568,432 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     }
   };
 
-  // PendingCollection (sau in nhãn) / Collected / InTransit — tick đủ QC mới nhận
+  // Chỉ cho phép tiếp nhận các mẫu ĐÃ LẤY MẪU (Collected / InTransit) và đã tick đủ 4 tiêu chí ISO 15189
   const canReceive =
     Boolean(current) &&
-    ['PendingCollection', 'Collected', 'InTransit'].includes(current.status) &&
+    canReceiveSample(current.status) &&
     checks.idMatch &&
     checks.intact &&
     checks.tubeOk &&
     checks.labeled;
 
-  const safePending = Array.isArray(pending) ? pending : [];
+  // Chỉ hiển thị các mẫu đã lấy mẫu chờ tiếp nhận vào Lab (không lẫn mẫu Chờ lấy mẫu của Bước 1)
+  const safePending = (Array.isArray(pending) ? pending : []).filter((p) => canReceiveSample(p?.status));
   const filteredPending = useMemo(() => {
     const q = listFilter.trim().toLowerCase();
     if (!q) return safePending;
     return safePending.filter((p) => {
-      const blob = `${p.barcode || ''} ${p.patientName || ''} ${p.patientId || ''} ${p.tubeColor || ''} ${p.status || ''}`.toLowerCase();
+      const blob = `${p.barcode || ''} ${p.patientName || ''} ${p.patientId || ''} ${p.tubeColor || ''} ${p.testPackageName || ''} ${p.status || ''}`.toLowerCase();
       return blob.includes(q);
     });
   }, [safePending, listFilter]);
 
-  const selectedKey = current?.barcode || current?.id || code;
+  const filteredReceived = useMemo(() => {
+    const q = listFilter.trim().toLowerCase();
+    if (!q) return receivedSamples;
+    return receivedSamples.filter((s) => {
+      const blob = `${s.barcode || ''} ${s.id || ''} ${s.patientName || ''} ${s.patientId || ''} ${s.tubeColor || ''} ${s.testPackageName || ''} ${s.status || ''}`.toLowerCase();
+      return blob.includes(q);
+    });
+  }, [receivedSamples, listFilter]);
+
+  const pendingPag = usePagination(filteredPending, 10);
+  const receivedPag = usePagination(filteredReceived, 10);
+
+  const displayRoomName = useMemo(() => {
+    const matched = labRooms.find((r) => r.id === selectedRoom);
+    if (roomLabel && roomLabel !== 'Đang tải phòng phân công…') {
+      return selectedRoom && !roomLabel.includes(selectedRoom)
+        ? `${selectedRoom} — ${roomLabel}`
+        : roomLabel;
+    }
+    return matched ? matched.name : (selectedRoom || 'Phòng Lab');
+  }, [labRooms, selectedRoom, roomLabel]);
+
+  const displayTechName = selectedReceiverStaff
+    ? formatStaffOption(selectedReceiverStaff)
+    : (technicianName || currentUser?.fullName || 'KTV đang trực ca');
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh' }} className="py-3">
-      {/* Banner đầu trang chuẩn y khoa ISO 15189 */}
-      <header className="bms-page-header">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title">Tiếp nhận ống mẫu</h1>
+    <div className="w-100 py-1">
+      {/* Page Header Card đồng bộ toàn hệ thống */}
+      <div className="bms-page-header-card mb-3">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Tiếp nhận &amp; Xử lý ống mẫu</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            <strong>{displayRoomName}</strong> · KTV phụ trách: <strong>{displayTechName}</strong> · <span className="font-monospace">{receiveTime}</span>
+          </p>
         </div>
-      </header>
+        <div className="bms-page-actions">
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1.5 text-nowrap"
+            onClick={() => void Promise.all([loadPending(), loadReceivedSamples()])}
+            disabled={pendingLoading || receivedLoading}
+          >
+            <RefreshCw className={pendingLoading || receivedLoading ? 'fa-spin' : ''} size={13} />
+            <span>Làm mới</span>
+          </button>
+        </div>
+      </div>
 
-      <div className="container-fluid px-3" style={{ maxWidth: 1200 }}>
-        <WorkflowStepperBar
-          title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
-          hint="Chọn ống mẫu ở danh sách chờ bên dưới → tick 4 tiêu chí đạt chuẩn → Xác nhận tiếp nhận"
-          activeStep={2}
-          steps={[
-            { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
-            { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu vào phòng Lab', path: '/laboratory/checkinsample' },
-            { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
-            { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
-          ]}
-        />
-
-        {/* Hộp quét Barcode */}
-        <div className="card border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <div className="card-body p-2">
-            <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-              <Search style={{ color: '#1E60E6' }}  size="1em"/>
-              <span>Quét hoặc Tra Cứu Mã Barcode Ống Mẫu</span>
-            </h6>
-            <div className="d-flex gap-2 flex-wrap">
-              <input
-                className="form-control flex-grow-1"
-                style={{ minHeight: 46, maxWidth: 520, borderRadius: '9999px' }}
-                placeholder="Quét mã vạch Barcode (VD: BC-20261011-0004 hoặc SMP-004)..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && void onLookup()}
-              />
-              <button
-                type="button"
-                className="btn d-flex align-items-center gap-2 px-3 shadow-sm text-white"
-                style={{ minHeight: 46, backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                disabled={lookupLoading}
-                onClick={() => void onLookup()}
-              >
-                {lookupLoading ? <Loader2 className="fa-spin"  size="1em"/> : <Search  size="1em"/>}
-                <span>Tra cứu mẫu</span>
-              </button>
-            </div>
-            {current && (
-              <div className="small mt-2 text-success fw-medium d-flex align-items-center gap-1">
-                <CheckCircle2  size="1em"/>
-                <span>Tìm thấy ống mẫu &bull; Mã: {current.barcode || current.sampleId} &bull; Trạng thái hiện tại: <strong>{formatSampleStatusVi(current.status).label}</strong></span>
-              </div>
-            )}
+      {/* Thông báo lỗi / thành công */}
+      {error && (
+        <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center justify-content-between py-2.5 px-3 mb-3 rounded-3 small">
+          <div className="d-flex align-items-center gap-2">
+            <AlertTriangle className="text-danger flex-shrink-0" size={16} />
+            <div>{error}</div>
           </div>
+          <button type="button" className="btn-close" onClick={() => setError(null)}></button>
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between py-2.5 px-3 mb-3 rounded-3 small">
+          <div className="d-flex align-items-center gap-2">
+            <CheckCircle2 className="text-success flex-shrink-0" size={16} />
+            <div className="fw-medium">{success}</div>
+          </div>
+          <button type="button" className="btn-close" onClick={() => setSuccess(null)}></button>
+        </div>
+      )}
+
+      {/* Thanh 1 dòng: Chuyển 2 bước xử lý + Quét / Tìm nhanh Barcode */}
+      <div className="bms-filter-bar mb-3 flex-wrap">
+        <div className="d-flex align-items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setActiveTab('PENDING')}
+            className="btn btn-sm rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
+            style={{
+              fontSize: '0.8rem',
+              backgroundColor: activeTab === 'PENDING' ? '#1E60E6' : '#EEF2F6',
+              color: activeTab === 'PENDING' ? '#FFFFFF' : '#475569',
+              border: 'none'
+            }}
+          >
+            <TestTube2 size={14} />
+            <span>Chờ tiếp nhận Lab ({safePending.length})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('RECEIVED')}
+            className="btn btn-sm rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
+            style={{
+              fontSize: '0.8rem',
+              backgroundColor: activeTab === 'RECEIVED' ? '#1E60E6' : '#EEF2F6',
+              color: activeTab === 'RECEIVED' ? '#FFFFFF' : '#475569',
+              border: 'none'
+            }}
+          >
+            <FlaskConical size={14} />
+            <span>Đã tiếp nhận — Chiết mẫu &amp; Bắt đầu XN ({receivedSamples.length})</span>
+          </button>
         </div>
 
-        {/* Thông báo lỗi / thành công */}
-        {error && (
-          <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
-            <div className="d-flex align-items-center gap-2">
-              <AlertTriangle className="text-danger fs-5"  size="1em"/>
-              <div>{error}</div>
-            </div>
-            <button type="button" className="btn-close" onClick={() => setError(null)}></button>
-          </div>
-        )}
+        <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 260 }}>
+          <Search className="bms-search-icon" size="1em" />
+          <input
+            type="text"
+            placeholder="Quét barcode ống mẫu hoặc lọc theo tên bệnh nhân, mã mẫu..."
+            value={listFilter}
+            onChange={(e) => setListFilter(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && listFilter.trim()) {
+                e.preventDefault();
+                void onLookup();
+              }
+            }}
+          />
+          {listFilter && (
+            <button type="button" className="bms-search-clear" onClick={() => setListFilter('')}>
+              <LucideX size={12} />
+            </button>
+          )}
+        </div>
 
-        {success && (
-          <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
-            <div className="d-flex align-items-center gap-2">
-              <CheckCircle2 className="text-success fs-5"  size="1em"/>
-              <div className="fw-medium">{success}</div>
-            </div>
-            <button type="button" className="btn-close" onClick={() => setSuccess(null)}></button>
-          </div>
-        )}
+        <button
+          type="button"
+          className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5 text-nowrap"
+          style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+          disabled={lookupLoading || !listFilter.trim()}
+          onClick={() => void onLookup()}
+        >
+          {lookupLoading ? <Loader2 className="fa-spin" size={13} /> : <LucideBarcode size={14} />}
+          <span>Quét / Tra cứu</span>
+        </button>
+      </div>
 
-        {/* LIST ống chờ — Lab bấm chọn nhanh, không chỉ dựa vào quét */}
-        <div className="card border-0 shadow-sm mb-4 bg-white rounded-3">
-          <div className="card-header bg-white border-bottom py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
-              <TestTube2 className="text-primary"  size="1em"/>
-              <span>Danh sách ống chờ tiếp nhận ({filteredPending.length}/{safePending.length})</span>
-            </h5>
-            <div className="d-flex gap-2 align-items-center">
-              <div className="input-group input-group-sm" style={{ width: 240 }}>
-                <span className="input-group-text bg-light"><Search className="text-muted"  size="1em"/></span>
-                <input
-                  className="form-control"
-                  placeholder="Lọc mã / tên BN / ống..."
-                  value={listFilter}
-                  onChange={(e) => setListFilter(e.target.value)}
-                />
-              </div>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                onClick={() => void loadPending()}
-                disabled={pendingLoading}
-              >
-                <RefreshCw className={pendingLoading ? 'fa-spin' : ''}  size="1em"/> Làm mới
-              </button>
+      {/* BẢNG CHÍNH GỌN TRONG 1 MÀN HÌNH */}
+      {activeTab === 'PENDING' ? (
+        <section className="bms-table-standalone-section">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h2 className="bms-table-standalone-title">Ống mẫu chờ tiếp nhận vào Phòng Lab</h2>
+              <p className="bms-table-standalone-subtitle">
+                Các ống mẫu đã hoàn tất Bước 1 (Lấy mẫu). Bấm <strong>Tiếp nhận</strong> hoặc quét barcode để kiểm chuẩn 4 tiêu chí ISO 15189.
+              </p>
             </div>
+            <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
+              {filteredPending.length} / {safePending.length} ống
+            </span>
           </div>
-          <div className="table-responsive" style={{ maxHeight: 320, overflowY: 'auto' }}>
-            <table className="table table-hover table-sm align-middle mb-0">
-              <thead className="table-light sticky-top">
-                <tr className="small text-uppercase text-muted">
-                  <th className="ps-3">Barcode ống</th>
-                  <th>Bệnh nhân</th>
-                  <th>Loại ống</th>
-                  <th>Gói / ghi chú</th>
-                  <th>Trạng thái</th>
-                  <th className="text-end pe-3">Chọn</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingLoading && (
+          <div className="bms-table-standalone-body">
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light small text-uppercase text-muted">
                   <tr>
-                    <td colSpan={6} className="text-center text-muted py-4">
-                      <Loader2 className="fa-spin me-2"  size="1em"/> Đang tải danh sách ống…
-                    </td>
+                    <th className="ps-3">Barcode ống</th>
+                    <th>Bệnh nhân</th>
+                    <th>Loại ống / Thể tích</th>
+                    <th>Gói xét nghiệm</th>
+                    <th>Trạng thái</th>
+                    <th className="text-end pe-3">Thao tác</th>
                   </tr>
-                )}
-                {!pendingLoading && filteredPending.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="text-center text-muted py-4">
-                      Không có ống chờ. Xác nhận đợt &amp; in nhãn ở bước 1, hoặc quét barcode phía trên.
-                    </td>
-                  </tr>
-                )}
-                {!pendingLoading && filteredPending.map((p) => {
-                  const key = p.barcode || p.sampleId || p.id;
-                  const active = selectedKey && (selectedKey === p.barcode || selectedKey === p.id || selectedKey === key);
-                  return (
-                    <tr
-                      key={key}
-                      className={active ? 'table-primary' : ''}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => selectFromList(p)}
-                    >
-                      <td className="ps-3">
-                        <code className="fw-semibold text-primary small">{p.barcode || key}</code>
-                      </td>
-                      <td>
-                        <div className="fw-semibold small text-dark">{p.patientName || '—'}</div>
-                        <div className="text-muted" style={{ fontSize: '0.7rem' }}>{p.patientId || ''}</div>
-                      </td>
-                      <td>
-                        <span className="badge bg-light text-dark border">{formatTubeColorVi(p.tubeColor || p.sampleType)}</span>
-                      </td>
-                      <td className="small text-truncate" style={{ maxWidth: 180 }} title={p.testPackageName || p.notes}>
-                        {p.testPackageName || p.notes || '—'}
-                      </td>
-                      <td>
-                        {(() => {
-                          const st = formatSampleStatusVi(p.status);
-                          return <span className={`badge border ${st.cls}`}>{st.label}</span>;
-                        })()}
-                      </td>
-                      <td className="text-end pe-3">
-                        <div className="d-inline-flex align-items-center gap-1.5">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
-                            title="Xem chi tiết bệnh nhân, bác sĩ chỉ định & y lệnh"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void openSampleDetail(p);
-                            }}
-                          >
-                            <Eye size={12} /> Chi tiết
-                          </button>
-                          <button
-                            type="button"
-                            className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline-primary'} rounded-pill px-3`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              selectFromList(p);
-                            }}
-                          >
-                            {active ? 'Đang chọn' : 'Chọn ống'}
-                          </button>
-                        </div>
+                </thead>
+                <tbody>
+                  {pendingLoading ? (
+                    <tr>
+                      <td colSpan={6} className="text-center text-muted py-4 small">
+                        <Loader2 className="fa-spin me-2" size="1em" /> Đang tải danh sách ống chờ tiếp nhận…
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ) : filteredPending.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center text-muted py-5 small">
+                        <TestTube2 className="mb-2 opacity-25" size={28} />
+                        <div className="fw-semibold text-dark">Không có ống mẫu nào chờ tiếp nhận</div>
+                        <div>Các ống mẫu sau khi lấy mẫu ở Bước 1 sẽ tự động xuất hiện tại đây.</div>
+                      </td>
+                    </tr>
+                  ) : (
+                    pendingPag.paginatedItems.map((p) => {
+                      const key = p.barcode || p.sampleId || p.id;
+                      const st = formatSampleStatusVi(p.status);
+                      return (
+                        <tr key={key}>
+                          <td className="ps-3">
+                            <code className="fw-bold text-primary small">{p.barcode || key}</code>
+                          </td>
+                          <td>
+                            <div className="fw-semibold small text-dark">{p.patientName || '—'}</div>
+                            <div className="text-muted font-monospace" style={{ fontSize: '0.72rem' }}>{p.patientId || ''}</div>
+                          </td>
+                          <td>
+                            <span className="badge bg-light text-dark border me-1">{formatTubeColorVi(p.tubeColor || p.sampleType)}</span>
+                            {p.volumeMl ? <span className="small text-muted">{p.volumeMl} mL</span> : null}
+                          </td>
+                          <td className="small text-dark">{p.testPackageName || p.notes || 'Xét nghiệm lâm sàng'}</td>
+                          <td>
+                            <span className={`badge border ${st.cls}`}>{st.label}</span>
+                          </td>
+                          <td className="text-end pe-3">
+                            <div className="d-inline-flex align-items-center gap-1.5">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
+                                onClick={() => void openSampleDetail(p)}
+                              >
+                                <Eye size={13} /> Chi tiết
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-white shadow-sm"
+                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                                onClick={() => openCheckInModal(p)}
+                              >
+                                <ShieldCheck size={13} /> Tiếp nhận
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <TablePagination
+              page={pendingPag.page}
+              totalPages={pendingPag.totalPages}
+              totalItems={pendingPag.totalItems}
+              pageSize={pendingPag.pageSize}
+              onPageChange={pendingPag.setPage}
+              onPageSizeChange={pendingPag.setPageSize}
+              itemLabel="ống chờ tiếp nhận"
+            />
           </div>
-          <div className="card-footer bg-white small text-muted py-2">
-            Bấm <strong>Chọn ống</strong> trên list → tick 4 checklist → <strong>Xác nhận tiếp nhận</strong>. Hoặc quét barcode máy quét vào ô phía trên.
+        </section>
+      ) : (
+        <section className="bms-table-standalone-section">
+          <div className="bms-table-standalone-header">
+            <div>
+              <h2 className="bms-table-standalone-title">Ống mẫu đã tiếp nhận Lab — Chiết mẫu &amp; Bắt đầu XN</h2>
+              <p className="bms-table-standalone-subtitle">
+                Chiết mẫu phụ (Aliquot) nếu cần chạy nhiều máy, sau đó bấm <strong>Bắt đầu XN</strong> để chuyển ống mẫu sang Bước 3 (Nhập kết quả).
+              </p>
+            </div>
+            <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
+              {filteredReceived.length} / {receivedSamples.length} ống
+            </span>
           </div>
-        </div>
+          <div className="bms-table-standalone-body">
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light small text-uppercase text-muted">
+                  <tr>
+                    <th className="ps-3">Barcode ống</th>
+                    <th>Bệnh nhân</th>
+                    <th>Loại ống / Thể tích</th>
+                    <th>Gói xét nghiệm</th>
+                    <th>Trạng thái</th>
+                    <th className="text-end pe-3">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {receivedLoading ? (
+                    <tr>
+                      <td colSpan={6} className="text-center text-muted py-4 small">
+                        <Loader2 className="fa-spin me-2" size="1em" /> Đang tải ống mẫu đã tiếp nhận…
+                      </td>
+                    </tr>
+                  ) : filteredReceived.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center text-muted py-5 small">
+                        <FlaskConical className="mb-2 opacity-25" size={28} />
+                        <div className="fw-semibold text-dark">Chưa có ống mẫu nào ở trạng thái Đã tiếp nhận Lab</div>
+                        <div>Hãy tiếp nhận mẫu ở tab "Chờ tiếp nhận Lab" trước khi chiết mẫu hoặc chạy máy.</div>
+                      </td>
+                    </tr>
+                  ) : (
+                    receivedPag.paginatedItems.map((s) => {
+                      const st = formatSampleStatusVi(s.status);
+                      const isBusyAliquot = actionBusyId === `aliquot:${s.id}`;
+                      const isBusyTesting = actionBusyId === `testing:${s.id}`;
+                      return (
+                        <tr key={s.id || s.barcode}>
+                          <td className="ps-3">
+                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                              <code className="fw-bold text-primary small">{s.barcode || s.id}</code>
+                              {s.isAliquot && (
+                                <span className="badge bg-info text-white" style={{ fontSize: '0.68rem' }}>Aliquot</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="fw-semibold small text-dark">{s.patientName || '—'}</div>
+                            <div className="text-muted font-monospace" style={{ fontSize: '0.72rem' }}>{s.patientId || ''}</div>
+                          </td>
+                          <td>
+                            <span className="badge bg-light text-dark border me-1">{formatTubeColorVi(s.tubeColor || s.sampleType)}</span>
+                            {s.volumeMl ? <span className="small text-muted">{s.volumeMl} mL</span> : null}
+                          </td>
+                          <td className="small text-dark">{s.testPackageName || 'Xét nghiệm lâm sàng'}</td>
+                          <td>
+                            <span className={`badge border ${st.cls}`}>{st.label}</span>
+                          </td>
+                          <td className="text-end pe-3">
+                            <div className="d-inline-flex align-items-center gap-1.5">
+                              {!s.isAliquot && canCreateAliquot(s.status) && (
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-info rounded-pill px-2.5 d-inline-flex align-items-center gap-1"
+                                  disabled={Boolean(actionBusyId)}
+                                  title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích trước khi chạy XN"
+                                  onClick={() => void handleCreateAliquot(s)}
+                                >
+                                  {isBusyAliquot ? <Loader2 className="fa-spin" size={12} /> : <TestTube2 size={12} />}
+                                  <span>Chiết mẫu</span>
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-white shadow-sm"
+                                style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                                disabled={Boolean(actionBusyId)}
+                                title="Đưa ống mẫu vào máy phân tích (chuyển sang Bước 3: Nhập kết quả)"
+                                onClick={() => void handleStartTesting(s)}
+                              >
+                                {isBusyTesting ? <Loader2 className="fa-spin" size={12} /> : <FlaskConical size={12} />}
+                                <span>Bắt đầu XN</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <TablePagination
+              page={receivedPag.page}
+              totalPages={receivedPag.totalPages}
+              totalItems={receivedPag.totalItems}
+              pageSize={receivedPag.pageSize}
+              onPageChange={receivedPag.setPage}
+              onPageSizeChange={receivedPag.setPageSize}
+              itemLabel="ống đã tiếp nhận"
+            />
+          </div>
+        </section>
+      )}
 
-        <div className="row g-4">
-          {/* Cột trái: Kiểm chuẩn bàn giao tại bàn tiếp nhận */}
-          <div className="col-lg-8">
-            <div className="card border-0 shadow-sm rounded-3 bg-white">
-              <div className="card-body p-2">
-                <h5 className="mb-3 fw-bold text-dark d-flex align-items-center gap-2">
-                  <ShieldCheck className="text-primary"  size="1em"/>
-                  <span>Biên Bản Tiếp Nhận &amp; Kiểm Chuẩn Tiền Phân Tích</span>
-                </h5>
-                {!current && (
-                  <div className="alert alert-info py-2 small mb-3">
-                    Chưa chọn ống — chọn trên <strong>danh sách</strong> hoặc quét barcode.
+      {/* MODAL KIỂM CHUẨN & TIẾP NHẬN ỐNG MẪU (ISO 15189) — Gọn, mở đúng lúc cần */}
+      <Modal
+        show={showCheckInModal && Boolean(current)}
+        onHide={() => !loading && setShowCheckInModal(false)}
+        centered
+        size="lg"
+        backdrop="static"
+      >
+        <Modal.Header closeButton={!loading} style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+          <Modal.Title className="h6 fw-bold d-flex align-items-center gap-2 text-dark">
+            <ShieldCheck className="text-primary" size={18} />
+            <span>Kiểm Chuẩn &amp; Tiếp Nhận Ống Mẫu</span>
+            {current && (
+              <span className="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">
+                {current.barcode || current.sampleId || current.id}
+              </span>
+            )}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-3" style={{ backgroundColor: '#F8FAFC' }}>
+          {current && (
+            <div className="d-flex flex-column gap-3">
+              {/* Tóm tắt ống mẫu & bệnh nhân */}
+              <div className="p-3 rounded-3 bg-white border">
+                <div className="row g-2 small">
+                  <div className="col-sm-6">
+                    <span className="text-muted">Bệnh nhân:</span>{' '}
+                    <strong className="text-dark">{current.patientName || '—'}</strong>{' '}
+                    {current.patientId && <code className="text-primary">({current.patientId})</code>}
                   </div>
-                )}
-
-                <div className="row g-3 mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Vị Trí / Bàn Tiếp Nhận (Theo ca trực) *</label>
-                    <input
-                      className="form-control bg-light text-dark fw-semibold"
-                      value={(() => {
-                        const matched = labRooms.find((r) => r.id === selectedRoom);
-                        if (roomLabel && roomLabel !== 'Đang tải phòng phân công…') {
-                          return selectedRoom && !roomLabel.includes(selectedRoom)
-                            ? `${selectedRoom} — ${roomLabel}`
-                            : roomLabel;
-                        }
-                        return matched ? matched.name : (selectedRoom || 'Phòng Lab (Theo ca trực)');
-                      })()}
-                      readOnly
-                      disabled
-                    />
+                  <div className="col-sm-6">
+                    <span className="text-muted">Gói xét nghiệm:</span>{' '}
+                    <strong className="text-dark">{current.testPackageName || 'Xét nghiệm lâm sàng'}</strong>
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label small fw-semibold text-secondary">Thời Điểm Tiếp Nhận (Giờ hiện tại) *</label>
-                    <input className="form-control bg-light text-dark fw-semibold font-monospace" value={receiveTime} readOnly disabled />
+                  <div className="col-sm-6">
+                    <span className="text-muted">Ống bệnh phẩm:</span>{' '}
+                    <strong className="text-dark">
+                      {formatTubeColorVi(current.tubeColor || current.sampleType)} · {current.volumeMl || 3.0} mL
+                    </strong>
                   </div>
-                  <div className="col-12">
-                    <label className="form-label small fw-semibold text-secondary">KTV Tiếp Nhận Phụ Trách (Theo ca trực)</label>
-                    <input
-                      className="form-control bg-light text-dark fw-semibold"
-                      value={
-                        selectedReceiverStaff
-                          ? formatStaffOption(selectedReceiverStaff)
-                          : (technicianName || currentUser?.fullName || 'KTV đang trực ca')
-                      }
-                      readOnly
-                      disabled
-                    />
+                  <div className="col-sm-6">
+                    <span className="text-muted">Phòng tiếp nhận:</span>{' '}
+                    <strong className="text-dark">{displayRoomName}</strong>
                   </div>
                 </div>
+              </div>
 
-                {/* 4 Tiêu chí kiểm chuẩn */}
-                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-4 mb-2">
-                  <h6 className="small fw-bold text-uppercase text-secondary mb-0">
-                    Kiểm tra tiêu chuẩn chất lượng mẫu (Pre-analytical Verification):
-                  </h6>
+              {/* 4 tiêu chí kiểm chuẩn tiền phân tích */}
+              <div className="p-3 rounded-3 bg-white border">
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2.5">
+                  <span className="small fw-bold text-uppercase text-secondary">
+                    Kiểm chuẩn tiền phân tích (ISO 15189)
+                  </span>
                   <button
                     type="button"
                     className="btn btn-sm btn-outline-success rounded-pill px-3 fw-semibold"
@@ -659,199 +1003,237 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                     Đạt đủ cả 4 tiêu chí
                   </button>
                 </div>
-                {[
-                  ['idMatch', '1. Mã Barcode và họ tên bệnh nhân trùng khớp 100% với phiếu chỉ định'],
-                  ['intact', '2. Ống nghiệm nguyên vẹn, không nứt vỡ, không rò rỉ bệnh phẩm'],
-                  ['tubeOk', '3. Đúng loại ống nghiệm quy định (màu nắp/chất chống đông) và đủ thể tích chạy máy'],
-                  ['labeled', '4. Nhãn Barcode dán chuẩn thẳng, ghi nhận rõ thời điểm lấy mẫu'],
-                ].map(([key, label]) => (
-                  <label key={key} className="d-flex align-items-center gap-2 mb-2 p-2 rounded bg-light border" style={{ cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      className="form-check-input mt-0"
-                      checked={checks[key]}
-                      onChange={(e) => setChecks((c) => ({ ...c, [key]: e.target.checked }))}
-                    />
-                    <span className="small text-dark fw-medium">{label}</span>
-                  </label>
-                ))}
-
-                <label className="form-label small fw-semibold text-secondary mt-3">Ghi Chú Tình Trạng Ống Mẫu Bàn Giao</label>
-                <textarea
-                  className="form-control mb-3"
-                  rows={2}
-                  value={handoverNote}
-                  onChange={(e) => setHandoverNote(e.target.value)}
-                  placeholder="Ghi chú tình trạng huyết tương, thời gian nhịn ăn, phương thức vận chuyển..."
-                />
-
-                {canReceive && (
-                  <div className="alert alert-success py-2 small mb-3 d-flex align-items-center gap-2">
-                    <CheckCircle2  size="1em"/>
-                    <span>Mẫu đạt đầy đủ tiêu chuẩn tiền phân tích. Sẵn sàng chuyển trạng thái sang <strong>Đã tiếp nhận (Received)</strong> để đưa vào mẻ phân tích.</span>
-                  </div>
-                )}
-
-                {/* Khu vực Từ Chối Mẫu (Rejection) */}
-                <div className="border-top pt-3 mt-4">
-                  <div className="d-flex align-items-center justify-content-between mb-2">
-                    <span className="small fw-bold text-danger d-flex align-items-center gap-1">
-                      <AlertTriangle size="1em"/> Từ chối nhận mẫu không đạt
-                    </span>
-                  </div>
-
-                  <div className="row g-2">
-                    <div className="col-md-6">
-                      <select
-                        className="form-select"
-                        value={rejectCode}
-                        onChange={(e) => setRejectCode(e.target.value)}
-                      >
-                        <option value="">-- Chọn lý do từ chối mẫu bệnh phẩm --</option>
-                        {REJECTION_CODES.map((r) => (
-                          <option key={r.code} value={r.code}>
-                            {r.code}: {r.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-md-6">
+                <div className="d-flex flex-column gap-2">
+                  {[
+                    ['idMatch', '1. Mã Barcode và họ tên bệnh nhân trùng khớp 100% với phiếu chỉ định'],
+                    ['intact', '2. Ống nghiệm nguyên vẹn, không nứt vỡ, không rò rỉ bệnh phẩm'],
+                    ['tubeOk', '3. Đúng loại ống nghiệm quy định (màu nắp/chất chống đông) và đủ thể tích'],
+                    ['labeled', '4. Nhãn Barcode dán chuẩn, ghi nhận rõ thời điểm lấy mẫu'],
+                  ].map(([key, label]) => (
+                    <label key={key} className="d-flex align-items-center gap-2 p-2 rounded bg-light border mb-0" style={{ cursor: 'pointer' }}>
                       <input
-                        className="form-control"
-                        placeholder="Ghi chú chi tiết lý do từ chối..."
-                        value={rejectNote}
-                        onChange={(e) => setRejectNote(e.target.value)}
+                        type="checkbox"
+                        className="form-check-input mt-0"
+                        checked={checks[key]}
+                        onChange={(e) => setChecks((c) => ({ ...c, [key]: e.target.checked }))}
                       />
-                    </div>
-                  </div>
+                      <span className="small text-dark fw-medium">{label}</span>
+                    </label>
+                  ))}
+                </div>
 
-                  {/* Cảnh báo đặc thù nghiệp vụ Tán huyết (Hemolysis) */}
-                  {isHemolysisSelected && (
-                    <div className="alert alert-danger mt-3 py-2 small d-flex align-items-center gap-2 rounded-3 border-danger">
-                      <Lock className="fs-5 text-danger"  size="1em"/>
-                      <div>
-                        <strong>Lưu ý:</strong> Mẫu bị <strong>Tán huyết (Hemolysis)</strong>. 
-                        Hệ thống sẽ <strong>Khóa phân tích tự động</strong> đối với mẫu này để tránh sai lệch kết quả sinh hóa (K+, AST, LDH) 
-                        và tự động gửi yêu cầu <strong>Lấy lại mẫu (Recollect / Rerun)</strong> đến khoa phòng điều trị.
-                      </div>
-                    </div>
-                  )}
+                <div className="mt-3">
+                  <label className="form-label small fw-semibold text-secondary mb-1">Ghi chú bàn giao</label>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    value={handoverNote}
+                    onChange={(e) => setHandoverNote(e.target.value)}
+                    placeholder="Ghi chú tình trạng ống mẫu, vận chuyển..."
+                  />
                 </div>
               </div>
 
-              {/* Chân thẻ hành động */}
-              <div className="card-footer bg-white border-top d-flex justify-content-end gap-2 px-3 py-3 rounded-bottom-4" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  style={{ borderRadius: '9999px' }}
-                  onClick={() => {
-                    setCode('');
-                    setCurrent(null);
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                >
-                  Quét mẫu khác
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-danger d-flex align-items-center gap-1"
-                  style={{ borderRadius: '9999px' }}
-                  disabled={!rejectCode || !current || loading}
-                  onClick={() => void onCheckIn(true)}
-                >
-                  <LucideX  size="1em"/>
-                  <span>Xác nhận từ chối mẫu</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn d-flex align-items-center gap-2 shadow-sm text-white"
-                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                  disabled={!canReceive || loading}
-                  onClick={() => void onCheckIn(false)}
-                >
-                  {loading ? <Loader2 className="fa-spin"  size="1em"/> : <CheckCircle2  size="1em"/>}
-                  <span>Xác Nhận Tiếp Nhận Mẫu</span>
-                </button>
-              </div>
-            </div>
-          </div>
+              {/* Bước 2: Xác nhận Vật tư y tế & Hóa chất sử dụng theo gói dịch vụ (Render từ Kho Vật Tư) */}
+              <div className="p-3 rounded-3 bg-white border">
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                  <span className="small fw-bold text-uppercase text-primary d-flex align-items-center gap-1.5">
+                    <Package size={14} />
+                    Vật tư y tế &amp; Hóa chất sử dụng theo gói ({selectedSupplies.filter((s) => s.checked).length} mục)
+                  </span>
+                  {inventoryLoading && (
+                    <span className="small text-muted">
+                      <Loader2 className="fa-spin me-1" size={12} /> Đang đồng bộ Kho vật tư...
+                    </span>
+                  )}
+                </div>
+                <div className="small text-muted mb-2.5">
+                  Tự động gợi ý từ <strong>Kho Vật Tư Y Tế</strong> theo đúng gói <strong>{current.testPackageName || 'xét nghiệm'}</strong>. Khi xác nhận tiếp nhận, hệ thống tự động trừ tồn kho và ghi vết mã Lô (ISO 15189 §6.6).
+                </div>
 
-          {/* Cột phải: Thông tin mẫu & Hàng đợi chờ nhận */}
-          <div className="col-lg-4">
-            {/* Card thông tin mẫu hiện tại */}
-            <div className="card border-0 shadow-sm mb-3 bg-white rounded-3">
-              <div className="card-body p-3">
-                <h6 className="fw-bold text-dark mb-2">Thông Tin Ống Bệnh Phẩm</h6>
-                {current ? (
-                  <div>
-                    <div className="badge bg-primary-subtle text-primary border mb-2 px-2 py-1">
-                      {current.status || 'Chờ tiếp nhận'}
-                    </div>
-                    <div className="fw-bold fs-6 font-monospace text-primary">
-                      {current.barcode || current.sampleId || current.id}
-                    </div>
-                    <div className="small text-secondary mt-1">
-                      Màu ống: <strong>{current.tubeColor || 'Tím (EDTA)'}</strong> &bull; {current.anticoagulant || 'K2-EDTA'}
-                    </div>
-                    <div className="small text-secondary">
-                      Thể tích: <strong>{current.volumeMl || 3.0} mL</strong> &bull; Loại: <strong>{current.sampleType || 'Máu toàn phần'}</strong>
-                    </div>
-                    {(current.collectorName || current.collectedBy) && (
-                      <div className="small text-secondary mt-1">
-                        Người lấy mẫu: <strong>{current.collectorName || current.collectedBy}</strong>
-                      </div>
-                    )}
-                    {current.handoverBy && (
-                      <div className="small text-secondary">
-                        Người bàn giao: <strong>{current.handoverBy}</strong>
-                      </div>
-                    )}
-                    {current.assignedTechnicianName && (
-                      <div className="small text-secondary">
-                        KTV tiếp nhận: <strong>{current.assignedTechnicianName}</strong>
-                      </div>
-                    )}
-                    <div className="small text-muted mt-2 border-top pt-2">
-                      Mã Bệnh Nhân: <code>{current.patientId || 'Chưa liên kết'}</code>
-                      {current.patientName && <div>Họ tên: <strong>{current.patientName}</strong></div>}
-                    </div>
+                {selectedSupplies.length === 0 ? (
+                  <div className="alert alert-warning py-2 px-3 small mb-2">
+                    Chưa nạp được vật tư tương ứng từ kho. Bạn có thể chọn thêm thủ công bên dưới.
                   </div>
                 ) : (
-                  <p className="small text-muted mb-0">
-                    Vui lòng quét hoặc nhập mã vạch Barcode để tải thông tin chi tiết.
-                  </p>
+                  <div className="d-flex flex-column gap-1.5 mb-2.5">
+                    {selectedSupplies.map((sup, idx) => (
+                      <div
+                        key={sup.id}
+                        className={`d-flex align-items-center justify-content-between gap-2 p-2 rounded border ${sup.checked ? 'bg-primary-subtle border-primary-subtle' : 'bg-light'}`}
+                      >
+                        <label className="d-flex align-items-start gap-2 mb-0 flex-grow-1" style={{ cursor: 'pointer', minWidth: 0 }}>
+                          <input
+                            type="checkbox"
+                            className="form-check-input mt-1 flex-shrink-0"
+                            checked={sup.checked}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setSelectedSupplies((prev) =>
+                                prev.map((it, i) => (i === idx ? { ...it, checked } : it))
+                              );
+                            }}
+                          />
+                          <div style={{ minWidth: 0 }}>
+                            <div className="small fw-semibold text-dark">{sup.name}</div>
+                            <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                              <code className="text-primary me-1">{sup.code}</code>
+                              · Lô: <strong>{sup.lotNumber}</strong>
+                              · Tồn kho: <strong className={sup.stock <= 5 ? 'text-danger' : 'text-success'}>{sup.stock} {sup.unit}</strong>
+                            </div>
+                          </div>
+                        </label>
+                        <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                          <input
+                            type="number"
+                            min="1"
+                            max={Math.max(1, sup.stock)}
+                            step="1"
+                            className="form-control form-control-sm text-center font-monospace"
+                            style={{ width: 64 }}
+                            disabled={!sup.checked}
+                            value={sup.quantity}
+                            onChange={(e) => {
+                              const q = Math.max(1, Math.min(sup.stock || 999, Number(e.target.value) || 1));
+                              setSelectedSupplies((prev) =>
+                                prev.map((it, i) => (i === idx ? { ...it, quantity: q } : it))
+                              );
+                            }}
+                          />
+                          <span className="small text-muted" style={{ minWidth: 34 }}>{sup.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Thêm vật tư khác từ kho thật */}
+                {(() => {
+                  const selectedIds = new Set(selectedSupplies.map((s) => s.id));
+                  const extraOptions = inventoryItems.filter(
+                    (it) => !selectedIds.has(it.id) && Number(it.quantity || 0) > 0 && it.expiryStatus !== 'EXPIRED'
+                  );
+                  if (extraOptions.length === 0) return null;
+                  return (
+                    <select
+                      className="form-select form-select-sm"
+                      value=""
+                      onChange={(e) => {
+                        const found = extraOptions.find((x) => x.id === e.target.value);
+                        if (!found) return;
+                        setSelectedSupplies((prev) => [
+                          ...prev,
+                          {
+                            id: found.id,
+                            code: found.code,
+                            name: found.name,
+                            lotNumber: found.lotNumber,
+                            unit: found.unit,
+                            stock: Number(found.quantity || 0),
+                            quantity: 1,
+                            checked: true,
+                          }
+                        ]);
+                      }}
+                    >
+                      <option value="">+ Chọn bổ sung vật tư / hóa chất khác từ Kho Vật Tư...</option>
+                      {extraOptions.map((it) => (
+                        <option key={it.id} value={it.id}>
+                          [{it.code}] {it.name} (Lô {it.lotNumber} · Tồn: {it.quantity} {it.unit})
+                        </option>
+                      ))}
+                    </select>
+                  );
+                })()}
+              </div>
+
+              {/* Khu vực từ chối mẫu (thu gọn mặc định cho thoáng mắt) */}
+              <div className="p-3 rounded-3 bg-white border">
+                <div className="d-flex align-items-center justify-content-between">
+                  <span className="small fw-bold text-danger d-flex align-items-center gap-1.5">
+                    <AlertTriangle size={14} /> Từ chối ống mẫu không đạt chuẩn
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-link text-danger text-decoration-none p-0 fw-semibold small"
+                    onClick={() => setShowRejectBox((v) => !v)}
+                  >
+                    {showRejectBox ? 'Ẩn bớt' : 'Mở chọn lý do từ chối'}
+                  </button>
+                </div>
+
+                {showRejectBox && (
+                  <div className="mt-2.5">
+                    <div className="row g-2">
+                      <div className="col-md-6">
+                        <select
+                          className="form-select form-select-sm"
+                          value={rejectCode}
+                          onChange={(e) => setRejectCode(e.target.value)}
+                        >
+                          <option value="">-- Chọn lý do từ chối mẫu --</option>
+                          {REJECTION_CODES.map((r) => (
+                            <option key={r.code} value={r.code}>
+                              {r.code}: {r.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-md-6">
+                        <input
+                          className="form-control form-control-sm"
+                          placeholder="Ghi chú chi tiết lý do từ chối..."
+                          value={rejectNote}
+                          onChange={(e) => setRejectNote(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    {isHemolysisSelected && (
+                      <div className="alert alert-danger mt-2 py-2 px-2.5 mb-0 small d-flex align-items-center gap-2">
+                        <Lock size={14} className="flex-shrink-0" />
+                        <span>Mẫu bị <strong>Tán huyết (Hemolysis)</strong>: hệ thống sẽ khóa phân tích và yêu cầu lấy lại mẫu.</span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
-
-            {/* Card quy chuẩn bàn giao */}
-            <div className="card border-0 shadow-sm mb-3 bg-white rounded-3">
-              <div className="card-body p-3">
-                <h6 className="fw-bold text-dark mb-2">Quy Trình Bàn Giao Mẫu</h6>
-                <p className="small text-muted mb-0">
-                  Nếu không quét được mã Barcode, hãy kiểm tra nhãn tại phòng lấy mẫu hoặc liên hệ điều dưỡng thu mẫu. 
-                  Tuyệt đối không tự ý gán nhãn mã vạch không rõ nguồn gốc.
-                </p>
-              </div>
-            </div>
-
-            <div className="card border-0 shadow-sm bg-white rounded-3">
-              <div className="card-body p-3">
-                <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-1">
-                  <Clock className="text-warning"  size="1em"/> Tóm tắt hàng đợi
-                </h6>
-                <div className="display-6 fw-bold text-primary">{safePending.length}</div>
-                <div className="small text-muted">ống chờ lấy mẫu / đã lấy mẫu / đang vận chuyển</div>
-                <p className="small text-muted mb-0 mt-2">
-                  Dùng bảng danh sách phía trên để chọn nhanh từng ống — thuận tiện khi Lab đông buổi sáng.
-                </p>
-              </div>
-            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="bg-white border-top d-flex justify-content-between">
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary rounded-pill px-3"
+            disabled={loading}
+            onClick={() => setShowCheckInModal(false)}
+          >
+            Đóng
+          </button>
+          <div className="d-flex align-items-center gap-2">
+            {showRejectBox && (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                disabled={!rejectCode || loading}
+                onClick={() => void onCheckIn(true)}
+              >
+                <LucideX size={14} />
+                <span>Xác nhận từ chối</span>
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-sm btn-primary rounded-pill px-4 fw-semibold d-inline-flex align-items-center gap-1.5 text-white shadow-sm"
+              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+              disabled={!canReceive || loading}
+              onClick={() => void onCheckIn(false)}
+            >
+              {loading ? <Loader2 className="fa-spin" size={14} /> : <CheckCircle2 size={14} />}
+              <span>Xác Nhận Tiếp Nhận Mẫu</span>
+            </button>
           </div>
-        </div>
-      </div>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal Xem Chi Tiết Ống Mẫu, Bệnh Nhân & Bác Sĩ Chỉ Định */}
       <Modal show={Boolean(detailSample)} onHide={() => setDetailSample(null)} centered size="lg">
@@ -956,16 +1338,19 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
           >
             Đóng
           </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-primary rounded-pill px-3"
-            onClick={() => {
-              if (detailSample) selectFromList(detailSample);
-              setDetailSample(null);
-            }}
-          >
-            Chọn ống này để tiếp nhận
-          </button>
+          {detailSample && canReceiveSample(detailSample.status) && (
+            <button
+              type="button"
+              className="btn btn-sm btn-primary rounded-pill px-3"
+              onClick={() => {
+                const target = detailSample;
+                setDetailSample(null);
+                openCheckInModal(target);
+              }}
+            >
+              Mở kiểm chuẩn &amp; tiếp nhận
+            </button>
+          )}
         </Modal.Footer>
       </Modal>
     </div>

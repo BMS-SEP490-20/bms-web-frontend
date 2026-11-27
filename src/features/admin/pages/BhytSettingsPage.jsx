@@ -6,6 +6,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap';
 import { CheckCircle2, Edit3, Percent, Plus, RefreshCw, Search, ShieldCheck, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { billingSettingsApi } from '../api/billingSettingsApi';
 import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 
@@ -81,6 +82,8 @@ export default function BhytSettingsPage() {
       return `${g.code} ${g.description || ''}`.toLowerCase().includes(q);
     });
   }, [groups, search, statusFilter]);
+
+  const bhytPag = usePagination(filteredGroups, 10);
 
   const stats = useMemo(() => {
     const total = groups.length;
@@ -363,7 +366,7 @@ export default function BhytSettingsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredGroups.map((row) => (
+                {bhytPag.paginatedItems.map((row) => (
                   <tr key={row.code}>
                     <td className="ps-3">
                       <span className="font-monospace fw-bold px-2.5 py-1 rounded-2" style={{ background: '#EFF6FF', color: '#1E60E6' }}>
@@ -409,6 +412,17 @@ export default function BhytSettingsPage() {
                 ))}
               </tbody>
             </Table>
+          )}
+          {!loading && filteredGroups.length > 0 && (
+            <TablePagination
+              page={bhytPag.page}
+              totalPages={bhytPag.totalPages}
+              totalItems={bhytPag.totalItems}
+              pageSize={bhytPag.pageSize}
+              onPageChange={bhytPag.setPage}
+              onPageSizeChange={bhytPag.setPageSize}
+              itemLabel="nhóm BHYT"
+            />
           )}
         </div>
       </section>

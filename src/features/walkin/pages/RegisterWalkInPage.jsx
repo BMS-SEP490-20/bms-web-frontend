@@ -1206,7 +1206,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                   </div>
 
                   <Row className="g-3">
-                    <Col md={6}>
+                    <Col md={12}>
                       <Form.Label className="text-muted small mb-1">Nhóm máu hệ ABO / Rh (nếu đã biết)</Form.Label>
                       <Form.Select
                         value={form.bloodType}
@@ -1222,17 +1222,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                         <option value="A-">A Rh(-)</option>
                         <option value="B-">B Rh(-)</option>
                         <option value="AB-">AB Rh(-)</option>
-                      </Form.Select>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Label className="text-muted small mb-1">Phân luồng ưu tiên hàng đợi</Form.Label>
-                      <Form.Select
-                        value={form.priority}
-                        onChange={(e) => set('priority', e.target.value)}
-                        style={{ minHeight: 44 }}
-                      >
-                        <option value="NORMAL">Tiêu chuẩn (Routine - Khách vãng lai thông thường)</option>
-                        <option value="HIGH">Ưu tiên (Người già ≥75t, phụ nữ mang thai, trẻ sơ sinh)</option>
                       </Form.Select>
                     </Col>
                     <Col md={12}>

@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { CheckCircle2, AlertTriangle, TestTube2, RefreshCw, Undo2, FileSignature, Award, ClipboardCheck } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchVerificationQueue,
     fetchVerificationDetails,
@@ -34,6 +35,7 @@ export default function VerifyTestResultsPage() {
 
     // State
     const [queue, setQueue] = useState([]);
+    const queuePag = usePagination(queue, 8);
     const [queueLoading, setQueueLoading] = useState(true);
     const [selectedSpecimenId, setSelectedSpecimenId] = useState(initialSpecimenId);
     const [verificationData, setVerificationData] = useState(null);
@@ -380,7 +382,7 @@ export default function VerifyTestResultsPage() {
                             <span className="text-muted small">Nhấp vào một mẫu để xem chỉ số đo và ký duyệt</span>
                         </div>
                         <div className="d-flex flex-wrap gap-2">
-                            {queue.map((item) => {
+                            {queuePag.paginatedItems.map((item) => {
                                 const isActive = item.specimenId === selectedSpecimenId;
                                 return (
                                     <button
@@ -411,6 +413,17 @@ export default function VerifyTestResultsPage() {
                             })}
                         </div>
                     </div>
+                    <TablePagination
+                        page={queuePag.page}
+                        totalPages={queuePag.totalPages}
+                        totalItems={queuePag.totalItems}
+                        pageSize={queuePag.pageSize}
+                        onPageChange={queuePag.setPage}
+                        onPageSizeChange={queuePag.setPageSize}
+                        pageSizeOptions={[8, 16, 32]}
+                        itemLabel="mẫu chờ thẩm định"
+                        compact
+                    />
                 </div>
             )}
 
@@ -471,7 +484,7 @@ export default function VerifyTestResultsPage() {
                                     <span className="text-muted small d-block">Trạng thái phê duyệt</span>
                                     {isVerified ? (
                                         <span className="badge bg-success px-3 py-2 fs-6">
-                                            <CheckCircle2 className="me-1"  size="1em"/> Đã Ký Số &amp; Thẩm Định
+                                            <CheckCircle2 className="me-1"  size="1em"/> Đã Thẩm Định Kỹ Thuật
                                         </span>
                                     ) : isReturned ? (
                                         <span className="badge bg-warning text-dark px-3 py-2 fs-6">
@@ -598,11 +611,10 @@ export default function VerifyTestResultsPage() {
                                 <div className="alert alert-success d-flex align-items-center gap-3 mb-4 shadow-sm">
                                     <Award className="fs-1 text-success flex-shrink-0"  size="1em"/>
                                     <div>
-                                        <h6 className="fw-bold mb-1">CHỨNG THƯ KÝ SỐ Y TẾ ĐIỆN TỬ HỢP LỆ</h6>
+                                        <h6 className="fw-bold mb-1">ĐÃ HOÀN TẤT THẨM ĐỊNH KỸ THUẬT</h6>
                                         <div className="small text-muted">
-                                            Người ký: <strong>{verificationData?.verifiedBy || currentUser?.fullName || "Trưởng Khoa Xét Nghiệm"}</strong> ·{" "}
-                                            Thời gian ký: <strong>{verificationData?.verifiedAt ? new Date(verificationData.verifiedAt).toLocaleString("vi-VN") : new Date().toLocaleString("vi-VN")}</strong> ·{" "}
-                                            Mã băm toàn vẹn: <span className="font-monospace text-primary">{verificationData?.digitalSignature || "—"}</span>
+                                            Người thẩm định: <strong>{verificationData?.verifiedBy || currentUser?.fullName || "Trưởng Khoa Xét Nghiệm"}</strong> ·{" "}
+                                            Thời gian: <strong>{verificationData?.verifiedAt ? new Date(verificationData.verifiedAt).toLocaleString("vi-VN") : new Date().toLocaleString("vi-VN")}</strong>
                                         </div>
                                     </div>
                                 </div>

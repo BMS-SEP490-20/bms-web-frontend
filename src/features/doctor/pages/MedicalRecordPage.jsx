@@ -27,6 +27,7 @@ import {
   Modal
 } from 'react-bootstrap';
 import { FileText, HeartPulse, Stethoscope, Plus, SquarePen, Trash2, Search, Lock, CheckCircle2, AlertTriangle, User, Pill, TestTube2, ClipboardList, RefreshCw, Eye, Megaphone, History as LucideHistory } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { medicalRecordApi } from '../api/medicalRecordApi';
 import { fetchTestOrders } from '../api/testOrderApi';
 import { receptionApi } from '../../reception/api/receptionApi';
@@ -649,6 +650,8 @@ export default function MedicalRecordPage() {
     });
   }, [worklist, searchKeyword, statusFilter]);
 
+  const emrPag = usePagination(filteredWorklist, 10);
+
   const counts = useMemo(() => {
     return {
       all: worklist.length,
@@ -813,7 +816,7 @@ export default function MedicalRecordPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredWorklist.map((item, idx) => {
+                    emrPag.paginatedItems.map((item, idx) => {
                       const latest = item.latestRecord;
                       const isLocked = latest && !latest.canEdit;
                       const isEditable = latest && latest.canEdit;
@@ -928,6 +931,17 @@ export default function MedicalRecordPage() {
               </Table>
             </div>
           )}
+          {!loadingWorklist && filteredWorklist.length > 0 && (
+            <TablePagination
+              page={emrPag.page}
+              totalPages={emrPag.totalPages}
+              totalItems={emrPag.totalItems}
+              pageSize={emrPag.pageSize}
+              onPageChange={emrPag.setPage}
+              onPageSizeChange={emrPag.setPageSize}
+              itemLabel="hồ sơ bệnh án"
+            />
+          )}
         </Card.Body>
       </Card>
 
@@ -996,7 +1010,7 @@ export default function MedicalRecordPage() {
                       <AlertTriangle className="me-2 text-warning"  size="1em"/>
                       <strong>Ràng buộc liên thông Phòng Lab:</strong> Bệnh nhân đang có y lệnh{' '}
                       <code>{activeEncounter?.order?.orderNumber || activeEncounter?.order?.id}</code>{' '}
-                      ({activeEncounter?.order?.status}) nhưng <strong>chưa có kết quả được ký duyệt SHA-256</strong>.
+                      ({activeEncounter?.order?.status}) nhưng <strong>chưa có kết quả được Bác sĩ phê duyệt</strong>.
                     </div>
                     <Link
                       to="/laboratory/biochemical-results"

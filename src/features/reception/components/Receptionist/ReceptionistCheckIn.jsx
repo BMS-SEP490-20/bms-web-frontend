@@ -19,9 +19,9 @@ import { useAuth } from '../../../../shared/contexts/AuthContext';
 import QuickCheckInScan from '../QuickCheckInScan/QuickCheckInScan';
 import api from '../../../../config/api';
 import useResponsive from '../../../../shared/hooks/useResponsive';
+import TablePagination, { usePagination } from '../../../../components/ui/TablePagination';
 import { useAutoRefresh, dispatchRefreshEvent, setRefreshFlag } from '../../../../shared/hooks/useAutoRefresh';
 import { queueApi } from '../../api/queueApi';
-import WorkflowStepperBar from '../../../../shared/components/WorkflowStepperBar';
 
 const ReceptionistCheckIn = () => {
   // Safe Date & Currency Formatter Helpers to prevent React Render crashes
@@ -154,6 +154,8 @@ const ReceptionistCheckIn = () => {
   const [detailAppointment, setDetailAppointment] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [checkedInAppointments, setCheckedInAppointments] = useState([]);
+  const filteredAptPag = usePagination(filteredAppointments, 10);
+  const checkedInPag = usePagination(checkedInAppointments, 10);
   const [testPackages, setTestPackages] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [rooms, setRooms] = useState([]); // Room directory state
@@ -2002,18 +2004,6 @@ const ReceptionistCheckIn = () => {
           </div>
         </div>
 
-        {/* Workflow Guidance Bar for Receptionist */}
-        <WorkflowStepperBar
-          title="Quy trình tiếp đón Lễ tân (3 bước)"
-          hint="Lịch mới đặt & đã thanh toán luôn xếp lên dòng đầu tiên"
-          activeStep={1}
-          steps={[
-            { id: 'rec-1', label: 'Tiếp đón & Check-in', desc: 'Quét QR hoặc bấm Check-in trực tiếp trên danh sách chờ bên dưới', path: '/receptionist/check-in' },
-            { id: 'rec-2', label: 'Khách vãng lai (nếu chưa đặt)', desc: 'Đăng ký hồ sơ mới theo CCCD đối soát CSDL & cấp STT', path: '/receptionist/create-patient' },
-            { id: 'rec-3', label: 'Bảng gọi số & chuyển Bác sĩ', desc: 'Theo dõi STT đã cấp — bệnh nhân tự vào hàng đợi Bàn Khám Bác sĩ', path: '/reception/queue' }
-          ]}
-        />
-
         {/* 2. KPI Metrics Quad Cards */}
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} md={3}>
@@ -2169,7 +2159,7 @@ const ReceptionistCheckIn = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAppointments.map((apt) => {
+                    {filteredAptPag.paginatedItems.map((apt) => {
                       const appointmentCode = getAppointmentCode(apt);
                       const patientName = getPatientDisplayName(apt);
                       const packageName = getPackageDisplayName(apt);
@@ -2262,6 +2252,15 @@ const ReceptionistCheckIn = () => {
                     })}
                   </tbody>
                 </Table>
+                <TablePagination
+                  page={filteredAptPag.page}
+                  totalPages={filteredAptPag.totalPages}
+                  totalItems={filteredAptPag.totalItems}
+                  pageSize={filteredAptPag.pageSize}
+                  onPageChange={filteredAptPag.setPage}
+                  onPageSizeChange={filteredAptPag.setPageSize}
+                  itemLabel="lịch hẹn"
+                />
               </div>
             ) : (
               <div className="text-center py-3">
@@ -2348,7 +2347,7 @@ const ReceptionistCheckIn = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {checkedInAppointments.map((apt) => {
+                    {checkedInPag.paginatedItems.map((apt) => {
                       const appointmentCode = getAppointmentCode(apt);
                       return (
                         <tr key={apt.id}>
@@ -2400,6 +2399,15 @@ const ReceptionistCheckIn = () => {
                     })}
                   </tbody>
                 </Table>
+                <TablePagination
+                  page={checkedInPag.page}
+                  totalPages={checkedInPag.totalPages}
+                  totalItems={checkedInPag.totalItems}
+                  pageSize={checkedInPag.pageSize}
+                  onPageChange={checkedInPag.setPage}
+                  onPageSizeChange={checkedInPag.setPageSize}
+                  itemLabel="lượt đã check-in"
+                />
               </div>
             ) : (
               <div className="text-center py-3">

@@ -17,6 +17,7 @@ import {
   InputGroup, Modal, Spinner, Alert 
 } from 'react-bootstrap';
 import { FlaskConical, AlertTriangle, CheckCircle2, Plus, Trash2, RefreshCw, Search, TestTube2, Wrench, Check, Info, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { qcFlagService } from '../../../services/qcFlagService';
 import { fetchQcFlags as fetchIqcWestgardFlags } from '../api/qcApi';
@@ -54,6 +55,7 @@ const QcFlagsPage = () => {
 
   // Live state bound directly to MongoDB collection 'QcFlags' via backend service.
   const [flags, setFlags] = useState([]);
+  const flagsPag = usePagination(flags, 8);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -501,7 +503,7 @@ const QcFlagsPage = () => {
         </div>
       ) : (Array.isArray(flags) && flags.length > 0) ? (
         <div className="d-flex flex-column gap-3">
-          {(Array.isArray(flags) ? flags : []).map((flag) => {
+          {flagsPag.paginatedItems.map((flag) => {
             const isOutOfRange = flag.observedValue < flag.lowerLimit || flag.observedValue > flag.upperLimit;
             return (
               <Card 
@@ -601,6 +603,18 @@ const QcFlagsPage = () => {
               </Card>
             );
           })}
+          <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <TablePagination
+              page={flagsPag.page}
+              totalPages={flagsPag.totalPages}
+              totalItems={flagsPag.totalItems}
+              pageSize={flagsPag.pageSize}
+              onPageChange={flagsPag.setPage}
+              onPageSizeChange={flagsPag.setPageSize}
+              pageSizeOptions={[8, 15, 30]}
+              itemLabel="cờ vi phạm Westgard"
+            />
+          </Card>
         </div>
       ) : (
         <Card className="border-0 shadow-sm rounded-4 text-center py-4 bg-white">

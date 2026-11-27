@@ -292,7 +292,7 @@ export default function ExportTestResultPdfPage() {
                   <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
                   <span style={{ color: '#0f172a', fontWeight: '600' }}>{result.OrderCode || result.OrderId || activeOrderId}</span>
                   <i className="bi bi-chevron-right" style={{ fontSize: '10px' }}></i>
-                  <span>Bản Ký Số Điện Tử</span>
+                  <span>Phiếu Kết Quả Xét Nghiệm</span>
                 </div>
                 <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', margin: '0 0 4px 0' }}>
                   {packageNameDisplay}
@@ -346,7 +346,7 @@ export default function ExportTestResultPdfPage() {
 
                   <div className="text-end">
                     <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 fw-bold mb-1 d-inline-block" style={{ fontSize: '11.5px' }}>
-                      <ShieldCheck className="me-1" size="1em" /> ĐÃ KÝ SỐ ĐIỆN TỬ HỢP CHUẨN
+                      <CheckCircle2 className="me-1" size="1em" /> ĐÃ BÁC SĨ PHÊ DUYỆT
                     </span>
                     <div className="text-muted font-monospace small">
                       Mã phiếu: <b>{result.OrderCode || result.OrderId || activeOrderId}</b>
@@ -587,37 +587,28 @@ export default function ExportTestResultPdfPage() {
                   </div>
 
                   <div className="col-6">
-                    <div className="text-muted small mb-1">BÁC SĨ ĐIỀU TRỊ (KÝ SỐ TRẢ KẾT QUẢ)</div>
+                    <div className="text-muted small mb-1">BÁC SĨ ĐIỀU TRỊ PHÊ DUYỆT</div>
                     <div style={{ height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold" style={{ fontSize: '11px' }}>
-                        <ShieldCheck className="me-1" size="1em" /> KÝ SỐ BỞI: {labHeadDisplay}
+                        <CheckCircle2 className="me-1" size="1em" /> ĐÃ PHÊ DUYỆT: {labHeadDisplay}
                       </span>
                       <small className="text-muted font-monospace mt-1" style={{ fontSize: '10px' }}>
-                        Thời gian ký: {releasedDateDisplay}
+                        Thời gian duyệt: {releasedDateDisplay}
                       </small>
                     </div>
                     <strong className="text-dark d-block">{labHeadDisplay}</strong>
                     <small className="text-muted">Bác sĩ điều trị — BMS Clinical Lab</small>
                   </div>
                 </div>
-
-                {/* Verification Footer */}
-                {verificationHashDisplay && (
-                  <div className="text-center text-muted mt-4 pt-3 border-top" style={{ fontSize: '11px' }}>
-                    <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#64748b' }}>
-                      Mã xác thực kết quả: <strong>{verificationHashDisplay}</strong>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </>
         ) : (
           <div className="card p-3 text-center text-muted shadow-sm border-0" style={{ borderRadius: '10px' }}>
             <TestTube2 size={48} className="mx-auto mb-3 text-secondary opacity-50" />
-            <h5 className="text-dark fw-bold">Chưa Có Phiếu Kết Quả Xét Nghiệm Đã Ký Số</h5>
+            <h5 className="text-dark fw-bold">Chưa Có Phiếu Kết Quả Xét Nghiệm Đã Phê Duyệt</h5>
             <p className="small text-secondary mx-auto" style={{ maxWidth: '480px' }}>
-              Hiện chưa có phiếu kết quả xét nghiệm nào đã được Bác sĩ điều trị ký duyệt và trả kết quả cho hồ sơ của bạn.
+              Hiện chưa có phiếu kết quả xét nghiệm nào đã được Bác sĩ điều trị phê duyệt và trả kết quả cho hồ sơ của bạn.
               Khi Bác sĩ hoàn tất thẩm định lâm sàng, kết quả sẽ hiển thị tại đây.
             </p>
             <div className="mt-3 d-flex justify-content-center gap-2">

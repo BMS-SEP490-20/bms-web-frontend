@@ -1,12 +1,29 @@
 /**
  * @file SpecimenHistoryPage.jsx
- * @description Master Specimen History, Lifecycle Audit Trail & Cold Storage Management page (UC70 / Issue I3-068 / BR-212 / BR-213).
- * Conforms to: ISO 15189:2022 Specimen Traceability, Production Standards & AGENTS-DESIGN.md.
+ * @description Management-first Specimen History & Traceability page (UC70).
+ * 100% DB-driven from blood_samples + specimen_histories (zero hardcoded mock storage/temperature/QC values).
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Barcode as LucideBarcode, Search as LucideSearch, TestTube2, History as LucideHistory, User, Calendar, RefreshCw, AlertCircle, CheckCircle2, FileText, ArrowRight, Warehouse, X as LucideX } from 'lucide-react';
+import { Modal, Row, Col, Badge, Alert, Spinner } from "react-bootstrap";
+import {
+    Barcode as LucideBarcode,
+    Search as LucideSearch,
+    TestTube2,
+    History as LucideHistory,
+    User,
+    Calendar,
+    RefreshCw,
+    AlertCircle,
+    CheckCircle2,
+    Warehouse,
+    X as LucideX,
+    FlaskConical,
+    Clock,
+    Eye
+} from "lucide-react";
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchSpecimenHistories,
     fetchSpecimenHistoryByBarcode,
@@ -14,621 +31,717 @@ import {
     updateSpecimenStorage
 } from "../api/specimenHistoryApi";
 import { ROLES, getStoredUser, hasRole } from "../../../constants/roles";
+import { formatTubeColorVi, formatSampleTypeVi } from "../../../shared/workflow/labConsumables";
 import SpecimenLifecycleTimeline from "../components/SpecimenLifecycleTimeline";
 import SpecimenStorageCard from "../components/SpecimenStorageCard";
 import AddTrackingEventModal from "../components/AddTrackingEventModal";
 import UpdateStorageModal from "../components/UpdateStorageModal";
 
-// Quick filter tabs
 const STATUS_TABS = [
-    { key: "ALL", label: "Tất Cả Mẫu" },
-    { key: "Collected", label: "Đã Lấy Mẫu" },
-    { key: "InTransit", label: "Đang Vận Chuyển" },
-    { key: "Received", label: "Đã Tiếp Nhận" },
-    { key: "Analyzing", label: "Đang Phân Tích" },
-    { key: "Stored", label: "Đã Lưu Kho Lạnh" }
+    { key: "ALL", label: "Tất cả" },
+    { key: "PendingCollection", label: "Chờ lấy mẫu" },
+    { key: "Collected", label: "Đã lấy mẫu" },
+    { key: "Received", label: "Đã tiếp nhận" },
+    { key: "Testing", label: "Đang xét nghiệm" },
+    { key: "Completed", label: "Hoàn tất" },
+    { key: "Rejected", label: "Từ chối" }
 ];
+
+function normalizeStatusKey(raw) {
+    const s = String(raw || "").trim().toLowerCase();
+    if (s === "pendingcollection" || s === "pending") return "PendingCollection";
+    if (s === "collected") return "Collected";
+    if (s === "received" || s === "processing") return "Received";
+    if (s === "testing" || s === "analyzing" || s === "rerunrequested") return "Testing";
+    if (s === "completed" || s === "stored") return "Completed";
+    if (s === "rejected" || s === "discarded") return "Rejected";
+    return raw || "";
+}
+
+function renderStatusBadge(status) {
+    const key = normalizeStatusKey(status);
+    switch (key) {
+        case "PendingCollection":
+            return <Badge bg="secondary" className="rounded-pill px-2.5 py-1">Chờ lấy mẫu</Badge>;
+        case "Collected":
+            return <Badge bg="info" text="dark" className="rounded-pill px-2.5 py-1">Đã lấy mẫu</Badge>;
+        case "Received":
+            return <Badge bg="primary" className="rounded-pill px-2.5 py-1">Đã tiếp nhận Lab</Badge>;
+        case "Testing":
+            return <Badge bg="warning" text="dark" className="rounded-pill px-2.5 py-1">Đang xét nghiệm</Badge>;
+        case "Completed":
+            return <Badge bg="success" className="rounded-pill px-2.5 py-1">Hoàn tất</Badge>;
+        case "Rejected":
+            return <Badge bg="danger" className="rounded-pill px-2.5 py-1">Từ chối mẫu</Badge>;
+        default:
+            return <Badge bg="light" text="dark" className="border rounded-pill px-2.5 py-1">{status || "—"}</Badge>;
+    }
+}
+
+function formatGenderVi(raw) {
+    const s = String(raw || "").trim().toLowerCase();
+    if (s === "male" || s === "nam") return "Nam";
+    if (s === "female" || s === "nữ" || s === "nu") return "Nữ";
+    if (s === "other" || s === "khác") return "Khác";
+    return raw || "";
+}
+
+function formatClinicalDateTime(raw) {
+    if (!raw) return "—";
+    const s = String(raw).trim();
+    if (!s || s.startsWith("01/01/0001")) return "—";
+    const d = new Date(s);
+    if (!Number.isNaN(d.getTime()) && d.getFullYear() > 1970) {
+        return d.toLocaleString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+    }
+    return s;
+}
 
 export default function SpecimenHistoryPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentUser = getStoredUser();
     const canEditSpecimen = hasRole(currentUser, ROLES.LAB);
 
-    // Barcode query parameter
     const paramBarcode = searchParams.get("barcode") || "";
 
-    // States
-    const [searchInput, setSearchInput] = useState(paramBarcode);
+    // Master DB list (loaded once per refresh so KPI counts & instant filters are 100% accurate)
+    const [allSpecimens, setAllSpecimens] = useState([]);
+    const [loadingList, setLoadingList] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("ALL");
+    const [searchInput, setSearchInput] = useState("");
+
+    // Detail modal state
+    const [showDetailModal, setShowDetailModal] = useState(Boolean(paramBarcode));
     const [activeBarcode, setActiveBarcode] = useState(paramBarcode);
     const [currentSpecimen, setCurrentSpecimen] = useState(null);
     const [loadingSpecimen, setLoadingSpecimen] = useState(false);
     const [specimenError, setSpecimenError] = useState(null);
 
-    // List & Directory States
-    const [specimenList, setSpecimenList] = useState([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [pageNumber, setPageNumber] = useState(1);
-    const [pageSize] = useState(10);
-    const [statusFilter, setStatusFilter] = useState("ALL");
-    const [loadingList, setLoadingList] = useState(false);
-
-    // Modals
+    // Sub-modals & feedback
     const [showEventModal, setShowEventModal] = useState(false);
     const [showStorageModal, setShowStorageModal] = useState(false);
     const [toastMessage, setToastMessage] = useState(null);
 
-    // Auto-dismiss toast
     useEffect(() => {
-        if (toastMessage) {
-            const timer = setTimeout(() => setToastMessage(null), 4000);
-            return () => clearTimeout(timer);
-        }
+        if (!toastMessage) return undefined;
+        const timer = setTimeout(() => setToastMessage(null), 4000);
+        return () => clearTimeout(timer);
     }, [toastMessage]);
 
-    // Load detailed specimen by barcode
+    const loadAllSpecimens = useCallback(async () => {
+        setLoadingList(true);
+        try {
+            const result = await fetchSpecimenHistories({ page: 1, pageSize: 200 });
+            setAllSpecimens(Array.isArray(result.items) ? result.items : []);
+        } catch (err) {
+            setToastMessage({
+                type: "danger",
+                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách mẫu bệnh phẩm từ cơ sở dữ liệu."
+            });
+            setAllSpecimens([]);
+        } finally {
+            setLoadingList(false);
+        }
+    }, []);
+
     const loadSpecimenDetail = useCallback(async (barcode) => {
-        if (!barcode) return;
+        const clean = String(barcode || "").trim();
+        if (!clean) return;
         setLoadingSpecimen(true);
         setSpecimenError(null);
         try {
-            const data = await fetchSpecimenHistoryByBarcode(barcode);
+            const data = await fetchSpecimenHistoryByBarcode(clean);
             if (data) {
                 setCurrentSpecimen(data);
-                setActiveBarcode(data.barcode);
+                setActiveBarcode(data.barcode || clean);
             } else {
-                setSpecimenError(`Không tìm thấy mẫu bệnh phẩm có mã '${barcode}'.`);
+                setCurrentSpecimen(null);
+                setSpecimenError(`Không tìm thấy mẫu bệnh phẩm có mã "${clean}" trong cơ sở dữ liệu.`);
             }
         } catch (err) {
-            const msg = err?.response?.data?.message || err?.message || "Không thể tải thông tin bệnh phẩm.";
-            setSpecimenError(msg);
+            setCurrentSpecimen(null);
+            setSpecimenError(err?.response?.data?.message || err?.message || "Không thể tải chi tiết truy vết mẫu bệnh phẩm.");
         } finally {
             setLoadingSpecimen(false);
         }
     }, []);
 
-    // Load directory list
-    const loadSpecimenDirectory = useCallback(async () => {
-        setLoadingList(true);
-        try {
-            const params = {
-                pageNumber,
-                pageSize,
-                status: statusFilter === "ALL" ? undefined : statusFilter
-            };
-            const result = await fetchSpecimenHistories(params);
-            const items = result.items || [];
-            setSpecimenList(items);
-            setTotalCount(result.totalCount || 0);
-            if (!activeBarcode && items.length > 0 && items[0].barcode) {
-                setSearchInput(items[0].barcode);
-                setActiveBarcode(items[0].barcode);
-            }
-        } catch (err) {
-            setToastMessage({
-                type: "danger",
-                text: err?.response?.data?.message || err?.message || "Không thể tải danh sách lịch sử bệnh phẩm."
-            });
-        } finally {
-            setLoadingList(false);
+    useEffect(() => {
+        loadAllSpecimens();
+    }, [loadAllSpecimens]);
+
+    useEffect(() => {
+        if (paramBarcode) {
+            setActiveBarcode(paramBarcode);
+            setShowDetailModal(true);
+            void loadSpecimenDetail(paramBarcode);
         }
-    }, [pageNumber, pageSize, statusFilter, activeBarcode]);
+    }, [paramBarcode, loadSpecimenDetail]);
 
-    // Initial load
-    useEffect(() => {
-        loadSpecimenDetail(activeBarcode);
-    }, [activeBarcode, loadSpecimenDetail]);
+    // Real DB counts per status
+    const statusCounts = useMemo(() => {
+        const counts = {
+            ALL: allSpecimens.length,
+            PendingCollection: 0,
+            Collected: 0,
+            Received: 0,
+            Testing: 0,
+            Completed: 0,
+            Rejected: 0
+        };
+        for (const item of allSpecimens) {
+            const key = normalizeStatusKey(item.status || item.currentStatus);
+            if (counts[key] !== undefined) counts[key] += 1;
+        }
+        return counts;
+    }, [allSpecimens]);
 
-    useEffect(() => {
-        loadSpecimenDirectory();
-    }, [loadSpecimenDirectory]);
+    const filteredSpecimens = useMemo(() => {
+        const kw = searchInput.trim().toLowerCase();
+        return allSpecimens.filter((item) => {
+            if (statusFilter !== "ALL") {
+                const key = normalizeStatusKey(item.status || item.currentStatus);
+                if (key !== statusFilter) return false;
+            }
+            if (!kw) return true;
+            const blob = `${item.barcode || ""} ${item.patientName || ""} ${item.patientId || ""} ${item.orderId || ""} ${item.testPackageName || ""} ${item.storageUnit || ""}`.toLowerCase();
+            return blob.includes(kw);
+        });
+    }, [allSpecimens, statusFilter, searchInput]);
 
-    // Trigger Search
+    const pagination = usePagination(filteredSpecimens, 10);
+
+    const openSpecimenDetail = (barcode) => {
+        const clean = String(barcode || "").trim();
+        if (!clean) return;
+        setActiveBarcode(clean);
+        setShowDetailModal(true);
+        setSearchParams({ barcode: clean });
+        void loadSpecimenDetail(clean);
+    };
+
+    const closeSpecimenDetail = () => {
+        setShowDetailModal(false);
+        if (searchParams.has("barcode")) {
+            setSearchParams({});
+        }
+    };
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        const cleaned = searchInput.trim();
-        if (cleaned) {
-            setActiveBarcode(cleaned);
-            setSearchParams({ barcode: cleaned });
-            loadSpecimenDetail(cleaned);
+        const q = searchInput.trim();
+        if (!q) return;
+        const exact = allSpecimens.find(
+            (s) => String(s.barcode || "").toLowerCase() === q.toLowerCase()
+        );
+        if (exact) {
+            openSpecimenDetail(exact.barcode);
+        } else if (/^(SMP|SPC|BC|SA)/i.test(q)) {
+            openSpecimenDetail(q);
         }
     };
 
-    // Quick select specimen from table or chips
-    const handleSelectSpecimen = (barcode) => {
-        setSearchInput(barcode);
-        setActiveBarcode(barcode);
-        setSearchParams({ barcode });
-        loadSpecimenDetail(barcode);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    // Add tracking event callback
     const handleSaveTrackingEvent = async (eventDto) => {
         if (!activeBarcode) return;
         const updated = await addSpecimenTrackingEvent(activeBarcode, eventDto);
         if (updated) {
             setCurrentSpecimen(updated);
-            setToastMessage({ type: "success", text: "Đã ghi nhận sự kiện vòng đời mẫu thành công!" });
-            loadSpecimenDirectory();
+            setToastMessage({ type: "success", text: "Đã ghi nhận sự kiện vòng đời mẫu vào cơ sở dữ liệu." });
+            void loadAllSpecimens();
         }
     };
 
-    // Update storage callback
     const handleSaveStorage = async (storageDto) => {
         if (!activeBarcode) return;
         const updated = await updateSpecimenStorage(activeBarcode, storageDto);
         if (updated) {
             setCurrentSpecimen(updated);
-            setToastMessage({ type: "success", text: "Cập nhật vị trí lưu trữ lạnh thành công!" });
-            loadSpecimenDirectory();
+            setToastMessage({ type: "success", text: "Đã cập nhật vị trí lưu trữ lạnh vào cơ sở dữ liệu." });
+            void loadAllSpecimens();
         }
     };
 
-    // Render tube color badge
-    const renderTubeBadge = (colorName, tubeType) => {
-        let bgStyle = { backgroundColor: "#64748b", color: "#fff" };
-        const lower = (colorName || "").toLowerCase();
-        if (lower.includes("tím") || lower.includes("purple") || lower.includes("edta")) {
-            bgStyle = { backgroundColor: "#7c3aed", color: "#fff" };
-        } else if (lower.includes("vàng") || lower.includes("yellow") || lower.includes("serum")) {
-            bgStyle = { backgroundColor: "#eab308", color: "#000" };
-        } else if (lower.includes("xanh dương") || lower.includes("blue") || lower.includes("citrate")) {
-            bgStyle = { backgroundColor: "#0284c7", color: "#fff" };
-        } else if (lower.includes("xanh lá") || lower.includes("green") || lower.includes("heparin")) {
-            bgStyle = { backgroundColor: "#16a34a", color: "#fff" };
-        } else if (lower.includes("đỏ") || lower.includes("red")) {
-            bgStyle = { backgroundColor: "#dc2626", color: "#fff" };
-        }
-
-        return (
-            <span className="badge rounded-pill px-2 py-1 shadow-xs fw-semibold" style={bgStyle}>
-                <TestTube2 className="me-1"  size="1em"/>
-                {colorName || "Ống tiêu chuẩn"} {tubeType ? `(${tubeType})` : ""}
-            </span>
-        );
-    };
-
-    // Status badge mapper
-    const renderStatusBadge = (status) => {
-        const s = (status || "").toLowerCase();
-        if (s.includes("stor") || s.includes("archive")) {
-            return <span className="badge bg-info text-dark">Lưu Kho Lạnh</span>;
-        }
-        if (s.includes("complet")) {
-            return <span className="badge bg-success">Đã Hoàn Thành</span>;
-        }
-        if (s.includes("analy") || s.includes("process")) {
-            return <span className="badge bg-primary">Đang Phân Tích</span>;
-        }
-        if (s.includes("receiv")) {
-            return <span className="badge bg-secondary">Đã Tiếp Nhận</span>;
-        }
-        if (s.includes("transit")) {
-            return <span className="badge bg-warning text-dark">Đang Vận Chuyển</span>;
-        }
-        if (s.includes("collect")) {
-            return <span className="badge bg-info">Đã Lấy Mẫu</span>;
-        }
-        if (s.includes("discard") || s.includes("reject")) {
-            return <span className="badge bg-danger">Đã Hủy / Từ Chối</span>;
-        }
-        return <span className="badge bg-light text-dark border">{status || "Khởi tạo"}</span>;
-    };
-
-    // Timeline events and storage normalization
-    const timelineEvents = currentSpecimen?.timeline || currentSpecimen?.timelineEvents || [];
-    const storageInfo = currentSpecimen?.storage || currentSpecimen?.storageInfo;
-    const currentStatus = currentSpecimen?.status || currentSpecimen?.currentStatus || "Stored";
-    const orderNumber = currentSpecimen?.orderId || currentSpecimen?.testOrderNumber || "--";
-    const collectionTime = currentSpecimen?.collectionTime || currentSpecimen?.collectedAt;
-    const collector = currentSpecimen?.collectorName || currentSpecimen?.collectedBy || "Điều dưỡng khoa khám";
-
-    const formatClinicalDateTime = (raw, options) => {
-        if (!raw) return "--";
-        const d = new Date(raw);
-        if (!Number.isNaN(d.getTime())) {
-            return options ? d.toLocaleString("vi-VN", options) : d.toLocaleString("vi-VN");
-        }
-        return String(raw);
-    };
+    const timelineEvents = currentSpecimen?.timeline || [];
+    const storageInfo = currentSpecimen?.storage || null;
 
     return (
         <div className="w-100 py-1">
-            {/* Header Card */}
-            <div className="bms-page-header-card mb-4">
+            {/* 1. Header chuẩn quản lý */}
+            <div className="bms-page-header-card mb-3">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
-                        <h1 className="bms-page-title">
-                            Truy vấn lịch sử &amp; Vòng đời mẫu bệnh phẩm
-                        </h1>
+                        <h1 className="bms-page-title">Lịch sử &amp; Truy vết mẫu bệnh phẩm</h1>
                     </div>
                     <p className="text-muted small m-0 mt-1">
-                        Theo dõi sự kiện vòng đời mẫu bệnh phẩm, thông tin lấy mẫu và vị trí lưu trữ kho lạnh.
+                        Quản lý toàn bộ vòng đời ống mẫu bệnh phẩm theo dữ liệu thực từ hệ thống Lab, lịch sử sự kiện và vị trí lưu kho lạnh.
                     </p>
                 </div>
-
                 <div className="bms-page-actions">
                     <button
                         type="button"
-                        className="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold text-nowrap"
-                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
+                        className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1.5 rounded-pill px-3 fw-semibold text-nowrap"
+                        disabled={loadingList}
                         onClick={() => {
-                            loadSpecimenDetail(activeBarcode);
-                            loadSpecimenDirectory();
+                            void loadAllSpecimens();
+                            if (showDetailModal && activeBarcode) void loadSpecimenDetail(activeBarcode);
                         }}
                     >
-                        <RefreshCw size={13} className={loadingSpecimen || loadingList ? "fa-spin" : ""} />
+                        <RefreshCw size={13} className={loadingList ? "fa-spin" : ""} />
                         <span>Làm mới</span>
                     </button>
                 </div>
             </div>
 
-            {/* Notification Toast */}
+            {/* 2. 4 KPI Cards tóm tắt thực từ DB (click để lọc nhanh) */}
+            <Row className="g-3 mb-3">
+                <Col md={3} sm={6}>
+                    <div
+                        className="bms-kpi-quad-card"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setStatusFilter("ALL")}
+                        onKeyDown={(e) => { if (e.key === "Enter") setStatusFilter("ALL"); }}
+                        style={{ cursor: "pointer", border: statusFilter === "ALL" ? "1.5px solid #1E60E6" : undefined }}
+                    >
+                        <div>
+                            <h6 className="bms-kpi-label">Tổng Mẫu Bệnh Phẩm</h6>
+                            <div className="bms-kpi-value text-primary">{statusCounts.ALL}</div>
+                            <div className="bms-kpi-sub text-muted">
+                                {statusCounts.Rejected > 0 ? `${statusCounts.Rejected} mẫu từ chối` : "Dữ liệu thực từ CSDL"}
+                            </div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+                            <TestTube2 size="1em" />
+                        </div>
+                    </div>
+                </Col>
+                <Col md={3} sm={6}>
+                    <div
+                        className="bms-kpi-quad-card"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setStatusFilter("Received")}
+                        onKeyDown={(e) => { if (e.key === "Enter") setStatusFilter("Received"); }}
+                        style={{ cursor: "pointer", border: statusFilter === "Received" ? "1.5px solid #0284C7" : undefined }}
+                    >
+                        <div>
+                            <h6 className="bms-kpi-label">Đã Tiếp Nhận Lab</h6>
+                            <div className="bms-kpi-value" style={{ color: "#0284C7" }}>{statusCounts.Received}</div>
+                            <div className="bms-kpi-sub text-muted">
+                                {statusCounts.PendingCollection > 0 ? `Chờ lấy mẫu: ${statusCounts.PendingCollection}` : "Sẵn sàng phân tích"}
+                            </div>
+                        </div>
+                        <div className="bms-kpi-icon-badge" style={{ background: "#E0F2FE", color: "#0284C7" }}>
+                            <Clock size="1em" />
+                        </div>
+                    </div>
+                </Col>
+                <Col md={3} sm={6}>
+                    <div
+                        className="bms-kpi-quad-card"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setStatusFilter("Testing")}
+                        onKeyDown={(e) => { if (e.key === "Enter") setStatusFilter("Testing"); }}
+                        style={{ cursor: "pointer", border: statusFilter === "Testing" ? "1.5px solid #D97706" : undefined }}
+                    >
+                        <div>
+                            <h6 className="bms-kpi-label">Đang Xét Nghiệm</h6>
+                            <div className="bms-kpi-value" style={{ color: "#D97706" }}>{statusCounts.Testing}</div>
+                            <div className="bms-kpi-sub text-muted">Đang chạy máy / chờ nhập KQ</div>
+                        </div>
+                        <div className="bms-kpi-icon-badge" style={{ background: "#FEF3C7", color: "#D97706" }}>
+                            <FlaskConical size="1em" />
+                        </div>
+                    </div>
+                </Col>
+                <Col md={3} sm={6}>
+                    <div
+                        className="bms-kpi-quad-card"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setStatusFilter("Completed")}
+                        onKeyDown={(e) => { if (e.key === "Enter") setStatusFilter("Completed"); }}
+                        style={{ cursor: "pointer", border: statusFilter === "Completed" ? "1.5px solid #10B981" : undefined }}
+                    >
+                        <div>
+                            <h6 className="bms-kpi-label">Đã Hoàn Tất</h6>
+                            <div className="bms-kpi-value text-success">{statusCounts.Completed}</div>
+                            <div className="bms-kpi-sub text-muted">Đã trả KQ &amp; lưu vết đầy đủ</div>
+                        </div>
+                        <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+                            <CheckCircle2 size="1em" />
+                        </div>
+                    </div>
+                </Col>
+            </Row>
+
+            {/* Toast */}
             {toastMessage && (
-                <div
-                    className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4 rounded-3`}
-                    role="alert"
+                <Alert
+                    variant={toastMessage.type}
+                    dismissible
+                    onClose={() => setToastMessage(null)}
+                    className="rounded-4 shadow-sm border-0 mb-3 py-2 small d-flex align-items-center gap-2"
                 >
-                    <div className="d-flex align-items-center">
-                        <CheckCircle2 className="me-2 fs-5"  size="1em"/>
-                        <div>{toastMessage.text}</div>
+                    <CheckCircle2 size={16} />
+                    <span>{toastMessage.text}</span>
+                </Alert>
+            )}
+
+            {/* 3. Thanh lọc 1 dòng gọn (Status pills theo DB thực + Tìm kiếm / Quét Barcode) */}
+            <div className="bms-filter-bar mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                    {STATUS_TABS.map((tab) => {
+                        const count = statusCounts[tab.key] ?? 0;
+                        const active = statusFilter === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                className={`btn btn-sm rounded-pill px-3 py-1 fw-semibold ${
+                                    active ? "btn-primary text-white shadow-sm" : "btn-light text-secondary border"
+                                }`}
+                                style={active ? { backgroundColor: "#1E60E6", borderColor: "#1E60E6" } : undefined}
+                                onClick={() => setStatusFilter(tab.key)}
+                            >
+                                {tab.label} ({count})
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <form
+                    onSubmit={handleSearchSubmit}
+                    className="d-flex align-items-center gap-2 flex-grow-1 justify-content-end"
+                    style={{ maxWidth: 420 }}
+                >
+                    <div className="bms-search-input-pill flex-grow-1">
+                        <LucideBarcode className="bms-search-icon" size={14} />
+                        <input
+                            type="text"
+                            placeholder="Quét barcode, mã BN, tên bệnh nhân hoặc gói..."
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                        {searchInput && (
+                            <button
+                                type="button"
+                                className="bms-search-clear"
+                                onClick={() => setSearchInput("")}
+                            >
+                                <LucideX size={12} />
+                            </button>
+                        )}
                     </div>
                     <button
-                        type="button"
-                        className="btn-close"
-                        onClick={() => setToastMessage(null)}
-                    ></button>
-                </div>
-            )}
+                        type="submit"
+                        className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-nowrap text-white"
+                        style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
+                        disabled={!searchInput.trim()}
+                    >
+                        <LucideSearch size={13} />
+                        <span>Tra cứu</span>
+                    </button>
+                </form>
+            </div>
 
-            {/* Single-Line Barcode Lookup Filter Bar */}
-            <form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
-                <div className="bms-search-input-pill">
-                    <LucideBarcode className="bms-search-icon"  size="1em"/>
-                    <input
-                        type="text"
-                        placeholder="Quét mã vạch hoặc nhập mã mẫu bệnh phẩm..."
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                    />
-                    {searchInput && (
-                        <button
-                            type="button"
-                            className="bms-search-clear"
-                            onClick={() => setSearchInput("")}
-                        >
-                            <LucideX size={12} />
-                        </button>
-                    )}
-                </div>
-
-                <button
-                    type="submit"
-                    className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 text-nowrap"
-                    style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
-                    disabled={loadingSpecimen}
-                >
-                    <LucideSearch  size="1em"/>
-                    <span>Truy vấn</span>
-                </button>
-
-                <select
-                    className="form-select"
-                    style={{ width: "auto" }}
-                    value={statusFilter}
-                    onChange={(e) => {
-                        setStatusFilter(e.target.value);
-                        setPageNumber(1);
-                    }}
-                >
-                    {STATUS_TABS.map((tab) => (
-                        <option key={tab.key} value={tab.key}>{tab.label}</option>
-                    ))}
-                </select>
-
-                {specimenList.length > 0 && (
-                    <div className="d-flex flex-wrap align-items-center gap-1 text-muted small">
-                        <span className="fw-semibold">Mẫu nhanh:</span>
-                        {specimenList.slice(0, 3).map((item) => (
-                            <button
-                                key={item.barcode}
-                                type="button"
-                                className={`btn btn-sm py-0 px-2 rounded-pill font-monospace ${
-                                    activeBarcode === item.barcode ? "btn-primary text-white" : "btn-outline-secondary"
-                                }`}
-                                style={activeBarcode === item.barcode ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}}
-                                onClick={() => handleSelectSpecimen(item.barcode)}
-                            >
-                                {item.barcode}
-                            </button>
-                        ))}
-                    </div>
-                )}
-
-                <span className="bms-filter-meta">
-                    Tổng cộng <strong>{totalCount}</strong> mẫu
-                </span>
-            </form>
-
-            {/* Error State */}
-            {specimenError && (
-                <div className="alert alert-danger shadow-sm mb-4 d-flex align-items-center gap-3">
-                    <AlertCircle className="fs-3 flex-shrink-0"  size="1em"/>
-                    <div>
-                        <h6 className="fw-bold mb-1">Không thể hiển thị thông tin bệnh phẩm</h6>
-                        <p className="mb-0 small">{specimenError}</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Active Specimen Master Card */}
-            {loadingSpecimen ? (
-                <div className="card shadow-sm border-0 mb-4 text-center py-3 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                    <div className="spinner-border text-primary mx-auto mb-3" role="status"></div>
-                    <p className="text-muted mb-0">Đang truy xuất chuỗi hành trình bệnh phẩm từ cơ sở dữ liệu y khoa...</p>
-                </div>
-            ) : currentSpecimen ? (
-                <div className="card shadow-sm border-0 mb-4 overflow-hidden rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-                    <div className="card-header bg-white border-bottom p-2" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                        <div className="row g-3 align-items-center justify-content-between">
-                            <div className="col-12 col-md-auto d-flex align-items-center gap-3">
-                                <div className="p-3 rounded-4 text-center" style={{ backgroundColor: 'rgba(30, 96, 230,0.12)', color: '#1E60E6' }}>
-                                    <LucideBarcode className="display-6"  size="1em"/>
-                                </div>
-                                <div>
-                                    <div className="d-flex align-items-center gap-2 mb-1">
-                                        <h4 className="fw-bold font-monospace mb-0" style={{ color: '#0F172A' }}>
-                                            {currentSpecimen.barcode}
-                                        </h4>
-                                        {renderStatusBadge(currentStatus)}
-                                    </div>
-                                    <div className="d-flex flex-wrap gap-2 text-secondary small align-items-center">
-                                        {currentSpecimen.rfidTag && (
-                                            <span className="badge rounded-pill bg-light text-secondary border font-monospace px-2">
-                                                RFID: {currentSpecimen.rfidTag}
-                                            </span>
-                                        )}
-                                        <span>Đơn chỉ định: <strong>{orderNumber}</strong></span>
-                                        <span>•</span>
-                                        <span>Loại mẫu: <strong>{currentSpecimen.sampleType}</strong></span>
-                                        {currentSpecimen.testPackageName && (
-                                            <>
-                                                <span>•</span>
-                                                <span className="fw-semibold" style={{ color: '#1E60E6' }}>{currentSpecimen.testPackageName}</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {canEditSpecimen && (
-                                <div className="col-12 col-md-auto d-flex flex-wrap gap-2">
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-primary d-flex align-items-center gap-2 shadow-xs rounded-pill px-3"
-                                        style={{ color: '#1E60E6', borderColor: '#1E60E6' }}
-                                        onClick={() => setShowStorageModal(true)}
-                                    >
-                                        <Warehouse  size="1em"/>
-                                        <span>Đổi Vị Trí Tủ Lạnh</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn d-flex align-items-center gap-2 shadow-sm rounded-pill px-3"
-                                        style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', color: '#ffffff' }}
-                                        onClick={() => setShowEventModal(true)}
-                                    >
-                                        <LucideHistory  size="1em"/>
-                                        <span>Ghi Nhận Sự Kiện</span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Specimen Key Attribute Grid */}
-                    <div className="card-body p-2 bg-light border-bottom">
-                        <div className="row g-3">
-                            {/* Patient Info */}
-                            <div className="col-12 col-md-6 col-lg-4">
-                                <div className="p-3 bg-white rounded border h-100 shadow-xs">
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <User className="text-primary me-1"  size="1em"/> Thông Tin Bệnh Nhân
-                                    </span>
-                                    <h6 className="fw-bold text-dark mb-1">{currentSpecimen.patientName}</h6>
-                                    <div className="text-secondary small">
-                                        <div>Mã BN: <strong className="font-monospace text-primary">{currentSpecimen.patientId}</strong></div>
-                                        <div>Giới tính / Tuổi: {currentSpecimen.patientGender || "N/A"} {currentSpecimen.patientAge ? `(${currentSpecimen.patientAge} tuổi)` : ""}</div>
-                                        {currentSpecimen.patientPhone && (
-                                            <div>SĐT: {currentSpecimen.patientPhone}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Tube & Physical Characteristics */}
-                            <div className="col-12 col-md-6 col-lg-4">
-                                <div className="p-3 bg-white rounded border h-100 shadow-xs">
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <TestTube2 className="text-info me-1"  size="1em"/> Đặc Tính Ống Mẫu & Thuốc Thử
-                                    </span>
-                                    <div className="mb-2">
-                                        {renderTubeBadge(currentSpecimen.tubeColor, currentSpecimen.sampleType)}
-                                    </div>
-                                    <div className="text-secondary small">
-                                        <div>Chất chống đông: <strong>{currentSpecimen.anticoagulant || "Không (Ống trơn)"}</strong></div>
-                                        <div>Thể tích lấy mẫu: <strong>{currentSpecimen.volumeMl} ml</strong></div>
-                                        <div>Đạt chuẩn: <span className="badge bg-success-subtle text-success">Đạt yêu cầu thử nghiệm</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Collection & Phlebotomy Info */}
-                            <div className="col-12 col-md-12 col-lg-4">
-                                <div className="p-3 bg-white rounded border h-100 shadow-xs">
-                                    <span className="text-muted small fw-bold text-uppercase d-block mb-2">
-                                        <Calendar className="text-warning me-1"  size="1em"/> Thời Gian & Người Lấy Mẫu
-                                    </span>
-                                    <div className="text-secondary small">
-                                        <div>Thời điểm lấy: <strong>{formatClinicalDateTime(collectionTime)}</strong></div>
-                                        <div>Người lấy mẫu: <strong>{collector}</strong></div>
-                                        <div>Khoa/Phòng gửi: <strong>{currentSpecimen.department || "Khoa Xét Nghiệm Trung Tâm"}</strong></div>
-                                        {currentSpecimen.rejectionReason && (
-                                            <div className="badge bg-danger mt-1">Lý do từ chối: {currentSpecimen.rejectionReason}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Side-by-side: Timeline & Physical Storage */}
-                    <div className="card-body p-2">
-                        <div className="row g-4">
-                            <div className="col-12 col-xl-7">
-                                <SpecimenLifecycleTimeline
-                                    events={timelineEvents}
-                                    onAddEventClick={canEditSpecimen ? () => setShowEventModal(true) : undefined}
-                                />
-                            </div>
-                            <div className="col-12 col-xl-5">
-                                <SpecimenStorageCard
-                                    storageInfo={storageInfo}
-                                    onUpdateStorageClick={canEditSpecimen ? () => setShowStorageModal(true) : undefined}
-                                    canEdit={canEditSpecimen}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
-
-            {/* Specimen Master Directory Standalone Table */}
+            {/* 4. Bảng quản lý danh sách mẫu bệnh phẩm toàn màn hình + Phân trang */}
             <section className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>
-                        <h2 className="bms-table-standalone-title">Danh sách mẫu bệnh phẩm toàn viện</h2>
-                        <p className="bms-table-standalone-subtitle">Theo dõi trạng thái xử lý, kho lạnh và thời hạn lưu mẫu</p>
+                        <h2 className="bms-table-standalone-title">Danh sách mẫu bệnh phẩm</h2>
+                        <p className="bms-table-standalone-subtitle">
+                            Bấm vào một dòng bất kỳ để mở hồ sơ truy vết chi tiết, nhật ký sự kiện và quản lý lưu kho lạnh.
+                        </p>
                     </div>
-                    <span className="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5">
-                        {specimenList.length} / {totalCount} mẫu
+                    <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
+                        {filteredSpecimens.length} / {allSpecimens.length} mẫu
                     </span>
                 </div>
 
                 <div className="bms-table-standalone-body">
-                    <table className="table table-hover table-sm align-middle mb-0" style={{ tableLayout: "fixed", width: "100%", fontSize: "0.84rem" }}>
-                        <thead className="table-light text-secondary text-uppercase" style={{ fontSize: "0.75rem" }}>
-                            <tr>
-                                <th className="ps-3" style={{ width: "14%" }}>Mã vạch</th>
-                                <th style={{ width: "18%" }}>Bệnh nhân</th>
-                                <th style={{ width: "13%" }}>Loại mẫu</th>
-                                <th style={{ width: "13%" }}>Thời gian lấy</th>
-                                <th style={{ width: "13%" }}>Trạng thái</th>
-                                <th style={{ width: "14%" }}>Vị trí lưu trữ</th>
-                                <th style={{ width: "7%" }} className="text-center">Hạn lưu</th>
-                                <th style={{ width: "8%" }} className="text-end pe-3">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {loadingList ? (
+                    <div className="table-responsive">
+                        <table className="table table-hover align-middle mb-0" style={{ fontSize: "0.85rem" }}>
+                            <thead className="table-light text-muted small text-uppercase">
                                 <tr>
-                                    <td colSpan="8" className="text-center py-4 text-muted">
-                                        <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                                        Đang tải danh sách mẫu...
-                                    </td>
+                                    <th className="ps-3">Barcode ống</th>
+                                    <th>Bệnh nhân</th>
+                                    <th>Gói XN &amp; Loại ống</th>
+                                    <th>Thời gian lấy mẫu</th>
+                                    <th>Trạng thái</th>
+                                    <th>Vị trí lưu kho</th>
+                                    <th className="text-end pe-3">Thao tác</th>
                                 </tr>
-                            ) : specimenList.length === 0 ? (
-                                <tr>
-                                    <td colSpan="8" className="text-center py-4 text-muted">
-                                        Không tìm thấy mẫu bệnh phẩm nào phù hợp với bộ lọc.
-                                    </td>
-                                </tr>
-                            ) : (
-                                specimenList.map((item) => {
-                                    const isSelected = activeBarcode === item.barcode;
-                                    const collected = item.collectionTime || item.collectedAt;
-                                    const remDays = item.remainingDays !== undefined ? item.remainingDays : item.daysRemaining;
-
-                                    return (
-                                        <tr
-                                            key={item.id || item.barcode}
-                                            className={isSelected ? "table-primary fw-semibold" : ""}
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => handleSelectSpecimen(item.barcode)}
-                                        >
-                                            <td className="ps-3">
-                                                <span className="font-monospace text-primary fw-bold">
-                                                    {item.barcode}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div className="fw-bold text-dark">{item.patientName}</div>
-                                                <small className="text-muted font-monospace">{item.patientId}</small>
-                                            </td>
-                                            <td>
-                                                <div className="d-flex align-items-center gap-1">
-                                                    {renderTubeBadge(item.tubeColor, item.sampleType)}
-                                                </div>
-                                            </td>
-                                            <td className="small text-secondary">
-                                                {formatClinicalDateTime(collected, {
-                                                    day: "2-digit",
-                                                    month: "2-digit",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                })}
-                                            </td>
-                                            <td>{renderStatusBadge(item.status || item.currentStatus)}</td>
-                                            <td className="small font-monospace">
-                                                {item.storageUnit ? (
-                                                    <span>
-                                                        {item.storageUnit} ({item.rackId || "--"})
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-muted">Chưa gán</span>
-                                                )}
-                                            </td>
-                                            <td className="text-center">
-                                                {remDays !== undefined && remDays !== null ? (
-                                                    <span
-                                                        className={`badge rounded-pill ${
-                                                            remDays <= 0
-                                                                ? "bg-danger"
-                                                                : remDays <= 2
-                                                                ? "bg-warning text-dark"
-                                                                : "bg-light text-dark border"
-                                                        }`}
+                            </thead>
+                            <tbody>
+                                {loadingList ? (
+                                    <tr>
+                                        <td colSpan={7} className="text-center py-5 text-muted small">
+                                            <Spinner animation="border" size="sm" className="me-2 text-primary" />
+                                            Đang tải danh sách mẫu bệnh phẩm từ cơ sở dữ liệu…
+                                        </td>
+                                    </tr>
+                                ) : filteredSpecimens.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="text-center py-5 text-muted small">
+                                            Không tìm thấy mẫu bệnh phẩm nào khớp với bộ lọc hiện tại.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    pagination.paginatedItems.map((item) => {
+                                        const isPending = normalizeStatusKey(item.status) === "PendingCollection";
+                                        const hasStorage = Boolean(item.storageUnit && String(item.storageUnit).trim());
+                                        return (
+                                            <tr
+                                                key={item.id || item.barcode}
+                                                style={{ cursor: "pointer" }}
+                                                onClick={() => openSpecimenDetail(item.barcode)}
+                                            >
+                                                <td className="ps-3">
+                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                        <code className="fw-bold text-primary">{item.barcode}</code>
+                                                        {String(item.priority || "").toUpperCase() === "STAT" && (
+                                                            <Badge bg="danger" style={{ fontSize: "0.65rem" }}>STAT</Badge>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="fw-semibold text-dark">{item.patientName || "—"}</div>
+                                                    <div className="text-muted font-monospace" style={{ fontSize: "0.73rem" }}>
+                                                        {item.patientId || "—"}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="fw-medium text-dark">
+                                                        {item.testPackageName || "—"}
+                                                    </div>
+                                                    <div className="d-flex flex-wrap align-items-center gap-1 mt-1">
+                                                        {item.sampleType && (
+                                                            <span className="badge bg-light text-secondary border" style={{ fontSize: "0.68rem" }}>
+                                                                {formatSampleTypeVi(item.sampleType)}
+                                                            </span>
+                                                        )}
+                                                        {item.tubeColor && (
+                                                            <span className="badge bg-light text-dark border" style={{ fontSize: "0.68rem" }}>
+                                                                {formatTubeColorVi(item.tubeColor)}
+                                                            </span>
+                                                        )}
+                                                        {item.volumeMl > 0 && (
+                                                            <span className="text-muted" style={{ fontSize: "0.72rem" }}>
+                                                                {item.volumeMl} mL
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="small text-secondary">
+                                                    {isPending ? (
+                                                        <span className="text-muted">Chưa lấy mẫu</span>
+                                                    ) : (
+                                                        formatClinicalDateTime(item.collectionTime)
+                                                    )}
+                                                </td>
+                                                <td>{renderStatusBadge(item.status)}</td>
+                                                <td className="small">
+                                                    {hasStorage ? (
+                                                        <div>
+                                                            <div className="fw-medium text-dark">{item.storageUnit}</div>
+                                                            {(item.rackId || item.slotPosition) && (
+                                                                <div className="text-muted font-monospace" style={{ fontSize: "0.72rem" }}>
+                                                                    {[item.rackId, item.slotPosition].filter(Boolean).join(" · ")}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-muted">Chưa lưu kho</span>
+                                                    )}
+                                                </td>
+                                                <td className="text-end pe-3" onClick={(e) => e.stopPropagation()}>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 text-nowrap"
+                                                        style={{ fontSize: "0.78rem" }}
+                                                        onClick={() => openSpecimenDetail(item.barcode)}
                                                     >
-                                                        {remDays} ngày
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-muted small">--</span>
-                                                )}
-                                            </td>
-                                            <td className="text-end pe-3">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 d-inline-flex align-items-center gap-1 text-nowrap"
-                                                    style={{ fontSize: "0.78rem" }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleSelectSpecimen(item.barcode);
-                                                    }}
-                                                >
-                                                    <span>Xem</span>
-                                                    <ArrowRight size={9} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
+                                                        <Eye size={13} />
+                                                        <span>Truy vết</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <TablePagination
+                        page={pagination.page}
+                        totalPages={pagination.totalPages}
+                        totalItems={pagination.totalItems}
+                        pageSize={pagination.pageSize}
+                        onPageChange={pagination.setPage}
+                        onPageSizeChange={pagination.setPageSize}
+                        itemLabel="mẫu bệnh phẩm"
+                    />
                 </div>
             </section>
 
-            {/* Modals */}
+            {/* 5. XL Modal: Hồ sơ truy vết vòng đời & Lưu kho lạnh (100% dữ liệu DB) */}
+            <Modal
+                show={showDetailModal}
+                onHide={closeSpecimenDetail}
+                size="xl"
+                centered
+                scrollable
+            >
+                <Modal.Header closeButton className="bg-white border-bottom">
+                    <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
+                        <LucideBarcode style={{ color: "#1E60E6" }} size={18} />
+                        <span className="font-monospace">{currentSpecimen?.barcode || activeBarcode}</span>
+                        {currentSpecimen?.status && renderStatusBadge(currentSpecimen.status)}
+                        {currentSpecimen?.testPackageName && (
+                            <span className="badge rounded-pill" style={{ background: "#EFF6FF", color: "#1E60E6", fontSize: "0.75rem" }}>
+                                {currentSpecimen.testPackageName}
+                            </span>
+                        )}
+                    </Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body className="p-4" style={{ backgroundColor: "#F8FAFC" }}>
+                    {loadingSpecimen ? (
+                        <div className="text-center py-5 text-muted">
+                            <Spinner animation="border" size="sm" className="me-2 text-primary" />
+                            Đang tải dữ liệu truy vết mẫu từ cơ sở dữ liệu…
+                        </div>
+                    ) : specimenError ? (
+                        <Alert variant="danger" className="rounded-3 mb-0 d-flex align-items-center gap-2">
+                            <AlertCircle size={18} />
+                            <span>{specimenError}</span>
+                        </Alert>
+                    ) : currentSpecimen ? (
+                        <>
+                            {/* Thẻ tóm tắt thông tin thực từ DB */}
+                            <div className="p-3 bg-white rounded-4 border mb-3 shadow-xs" style={{ borderColor: "#E2E8F0" }}>
+                                <Row className="g-3 small">
+                                    <Col md={4}>
+                                        <div className="text-muted d-flex align-items-center gap-1 mb-1">
+                                            <User size={13} className="text-primary" />
+                                            <span>Bệnh nhân</span>
+                                        </div>
+                                        <div className="fw-bold text-dark">{currentSpecimen.patientName || "—"}</div>
+                                        <div className="text-muted font-monospace" style={{ fontSize: "0.75rem" }}>
+                                            {currentSpecimen.patientId || "—"}
+                                            {currentSpecimen.patientGender ? ` · ${formatGenderVi(currentSpecimen.patientGender)}` : ""}
+                                            {currentSpecimen.patientAge > 0 ? ` · ${currentSpecimen.patientAge} tuổi` : ""}
+                                        </div>
+                                    </Col>
+                                    <Col md={4}>
+                                        <div className="text-muted d-flex align-items-center gap-1 mb-1">
+                                            <TestTube2 size={13} className="text-primary" />
+                                            <span>Ống mẫu &amp; Thể tích</span>
+                                        </div>
+                                        <div className="fw-semibold text-dark">
+                                            {[
+                                                currentSpecimen.tubeColor ? formatTubeColorVi(currentSpecimen.tubeColor) : null,
+                                                currentSpecimen.sampleType ? formatSampleTypeVi(currentSpecimen.sampleType) : null
+                                            ].filter(Boolean).join(" · ") || "—"}
+                                        </div>
+                                        <div className="text-muted" style={{ fontSize: "0.75rem" }}>
+                                            {[
+                                                currentSpecimen.anticoagulant ? `Chống đông: ${currentSpecimen.anticoagulant}` : null,
+                                                currentSpecimen.volumeMl > 0 ? `Thể tích: ${currentSpecimen.volumeMl} mL` : null,
+                                                currentSpecimen.rfidTag ? `RFID: ${currentSpecimen.rfidTag}` : null
+                                            ].filter(Boolean).join(" · ") || "—"}
+                                        </div>
+                                    </Col>
+                                    <Col md={4}>
+                                        <div className="text-muted d-flex align-items-center gap-1 mb-1">
+                                            <Calendar size={13} className="text-primary" />
+                                            <span>Lấy mẫu &amp; Phòng Lab</span>
+                                        </div>
+                                        <div className="fw-semibold text-dark">
+                                            {normalizeStatusKey(currentSpecimen.status) === "PendingCollection"
+                                                ? "Chưa lấy mẫu"
+                                                : formatClinicalDateTime(currentSpecimen.collectionTime)}
+                                        </div>
+                                        <div className="text-muted" style={{ fontSize: "0.75rem" }}>
+                                            {[
+                                                currentSpecimen.collectorName || null,
+                                                currentSpecimen.collectionSite || null
+                                            ].filter(Boolean).join(" · ") || "—"}
+                                        </div>
+                                    </Col>
+                                </Row>
+
+                                {currentSpecimen.rejectionReason && (
+                                    <Alert variant="danger" className="mt-3 mb-0 py-2 small rounded-3">
+                                        <strong>Lý do từ chối mẫu:</strong> {currentSpecimen.rejectionReason}
+                                    </Alert>
+                                )}
+                            </div>
+
+                            {/* Nhật ký sự kiện + Lưu kho lạnh */}
+                            <Row className="g-3">
+                                <Col xl={7}>
+                                    <SpecimenLifecycleTimeline
+                                        events={timelineEvents}
+                                        onAddEventClick={canEditSpecimen ? () => setShowEventModal(true) : undefined}
+                                    />
+                                </Col>
+                                <Col xl={5}>
+                                    <SpecimenStorageCard
+                                        storageInfo={storageInfo}
+                                        onUpdateStorageClick={canEditSpecimen ? () => setShowStorageModal(true) : undefined}
+                                        canEdit={canEditSpecimen}
+                                    />
+                                </Col>
+                            </Row>
+                        </>
+                    ) : null}
+                </Modal.Body>
+
+                <Modal.Footer className="bg-white border-top d-flex justify-content-between align-items-center">
+                    <div className="d-flex gap-2">
+                        {canEditSpecimen && currentSpecimen && (
+                            <>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
+                                    onClick={() => setShowStorageModal(true)}
+                                >
+                                    <Warehouse size={14} />
+                                    <span>{storageInfo ? "Đổi Vị Trí Tủ Lạnh" : "Gán Vị Trí Lưu Kho"}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold text-white d-inline-flex align-items-center gap-1.5"
+                                    style={{ backgroundColor: "#1E60E6", borderColor: "#1E60E6" }}
+                                    onClick={() => setShowEventModal(true)}
+                                >
+                                    <LucideHistory size={14} />
+                                    <span>Ghi Nhận Sự Kiện</span>
+                                </button>
+                            </>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-light border rounded-pill px-3 fw-semibold"
+                        onClick={closeSpecimenDetail}
+                    >
+                        Đóng
+                    </button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Sub-modals (chỉ dành cho vai trò Lab) */}
             {canEditSpecimen && (
                 <>
                     <AddTrackingEventModal
@@ -637,7 +750,6 @@ export default function SpecimenHistoryPage() {
                         barcode={activeBarcode}
                         onSave={handleSaveTrackingEvent}
                     />
-
                     <UpdateStorageModal
                         show={showStorageModal}
                         onHide={() => setShowStorageModal(false)}

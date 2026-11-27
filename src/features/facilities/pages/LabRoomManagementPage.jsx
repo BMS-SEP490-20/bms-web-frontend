@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Row, Col, Table, Button, Form, Modal, Spinner, Badge } from 'react-bootstrap';
 import { Plus, Search, X as LucideX, RefreshCw, SquarePen, Trash2, Eye } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { testOrderService } from '../../../services/testOrderService';
 import { useNotificationContext } from '../../../shared/contexts/NotificationContext';
@@ -158,6 +159,8 @@ const LabRoomManagementPage = () => {
         });
     }, [rooms, searchTerm, statusFilter, typeFilter]);
 
+    const roomsPag = usePagination(filteredRooms, 10);
+
     return (
         <div className="w-100 py-1">
             <div className="bms-page-header-card mb-4">
@@ -280,7 +283,7 @@ const LabRoomManagementPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredRooms.length > 0 ? filteredRooms.map((room) => {
+                                    {filteredRooms.length > 0 ? roomsPag.paginatedItems.map((room) => {
                                         const rId = room.roomId || room.room_id || room.Id || room.id;
                                         const isAvail = room.isAvailable !== undefined ? room.isAvailable : room.is_available;
                                         return (
@@ -334,6 +337,15 @@ const LabRoomManagementPage = () => {
                                     )}
                                 </tbody>
                             </Table>
+                            <TablePagination
+                                page={roomsPag.page}
+                                totalPages={roomsPag.totalPages}
+                                totalItems={roomsPag.totalItems}
+                                pageSize={roomsPag.pageSize}
+                                onPageChange={roomsPag.setPage}
+                                onPageSizeChange={roomsPag.setPageSize}
+                                itemLabel="phòng xét nghiệm"
+                            />
                         </div>
                     )}
                 </div>

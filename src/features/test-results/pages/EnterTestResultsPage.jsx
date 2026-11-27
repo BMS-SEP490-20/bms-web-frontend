@@ -24,15 +24,25 @@ import {
   InputGroup,
   Modal
 } from 'react-bootstrap';
-import { FlaskConical, CheckCircle2, AlertTriangle, Phone, TestTube2, Microscope, Clock, Stethoscope, Save, Search, Lock, Bell, Volume2, Timer, Hospital, Eye, XCircle, RotateCw, Undo2, FileSignature } from 'lucide-react';
+import { FlaskConical, CheckCircle2, AlertTriangle, Phone, TestTube2, Microscope, Clock, Stethoscope, Save, Search, Lock, Bell, Volume2, Timer, Hospital, Eye, XCircle, RotateCw, Undo2, FileSignature, RefreshCw } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { resultApi } from '../api/resultApi';
 import { getInventory } from '../../inventory/api/inventoryApi';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
-import { canEnterTestResults, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
+import { canEnterTestResults, canViewTestResults, normalizeSampleStatus } from '../../../shared/workflow/sampleWorkflowGates';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
 import { resolveParamsForSample } from '../../../shared/workflow/resolveOrderParams';
-import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
+import { formatTubeColorVi, formatSampleTypeVi } from '../../../shared/workflow/labConsumables';
+import {
+  getMeasurementRule,
+  formatRuleHintVi,
+  validateAllParameters
+} from '../../../shared/workflow/clinicalMeasurementValidation';
+
+function hasEnteredValue(val) {
+  return val !== null && val !== undefined && String(val).trim() !== '';
+}
 
 function isQualitativeParam(p) {
   return String(p?.valueType || '').toLowerCase() === 'qualitative';
@@ -107,7 +117,7 @@ const ANALYTE_LIBRARY = {
 const CBC_PANEL_CODES = new Set(['CBC', 'CBC-01', 'HUYETDO', 'HUYẾT ĐỒ', 'PKG-CBC', 'COMPLETEBLOODCOUNT']);
 
 function cloneParam(p) {
-  return { ...p, value: 0 };
+  return { ...p, value: '' };
 }
 
 function paramsFromTestCode(code, name) {
@@ -125,7 +135,7 @@ function paramsFromTestCode(code, name) {
   return [{
     code: raw,
     name: label.includes('·') ? label : `${raw} · ${label}`,
-    value: 0,
+    value: '',
     unit: '',
     refLow: null,
     refHigh: null,
@@ -155,11 +165,16 @@ function isOrderGuid(id) {
 }
 
 function evaluateMedicalFlag(code, value, p) {
-  if (value === null || value === undefined || value === '' || value === 0) return 'NORMAL';
+  if (!hasEnteredValue(value)) return 'NORMAL';
   if (isQualitativeParam(p)) {
     const text = String(value).trim().toLowerCase();
     if (!text) return 'NORMAL';
-    if (text.includes('dương') || text.includes('positive') || text.includes('reactive')) return 'HIGH';
+    if (
+      text.includes('dương') ||
+      text.includes('positive') ||
+      (text.includes('reactive') && !text.includes('non-reactive')) ||
+      (text.includes('phản ứng') && !text.includes('không phản ứng'))
+    ) return 'HIGH';
     return 'NORMAL';
   }
   if (Number.isNaN(Number(value))) return 'NORMAL';
@@ -255,6 +270,140 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   // Feedback states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
+  // Danh sách ống mẫu sẵn sàng ở Bước 3 (Đang xét nghiệm / Yêu cầu chạy lại / Chờ BS duyệt / BS đã duyệt)
+  const [benchSamples, setBenchSamples] = useState([]);
+  const [resultBySampleKey, setResultBySampleKey] = useState({});
+  const [benchLoading, setBenchLoading] = useState(false);
+  const [benchTab, setBenchTab] = useState('TESTING'); // 'TESTING' | 'RERUN' | 'WAITING_DOCTOR' | 'APPROVED'
+  const [benchSearch, setBenchSearch] = useState('');
+  const [showEntryModal, setShowEntryModal] = useState(Boolean(initialSampleId));
+  const [pageFeedback, setPageFeedback] = useState(null);
+
+  const isDoctorApprovedResult = useCallback((tr) => {
+    if (!tr) return false;
+    const st = String(tr.status || '').trim().toLowerCase();
+    const vs = String(tr.validationStatus || '').trim().toLowerCase();
+    return (
+      st === 'approved' ||
+      st === 'doctorapproved' ||
+      st === 'released' ||
+      vs === 'doctorapproved' ||
+      vs === 'released' ||
+      Boolean(tr.approvedAt)
+    );
+  }, []);
+
+  const getSampleResult = useCallback((s) => {
+    if (!s) return null;
+    const keys = [s.id, s.sampleId, s.barcode]
+      .filter(Boolean)
+      .map((k) => String(k).trim().toLowerCase());
+    for (const k of keys) {
+      if (resultBySampleKey[k]) return resultBySampleKey[k];
+    }
+    return null;
+  }, [resultBySampleKey]);
+
+  const loadBenchSamples = useCallback(async () => {
+    setBenchLoading(true);
+    try {
+      const [queueRes, resultsRes] = await Promise.allSettled([
+        api.get('/laboratory/samples/queue', { params: { page: 1, pageSize: 100 } }),
+        api.get('/test-results', { params: { page: 1, pageSize: 200 } })
+      ]);
+
+      const list = queueRes.status === 'fulfilled' && Array.isArray(queueRes.value.data?.data)
+        ? queueRes.value.data.data
+        : [];
+      const sorted = [...list].sort((a, b) => {
+        const tA = new Date(a?.updatedAt || a?.collectedAt || a?.createdAt || 0).getTime() || 0;
+        const tB = new Date(b?.updatedAt || b?.collectedAt || b?.createdAt || 0).getTime() || 0;
+        return tB - tA;
+      });
+      setBenchSamples(sorted);
+
+      const rawResults = resultsRes.status === 'fulfilled'
+        ? (Array.isArray(resultsRes.value.data?.data)
+            ? resultsRes.value.data.data
+            : Array.isArray(resultsRes.value.data?.data?.items)
+              ? resultsRes.value.data.data.items
+              : Array.isArray(resultsRes.value.data?.items)
+                ? resultsRes.value.data.items
+                : [])
+        : [];
+      const map = {};
+      for (const r of rawResults) {
+        const sKey = String(r?.sampleId || r?.sample_id || '').trim().toLowerCase();
+        if (!sKey) continue;
+        const prev = map[sKey];
+        const prevTime = new Date(prev?.updatedAt || prev?.createdAt || 0).getTime() || 0;
+        const nextTime = new Date(r?.updatedAt || r?.createdAt || 0).getTime() || 0;
+        if (!prev || nextTime >= prevTime) {
+          map[sKey] = r;
+        }
+      }
+      setResultBySampleKey(map);
+    } catch {
+      setBenchSamples([]);
+      setResultBySampleKey({});
+    } finally {
+      setBenchLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadBenchSamples();
+  }, [loadBenchSamples]);
+
+  const testingOnlySamples = useMemo(
+    () => benchSamples.filter((s) => normalizeSampleStatus(s?.status) === 'Testing'),
+    [benchSamples]
+  );
+
+  const rerunOnlySamples = useMemo(
+    () => benchSamples.filter((s) => normalizeSampleStatus(s?.status) === 'RerunRequested'),
+    [benchSamples]
+  );
+
+  const testingBenchSamples = useMemo(
+    () => benchSamples.filter((s) => canEnterTestResults(s?.status)),
+    [benchSamples]
+  );
+
+  const completedBenchSamples = useMemo(
+    () => benchSamples.filter((s) => canViewTestResults(s?.status)),
+    [benchSamples]
+  );
+
+  const waitingDoctorSamples = useMemo(
+    () => completedBenchSamples.filter((s) => !isDoctorApprovedResult(getSampleResult(s))),
+    [completedBenchSamples, getSampleResult, isDoctorApprovedResult]
+  );
+
+  const approvedByDoctorSamples = useMemo(
+    () => completedBenchSamples.filter((s) => isDoctorApprovedResult(getSampleResult(s))),
+    [completedBenchSamples, getSampleResult, isDoctorApprovedResult]
+  );
+
+  const displayedBenchSamples = useMemo(() => {
+    const base =
+      benchTab === 'WAITING_DOCTOR'
+        ? waitingDoctorSamples
+        : benchTab === 'APPROVED'
+          ? approvedByDoctorSamples
+          : benchTab === 'RERUN'
+            ? rerunOnlySamples
+            : testingOnlySamples;
+    const kw = benchSearch.trim().toLowerCase();
+    if (!kw) return base;
+    return base.filter((s) => {
+      const blob = `${s.barcode || ''} ${s.id || ''} ${s.patientName || ''} ${s.patientId || ''} ${s.testPackageName || ''} ${s.labRoom || ''}`.toLowerCase();
+      return blob.includes(kw);
+    });
+  }, [benchTab, testingOnlySamples, rerunOnlySamples, waitingDoctorSamples, approvedByDoctorSamples, benchSearch]);
+  const benchPag = usePagination(displayedBenchSamples, 10);
 
   // Xóa banner lỗi checklist IQC cũ còn kẹt sau HMR / lần bấm gửi trước khi gỡ ràng buộc
   useEffect(() => {
@@ -276,6 +425,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     const next = Array.isArray(list) ? list.map((p) => ({ ...p, value: p.value ?? '' })) : [];
     setOrderParamTemplate(next.map((p) => ({ ...p, value: '' })));
     setParams(next);
+    setSubmitAttempted(false);
     setResolvedOrderLabel(label || (next.length === 1 ? next[0].code : `${next.length} chỉ số`));
   }, []);
 
@@ -317,6 +467,17 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
     let saved = null;
 
+    const sampleKeys = new Set(
+      [lookupKey, sample?.barcode, sample?.Barcode, sample?.id, sample?.sampleId]
+        .filter(Boolean)
+        .map((k) => String(k).trim().toLowerCase())
+    );
+    const belongsToThisSample = (row) => {
+      const rowSample = String(row?.sampleId || row?.sample_id || '').trim().toLowerCase();
+      if (!rowSample) return true;
+      return sampleKeys.size === 0 || sampleKeys.has(rowSample);
+    };
+
     const appointmentId = sample?.appointmentId || sample?.AppointmentId || sample?.appointmentCode;
     if (appointmentId) {
       try {
@@ -326,6 +487,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         const payload = lr.data?.data ?? lr.data;
         const list = Array.isArray(payload) ? payload : payload ? [payload] : [];
         for (const row of list) {
+          if (!belongsToThisSample(row)) continue;
           saved = normalizeResult(row);
           if (saved) break;
         }
@@ -482,21 +644,39 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     return () => { isMounted = false; };
   }, []);
 
-  // Tự động đánh giá cờ cho từng chỉ số
+  // Validation sinh lý / dải đo AMR theo từng chỉ số (chặn số âm, quy tắc số 0, biên trên/dưới, ràng buộc chéo)
+  const liveValidation = useMemo(
+    () => validateAllParameters(params, { requireAll: false }),
+    [params]
+  );
+
+  const validationState = useMemo(
+    () => validateAllParameters(params, { requireAll: submitAttempted }),
+    [params, submitAttempted]
+  );
+
+  const enteredCount = useMemo(
+    () => (Array.isArray(params) ? params : []).filter((p) => hasEnteredValue(p.value)).length,
+    [params]
+  );
+
+  // Tự động đánh giá cờ cho từng chỉ số (giữ nguyên giá trị 0 hợp lệ như BASO_PCT, BILI_D, CRP_HS, HBS_AB)
   const flags = useMemo(() => {
     const list = Array.isArray(params) ? params : [];
     return list.map((p) => {
-      const hasVal = p.value !== '' && p.value !== null && p.value !== undefined && p.value !== 0;
-      const flag = hasVal ? evaluateMedicalFlag(p.code, p.value, p) : 'NORMAL';
+      const codeKey = String(p.code || '').trim().toUpperCase();
+      const hasVal = hasEnteredValue(p.value);
+      const hasErr = Boolean(liveValidation.fieldErrors[codeKey]);
+      const flag = hasVal && !hasErr ? evaluateMedicalFlag(p.code, p.value, p) : 'NORMAL';
       return {
         ...p,
         flag
       };
     });
-  }, [params]);
+  }, [params, liveValidation]);
 
   const criticalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && p.value !== '' && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => p.flag === 'CRITICAL' && hasEnteredValue(p.value));
   }, [flags]);
 
   const hasCritical = useMemo(() => {
@@ -504,40 +684,10 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   }, [criticalAnalytes]);
 
   const abnormalAnalytes = useMemo(() => {
-    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && p.value !== '' && p.value !== 0);
+    return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && hasEnteredValue(p.value));
   }, [flags]);
 
-  // Kích hoạt còi Web Audio 880Hz và quản lý đồng hồ đếm ngược 15 phút
-  const prevCriticalRef = useRef(false);
-
-  useEffect(() => {
-    if (hasCritical && !prevCriticalRef.current) {
-      playWebAudioAlert880Hz();
-      setCountdownSeconds(900);
-      setNotificationTime(new Date().toLocaleTimeString('vi-VN'));
-    }
-    prevCriticalRef.current = hasCritical;
-  }, [hasCritical]);
-
-  useEffect(() => {
-    if (hasCritical && !doctorNotified) {
-      setTimerRunning(true);
-    } else {
-      setTimerRunning(false);
-    }
-  }, [hasCritical, doctorNotified]);
-
-  useEffect(() => {
-    let interval = null;
-    if (timerRunning && countdownSeconds > 0) {
-      interval = setInterval(() => {
-        setCountdownSeconds((sec) => Math.max(0, sec - 1));
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timerRunning, countdownSeconds]);
+  // Đã tắt còi Web Audio 880Hz và đồng hồ đếm ngược CRITICAL theo yêu cầu quy trình Lab gọn nhẹ
 
   const formatCountdown = (totalSec) => {
     const mins = Math.floor(totalSec / 60);
@@ -714,11 +864,26 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   useEffect(() => {
     if (!initialSampleId) return undefined;
     setSampleId(initialSampleId);
+    setShowEntryModal(true);
     handleLookupSampleWithTarget(initialSampleId);
     return undefined;
     // Chỉ auto-load khi query sampleId đổi — tránh loop do setSampleId đổi callback
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSampleId]);
+
+  const openEntryModalForSample = (targetCode) => {
+    const clean = String(targetCode || '').trim();
+    if (!clean) return;
+    setSampleId(clean);
+    setResult(null);
+    setError(null);
+    setSubmitAttempted(false);
+    setCancellationSuccess(null);
+    setConfirmRerun(false);
+    setDoctorNotified(false);
+    setShowEntryModal(true);
+    void handleLookupSampleWithTarget(clean);
+  };
 
   const sampleStatus = normalizeSampleStatus(sampleDetails?.status);
   const allowEnter = !viewOnlyMode && (!sampleDetails || canEnterTestResults(sampleStatus));
@@ -738,28 +903,31 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
       return;
     }
 
-    // RÀNG BUỘC NGHIỆP VỤ BẮT BUỘC: Nếu có cờ CRITICAL, BẮT BUỘC xác nhận đã thông báo cho Bác sĩ điều trị
-    if (hasCritical && (!doctorNotified || !doctorName.trim() || !confirmRerun)) {
-      setError('Phát hiện chỉ số ở ngưỡng báo động nguy hiểm (CRITICAL). Kỹ thuật viên bắt buộc kiểm tra ống mẫu, chạy kiểm chứng lần 2 và ghi nhận thông báo trực tiếp cho bác sĩ điều trị.');
+    const check = validateAllParameters(params, { requireAll: true });
+    if (check.hasErrors) {
+      setSubmitAttempted(true);
+      const totalFieldErrors = Object.keys(check.fieldErrors).length;
+      const missingCount = check.missingCodes.length;
+      const invalidRangeCount = Math.max(0, totalFieldErrors - missingCount);
+      const summaryParts = [];
+      if (missingCount > 0) {
+        const previewMissing = check.missingCodes.slice(0, 5).join(', ');
+        summaryParts.push(`còn thiếu ${missingCount} chỉ số (${previewMissing}${missingCount > 5 ? '…' : ''})`);
+      }
+      if (invalidRangeCount > 0) {
+        summaryParts.push(`${invalidRangeCount} chỉ số sai dải đo sinh lý / số âm / số 0 không hợp lệ`);
+      }
+      if (check.crossErrors.length > 0) {
+        summaryParts.push(check.crossErrors[0]);
+      }
+      setError(`Không thể lưu kết quả: ${summaryParts.join('; ')}. Vui lòng kiểm tra các ô viền đỏ bên dưới.`);
       return;
     }
 
-    const validParams = (Array.isArray(params) ? params : []).filter((p) => p.value !== '' && p.value !== null && p.value !== undefined && String(p.value).trim() !== '' && p.value !== 0);
+    const validParams = (Array.isArray(params) ? params : []).filter((p) => hasEnteredValue(p.value));
     if (validParams.length === 0) {
-      setError('Vui lòng nhập ít nhất một kết quả đo chỉ số xét nghiệm.');
+      setError('Vui lòng nhập đầy đủ kết quả đo chỉ số xét nghiệm.');
       return;
-    }
-
-    const parsedReagentQty = selectedReagentLotId ? Number(reagentQuantity) : 1;
-    if (selectedReagentLotId) {
-      if (!Number.isFinite(parsedReagentQty) || parsedReagentQty <= 0) {
-        setError('Số lượng vật tư/hóa chất tiêu hao phải lớn hơn 0.');
-        return;
-      }
-      if (selectedReagentLot && parsedReagentQty > Number(selectedReagentLot.quantity)) {
-        setError(`Lô ${selectedReagentLot.code} (${selectedReagentLot.lotNumber}) chỉ còn ${selectedReagentLot.quantity} ${selectedReagentLot.unit}, không đủ để trừ ${parsedReagentQty} ${selectedReagentLot.unit}.`);
-        return;
-      }
     }
 
     setLoading(true);
@@ -768,25 +936,20 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         sampleId: sampleId.trim(),
         appointmentId: sampleDetails?.appointmentId || undefined,
         equipmentCode: 'Bàn xét nghiệm thủ công (Manual Bench Entry)',
-        reagentCode: selectedReagentLotId || undefined,
-        quantity: selectedReagentLotId ? parsedReagentQty : 1,
         parameters: validParams,
-        notes: `${notes}${hasCritical ? ` [ĐÃ BÁO ĐỘNG CRITICAL: BS ${doctorName} (${doctorDepartment}) qua ${notificationChannel} lúc ${notificationTime}. Phản hồi BS: ${callLogNotes}]` : ''}`,
+        notes: notes.trim(),
         isPanic: hasCritical,
-        criticalNotified: Boolean(doctorNotified),
-        confirmRerunChecked: Boolean(confirmRerun),
-        doctorNotifiedName: doctorName || '',
-        notifiedAt: new Date().toISOString(),
         reviewedBy: benchOperator || operatorDisplay
       });
 
-      if (selectedReagentLotId && selectedReagentLot) {
-        res.message = `${res.message} Đã trừ ${parsedReagentQty} ${selectedReagentLot.unit} từ lô ${selectedReagentLot.code} (${selectedReagentLot.lotNumber}).`;
-        setSelectedReagentLotId('');
-        setReagentQuantity('1');
-        loadUsableReagents();
-      }
       setResult(res);
+      setPageFeedback({
+        type: res.isPanic ? 'warning' : 'success',
+        title: res.resultId || `Đã lưu kết quả mẫu ${sampleId.trim()}`,
+        message: res.message || 'Đã gửi kết quả lên Bác sĩ thẩm định lâm sàng.'
+      });
+      setShowEntryModal(false);
+      loadBenchSamples();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi khi gửi kết quả xét nghiệm lên hệ thống.');
     } finally {
@@ -794,11 +957,14 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     }
   };
 
-  const getFlagBadge = (flag, value) => {
-    if (value === 0 || value === '') return <span className="text-muted">—</span>;
+  const getFlagBadge = (flag, value, hasFieldError = false) => {
+    if (hasFieldError) {
+      return <Badge bg="danger" className="px-2 py-1 fw-bold"><AlertTriangle className="me-1" size="1em"/>KHÔNG HỢP LỆ</Badge>;
+    }
+    if (!hasEnteredValue(value)) return <span className="text-muted">—</span>;
     switch (flag) {
       case 'CRITICAL':
-        return <Badge bg="danger" className="px-2 py-1 fw-bold"><AlertTriangle className="me-1"  size="1em"/>NGUY HIỂM (CRITICAL)</Badge>;
+        return <Badge bg="danger" className="px-2 py-1 fw-bold"><AlertTriangle className="me-1" size="1em"/>NGUY HIỂM (CRITICAL)</Badge>;
       case 'HIGH':
         return <Badge bg="warning" text="dark" className="px-2 py-1 fw-bold">VƯỢT CAO</Badge>;
       case 'LOW':
@@ -808,607 +974,784 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     }
   };
 
+  const formatStatusVi = (st, sampleResult = null) => {
+    const norm = normalizeSampleStatus(st);
+    if (norm === 'RerunRequested') return { label: 'Yêu cầu chạy lại', bg: 'danger', text: undefined };
+    if (norm === 'Testing') return { label: 'Đang xét nghiệm', bg: 'warning', text: 'dark' };
+    if (norm === 'Completed') {
+      if (isDoctorApprovedResult(sampleResult)) {
+        return { label: 'Bác sĩ đã duyệt', bg: 'success', text: undefined };
+      }
+      return { label: 'Chờ Bác sĩ duyệt', bg: 'info', text: 'dark' };
+    }
+    if (norm === 'Received' || norm === 'Processing') return { label: 'Đã tiếp nhận Lab', bg: 'primary', text: undefined };
+    if (norm === 'Collected') return { label: 'Đã lấy mẫu', bg: 'info', text: 'dark' };
+    return { label: norm || 'Chờ xử lý', bg: 'secondary', text: undefined };
+  };
+
   return (
-    <Container fluid className="py-2 px-md-4" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Tiêu đề trang chuẩn y khoa ISO 15189 */}
-      <header className="bms-page-header d-flex justify-content-between align-items-center mb-3">
-        <div className="bms-page-header-content">
-          <h1 className="bms-page-title mb-0">Nhập kết quả xét nghiệm</h1>
+    <div className="w-100 py-1">
+      {/* 1. Header chuẩn quản lý (đồng bộ Màn 1 & Màn 2) */}
+      <div className="bms-page-header-card mb-3">
+        <div className="bms-page-header-content flex-column align-items-start">
+          <div className="bms-page-title-row">
+            <h1 className="bms-page-title">Nhập kết quả xét nghiệm</h1>
+          </div>
+          <p className="text-muted small m-0 mt-1">
+            Quản lý danh sách ống mẫu đang phân tích trên máy, nhập chỉ số đo theo đúng chỉ định và chuyển Bác sĩ thẩm định lâm sàng.
+          </p>
         </div>
-        <Button
-          variant="outline-primary"
-          size="sm"
-          className="rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-1 shadow-sm"
-          onClick={() => navigate('/lab/queue')}
-        >
-          <span>&larr; Quay lại Hàng Đợi Mẫu</span>
-        </Button>
-      </header>
+        <div className="bms-page-actions d-flex align-items-center gap-2 flex-wrap">
+          <span
+            className="badge bg-light text-dark border rounded-pill px-3 py-2 fw-medium d-inline-flex align-items-center gap-1.5"
+            style={{ fontSize: '0.78rem' }}
+            title="Phân công trực hiện tại"
+          >
+            <FlaskConical size={13} style={{ color: '#1E60E6' }} />
+            <span>{benchOperator}</span>
+            <span className="text-muted">·</span>
+            <span className="text-primary fw-semibold">
+              {labRoomId && labRoomId !== 'UNASSIGNED' ? labRoomId : labRoom}
+            </span>
+          </span>
+          <Button
+            type="button"
+            variant="outline-secondary"
+            size="sm"
+            className="rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5"
+            disabled={benchLoading}
+            onClick={loadBenchSamples}
+          >
+            <RefreshCw className={benchLoading ? 'fa-spin' : ''} size={13} />
+            <span>Làm mới</span>
+          </Button>
+        </div>
+      </div>
 
-      <WorkflowStepperBar
-        title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
-        hint="Chọn ống mẫu đang phân tích → nhập chỉ số → bấm Lưu & Gửi kết quả lên Bác sĩ thẩm định"
-        activeStep={3}
-        steps={[
-          { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
-          { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu vào phòng Lab', path: '/laboratory/checkinsample' },
-          { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
-          { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
-        ]}
-      />
-
-      <div>
-        {/* Card thiết lập lượt chạy máy */}
-        <Card className="border-0 shadow-sm mb-4 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-          <Card.Body className="p-3">
-            <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
-              <FlaskConical style={{ color: '#1E60E6' }}  size="1em"/>
-              <span>Bàn Đo &amp; Nhập Kết Quả Xét Nghiệm (Manual Bench Entry)</span>
-            </h6>
-            <Row className="g-3">
-              <Col md={4}>
-                <Form.Label className="small fw-semibold text-secondary">Kỹ Thuật Viên Thực Hiện</Form.Label>
-                <Form.Control
-                  readOnly
-                  disabled
-                  value={benchOperator}
-                  className="bg-light fw-medium text-dark"
-                />
-              </Col>
-              <Col md={4}>
-                <Form.Label className="small fw-semibold text-secondary">Phòng Lab (theo ca trực)</Form.Label>
-                <Form.Control
-                  readOnly
-                  disabled
-                  value={labRoomId && labRoomId !== 'UNASSIGNED' ? `${labRoom} (${labRoomId})` : labRoom}
-                  className="bg-light fw-medium text-dark"
-                />
-              </Col>
-              <Col md={4}>
-                <Form.Label className="small fw-semibold text-secondary">
-                  Mã Barcode Ống Mẫu <span className="text-danger">*</span>
-                </Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    required
-                    value={sampleId}
-                    onChange={(e) => setSampleId(e.target.value)}
-                    onBlur={() => handleLookupSample()}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleLookupSample();
-                      }
-                    }}
-                    placeholder="Quét Barcode hoặc nhập mã SMP-..."
-                  />
-                  <Button variant="outline-primary" type="button" onClick={handleLookupSample}>
-                    <Search  size="1em"/>
-                  </Button>
-                </InputGroup>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-
-        {!sampleId.trim() && (
-          <Alert variant="info" className="rounded-3 shadow-sm border">
-            <Search className="me-2"  size="1em"/>
-            Quét hoặc nhập <strong>mã barcode ống mẫu</strong> trước khi nhập kết quả. Hệ thống sẽ nạp đúng chỉ số theo y lệnh (không dùng bảng CBC mặc định).
-          </Alert>
-        )}
-        {sampleDetails && !allowEnter && (
-          <Alert variant="warning" className="rounded-3 shadow-sm border">
-            <Lock className="me-2"  size="1em"/>
-            Mẫu <strong>{sampleStatus}</strong> — đã qua bước nhập KQ / terminal. Nút gửi BS bị khóa (không cho quay lại bước trước).
-          </Alert>
-        )}
-
-        {/* Thông báo Alert */}
-        {cancellationSuccess && (
-          <Alert variant="warning" dismissible onClose={() => setCancellationSuccess(null)} className="rounded-3 shadow-sm border-warning">
-            <Undo2 className="me-2 text-warning-emphasis"  size="1em"/>
-            <strong>Đã Hủy &amp; Yêu Cầu Chạy Lại:</strong> {cancellationSuccess}
-          </Alert>
-        )}
-        {error && (
-          <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm">
-            <AlertTriangle className="me-2"  size="1em"/>
-            {error}
-          </Alert>
-        )}
-        {result && (
-          <Alert variant={result.isPanic ? 'warning' : 'success'} className="rounded-3 shadow-sm d-flex flex-wrap justify-content-between align-items-center gap-2">
+      {/* 2. KPI Cards tóm tắt quản lý (click lọc nhanh theo trạng thái) */}
+      <Row className="g-3 mb-3">
+        <Col md={3} sm={6}>
+          <div
+            className="bms-kpi-quad-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => setBenchTab('TESTING')}
+            onKeyDown={(e) => { if (e.key === 'Enter') setBenchTab('TESTING'); }}
+            style={{
+              cursor: 'pointer',
+              border: benchTab === 'TESTING' ? '1.5px solid #1E60E6' : undefined
+            }}
+          >
             <div>
-              <CheckCircle2 className="me-2 text-success fs-5"  size="1em"/>
-              <strong>{result.resultId || 'Đã lưu thành công'}</strong> &mdash; {result.message}
+              <h6 className="bms-kpi-label">Chờ Nhập KQ</h6>
+              <div className="bms-kpi-value text-primary">{testingOnlySamples.length}</div>
+              <div className="bms-kpi-sub text-muted">Đang xét nghiệm trên máy</div>
             </div>
-            <Button
-              variant="outline-success"
-              size="sm"
-              className="rounded-pill fw-bold px-3"
-              onClick={() => navigate('/lab/queue')}
-            >
-              Quay lại Hàng Đợi Xem Trạng Thái &rarr;
-            </Button>
-          </Alert>
-        )}
-
-        {/* Banner đếm ngược 15 phút nếu có chỉ số CRITICAL */}
-        {hasCritical && (
-          <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div className="d-flex align-items-center gap-3">
-              <div className="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center p-3 fs-4 shadow-sm">
-                <Bell className="fa-shake"  size="1em"/>
-              </div>
-              <div>
-                <h5 className="mb-1 fw-bold text-danger d-flex align-items-center gap-2">
-                  <span>BÁO ĐỘNG ĐỎ: PHÁT HIỆN GIÁ TRỊ NGUY HIỂM (CRITICAL)</span>
-                  <Badge bg="danger" className="px-2 py-1">TAT &lt; 15 PHÚT</Badge>
-                </h5>
-                <div className="small text-dark">
-                  Chỉ số nguy hiểm: <strong>{criticalAnalytes.map(c => `${c.name} = ${c.value} ${c.unit}`).join('; ')}</strong>. Bắt buộc liên hệ Bác sĩ điều trị ngay!
-                </div>
-              </div>
-            </div>
-
-            <div className="d-flex align-items-center gap-3">
-              <Button
-                variant="outline-danger"
-                size="sm"
-                className="d-flex align-items-center gap-1 fw-semibold"
-                type="button"
-                onClick={playWebAudioAlert880Hz}
-              >
-                <Volume2  size="1em"/>
-                <span>Thử Còi 880Hz</span>
-              </Button>
-
-              <div className="text-center p-2 rounded bg-white border border-danger shadow-sm" style={{ minWidth: 150 }}>
-                <div className="small text-danger fw-semibold d-flex align-items-center justify-content-center gap-1">
-                  <Timer  size="1em"/>
-                  <span>Thời gian còn lại</span>
-                </div>
-                <div className={`fs-4 fw-bold font-monospace ${countdownSeconds < 180 ? 'text-danger' : 'text-dark'}`}>
-                  {formatCountdown(countdownSeconds)}
-                </div>
-                {countdownSeconds === 0 && (
-                  <div className="small text-danger fw-bold">QUÁ HẠN 15 PHÚT!</div>
-                )}
-              </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
+              <FlaskConical size="1em" />
             </div>
           </div>
-        )}
+        </Col>
+        <Col md={3} sm={6}>
+          <div
+            className="bms-kpi-quad-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => setBenchTab('RERUN')}
+            onKeyDown={(e) => { if (e.key === 'Enter') setBenchTab('RERUN'); }}
+            style={{
+              cursor: 'pointer',
+              border: benchTab === 'RERUN' ? '1.5px solid #dc2626' : undefined
+            }}
+          >
+            <div>
+              <h6 className="bms-kpi-label">Yêu Cầu Chạy Lại</h6>
+              <div className="bms-kpi-value text-danger">{rerunOnlySamples.length}</div>
+              <div className="bms-kpi-sub text-muted">Cần đo kiểm chứng lại lần 2</div>
+            </div>
+            <div className="bms-kpi-icon-badge" style={{ background: '#FEE2E2', color: '#DC2626' }}>
+              <RotateCw size="1em" />
+            </div>
+          </div>
+        </Col>
+        <Col md={3} sm={6}>
+          <div
+            className="bms-kpi-quad-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => setBenchTab('WAITING_DOCTOR')}
+            onKeyDown={(e) => { if (e.key === 'Enter') setBenchTab('WAITING_DOCTOR'); }}
+            style={{
+              cursor: 'pointer',
+              border: benchTab === 'WAITING_DOCTOR' ? '1.5px solid #D97706' : undefined
+            }}
+          >
+            <div>
+              <h6 className="bms-kpi-label">Chờ Bác Sĩ Duyệt</h6>
+              <div className="bms-kpi-value" style={{ color: '#D97706' }}>{waitingDoctorSamples.length}</div>
+              <div className="bms-kpi-sub text-muted">Đã gửi KQ, chờ BS thẩm định</div>
+            </div>
+            <div className="bms-kpi-icon-badge" style={{ background: '#FEF3C7', color: '#D97706' }}>
+              <Clock size="1em" />
+            </div>
+          </div>
+        </Col>
+        <Col md={3} sm={6}>
+          <div
+            className="bms-kpi-quad-card"
+            role="button"
+            tabIndex={0}
+            onClick={() => setBenchTab('APPROVED')}
+            onKeyDown={(e) => { if (e.key === 'Enter') setBenchTab('APPROVED'); }}
+            style={{
+              cursor: 'pointer',
+              border: benchTab === 'APPROVED' ? '1.5px solid #10B981' : undefined
+            }}
+          >
+            <div>
+              <h6 className="bms-kpi-label">Bác Sĩ Đã Duyệt</h6>
+              <div className="bms-kpi-value text-success">{approvedByDoctorSamples.length}</div>
+              <div className="bms-kpi-sub text-muted">Hoàn tất &amp; phát hành KQ</div>
+            </div>
+            <div className="bms-kpi-icon-badge bms-kpi-icon-green">
+              <CheckCircle2 size="1em" />
+            </div>
+          </div>
+        </Col>
+      </Row>
 
-        <Row className="g-3">
-          {/* Cột trái: Bảng nhập chỉ số phân tích */}
-          <Col xl={9} lg={12} style={{ minWidth: 0 }}>
-            <Form onSubmit={onSubmit}>
-              <Card className="border-0 shadow-sm rounded-3 bg-white mb-4">
-                <Card.Header className="bg-white border-bottom px-4 py-3">
-                  <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 w-100">
-                    <div style={{ minWidth: 0 }}>
-                      <h5 className="mb-0 fw-bold text-dark">Bảng Nhập Chỉ Số Đo Bệnh Phẩm</h5>
-                      {resolvedOrderLabel ? (
-                        <div className="small text-primary mt-1" style={{ wordBreak: 'break-word' }}>
-                          Đã nạp theo chỉ định: <strong>{resolvedOrderLabel}</strong>
-                          {flags.length > 0 ? ` · ${flags.length} thông số` : ''}
-                        </div>
-                      ) : null}
-                      <small className="text-muted">
-                        {flags.length} thông số
-                        {isPackageFiltered && sampleDetails?.testPackageName ? ` theo gói "${sampleDetails.testPackageName}"` : ''}
-                        {' '}&bull; Đơn vị và khoảng tham chiếu chuẩn
-                      </small>
-                    </div>
-                    <span className="badge bg-light text-dark border flex-shrink-0">
-                      KTV nhập: {benchOperator || operatorDisplay}
-                    </span>
-                  </div>
-                </Card.Header>
-                <Card.Body className="p-0">
-                  <div className="table-responsive">
-                    <Table hover align="middle" className="mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
-                      <thead className="table-light text-muted small">
-                        <tr>
-                          <th className="py-2.5 ps-3" style={{ width: '35%' }}>Thông Số Đo</th>
-                          <th className="py-2.5" style={{ width: '26%' }}>Kết Quả Đo</th>
-                          <th className="py-2.5" style={{ width: '21%' }}>Tham Chiếu &amp; Đơn Vị</th>
-                          <th className="py-2.5 text-end pe-3" style={{ width: '18%' }}>Đánh Giá</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paramsLoading && (
-                          <tr>
-                            <td colSpan={4} className="text-center text-muted py-4">
-                              <Spinner animation="border" size="sm" className="me-2" /> Đang nạp chỉ số theo y lệnh / gói dịch vụ…
-                            </td>
-                          </tr>
-                        )}
-                        {!paramsLoading && flags.length === 0 && (
-                          <tr>
-                            <td colSpan={4} className="text-center py-4 px-3 text-muted" style={{ whiteSpace: 'normal' }}>
-                              <Search className="fs-4 mb-2 opacity-50 d-block mx-auto" size="1.25em" />
-                              <div className="fw-semibold text-dark mb-1">Chưa chọn ống mẫu xét nghiệm</div>
-                              <div className="small mx-auto" style={{ maxWidth: '540px', whiteSpace: 'normal', lineHeight: 1.5 }}>
-                                Quét hoặc nhập <strong>Mã Barcode ống mẫu (SMP-/SPC-...)</strong> ở ô phía trên rồi nhấn <strong>Enter</strong> hoặc nút tìm kiếm để tải đúng các chỉ số theo chỉ định.
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                        {!paramsLoading && (Array.isArray(flags) ? flags : []).map((p, idx) => {
-                          const panicText = formatPanicBadge(p);
-                          return (
-                          <tr
-                            key={`${p.code}-${idx}`}
-                            className={p.flag === 'CRITICAL' ? 'table-danger' : p.flag !== 'NORMAL' && p.value !== 0 && p.value !== '' ? 'table-warning' : undefined}
-                          >
-                            <td className="ps-3" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                              <div className="fw-semibold text-dark" style={{ lineHeight: 1.35 }}>{p.name}</div>
-                              <div className="d-flex flex-wrap align-items-center gap-1 mt-1">
-                                <span className="badge bg-light text-secondary border font-monospace">{p.code}</span>
-                                {panicText && (
-                                  <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle small">
-                                    {panicText}
-                                  </Badge>
-                                )}
-                              </div>
-                            </td>
-                            <td>
-                              {isQualitativeParam(p) ? (
-                                <Form.Select
-                                  size="sm"
-                                  className="fw-semibold w-100"
-                                  style={{ minWidth: 0, maxWidth: '100%' }}
-                                  value={p.value || ''}
-                                  onChange={(e) => setValue(idx, e.target.value)}
-                                  disabled={viewOnlyMode || !allowEnter}
-                                >
-                                  <option value="">-- Chọn kết quả --</option>
-                                  <option value="Âm tính (Negative)">Âm tính (Negative)</option>
-                                  <option value="Dương tính (Positive)">Dương tính (Positive)</option>
-                                </Form.Select>
-                              ) : (
-                                <Form.Control
-                                  type="number"
-                                  step="any"
-                                  size="sm"
-                                  className="text-end fw-bold font-monospace w-100"
-                                  value={p.value === 0 || p.value === '0' ? '0' : (p.value ?? '')}
-                                  onChange={(e) => setValue(idx, e.target.value)}
-                                  readOnly={viewOnlyMode || !allowEnter}
-                                  placeholder="Nhập giá trị..."
-                                />
-                              )}
-                            </td>
-                            <td className="small" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                              <div className="text-dark font-monospace fw-medium">{formatReferenceRange(p)}</div>
-                              {p.unit ? <div className="text-muted" style={{ fontSize: '11.5px' }}>Đơn vị: {p.unit}</div> : null}
-                            </td>
-                            <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
-                          </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
-                  </div>
+      {/* Thông báo sau khi lưu kết quả hoặc hủy chạy lại */}
+      {pageFeedback && (
+        <Alert
+          variant={pageFeedback.type}
+          dismissible
+          onClose={() => setPageFeedback(null)}
+          className="rounded-4 shadow-sm border-0 mb-3 d-flex align-items-center gap-2"
+        >
+          <CheckCircle2 size={18} className="flex-shrink-0" />
+          <div>
+            <strong>{pageFeedback.title}</strong> — {pageFeedback.message}
+          </div>
+        </Alert>
+      )}
+      {cancellationSuccess && !showEntryModal && (
+        <Alert
+          variant="warning"
+          dismissible
+          onClose={() => setCancellationSuccess(null)}
+          className="rounded-4 shadow-sm border-warning mb-3"
+        >
+          <Undo2 className="me-2 text-warning-emphasis" size="1em" />
+          <strong>Đã Hủy &amp; Yêu Cầu Chạy Lại:</strong> {cancellationSuccess}
+        </Alert>
+      )}
 
-                  {/* Phần thông tin hóa chất, ghi chú & cảnh báo bên dưới bảng */}
-                  <div className="px-4 py-3 border-top" style={{ backgroundColor: '#FFFFFF' }}>
-                  {/* Cảnh báo các chỉ số bất thường */}
-                  {abnormalAnalytes.length > 0 && (
-                    <div className="alert alert-warning py-2 small mb-3 rounded-3">
-                      <strong>Phát hiện {abnormalAnalytes.length} chỉ số ngoài khoảng tham chiếu:</strong>{' '}
-                      {abnormalAnalytes.map((a) => `${a.code} (${a.value} ${a.unit})`).join(', ')}. 
-                      Cần rà soát kỹ thuật trước khi chuyển Bác sĩ phê duyệt.
-                    </div>
-                  )}
+      {/* 3. Thanh điều hướng 1 dòng gọn (Tabs + Quét Barcode nhanh / Tìm kiếm) */}
+      <div className="bms-filter-bar mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 ${
+              benchTab === 'TESTING' ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary border'
+            }`}
+            style={benchTab === 'TESTING' ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : undefined}
+            onClick={() => setBenchTab('TESTING')}
+          >
+            <FlaskConical size={13} />
+            <span>Chờ nhập KQ ({testingOnlySamples.length})</span>
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 ${
+              benchTab === 'RERUN' ? 'btn-danger text-white shadow-sm' : 'btn-light text-secondary border'
+            }`}
+            onClick={() => setBenchTab('RERUN')}
+          >
+            <RotateCw size={13} />
+            <span>Chạy lại ({rerunOnlySamples.length})</span>
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 ${
+              benchTab === 'WAITING_DOCTOR' ? 'btn-warning text-dark shadow-sm' : 'btn-light text-secondary border'
+            }`}
+            onClick={() => setBenchTab('WAITING_DOCTOR')}
+          >
+            <Clock size={13} />
+            <span>Chờ BS duyệt ({waitingDoctorSamples.length})</span>
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 ${
+              benchTab === 'APPROVED' ? 'btn-success text-white shadow-sm' : 'btn-light text-secondary border'
+            }`}
+            onClick={() => setBenchTab('APPROVED')}
+          >
+            <CheckCircle2 size={13} />
+            <span>BS đã duyệt ({approvedByDoctorSamples.length})</span>
+          </button>
+        </div>
 
-                  {/* RÀNG BUỘC BẮT BUỘC: FORM GHI LOG CUỘC GỌI KHẨN CẤP CHO BÁC SĨ ĐIỀU TRỊ */}
-                  {hasCritical && (
-                    <div className="alert alert-danger mb-3 p-3 rounded-3 border-danger shadow-sm">
-                      <div className="d-flex align-items-center gap-2 mb-2">
-                        <AlertTriangle className="fs-4 text-danger flex-shrink-0"  size="1em"/>
-                        <div>
-                          <strong className="fs-6">QUY TRÌNH GHI LOG BÁO ĐỘNG ĐỎ BÁC SĨ ĐIỀU TRỊ</strong>
-                          <div className="small">
-                            Chỉ số vượt ngưỡng sinh tồn nguy hiểm. Yêu cầu kiểm tra ống mẫu, chạy lại kiểm chứng và bắt buộc hoàn tất biên bản ghi log thông báo.
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Xác nhận chạy kiểm chứng lần 2 */}
-                      <div className="form-check mb-2 ps-4">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="confirmRerun"
-                          checked={confirmRerun}
-                          onChange={(e) => setConfirmRerun(e.target.checked)}
-                        />
-                        <label className="form-check-label fw-semibold small text-danger" htmlFor="confirmRerun">
-                          1. Tôi đã kiểm tra ống mẫu (không tán huyết, không đông dây) và đã chạy kiểm chứng lần 2 trên máy.
-                        </label>
-                      </div>
-
-                      {/* Xác nhận thông báo Bác sĩ điều trị */}
-                      <div className="form-check mb-3 ps-4">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id="doctorNotified"
-                          checked={doctorNotified}
-                          onChange={(e) => setDoctorNotified(e.target.checked)}
-                          required
-                        />
-                        <label className="form-check-label fw-bold small text-danger" htmlFor="doctorNotified">
-                          2. BẮT BUỘC: Tôi xác nhận đã kích hoạt quy trình BÁO ĐỘNG ĐỎ và thông báo trực tiếp cho Bác sĩ điều trị!
-                        </label>
-                      </div>
-
-                      {/* Chi tiết thông báo Bác sĩ */}
-                      <div className="p-3 bg-white rounded-3 border border-danger-subtle">
-                        <h6 className="fw-bold text-danger mb-3 d-flex align-items-center gap-2">
-                          <Phone  size="1em"/>
-                          <span>Biên Bản Log Cuộc Gọi Khẩn Cấp Báo Động Đỏ</span>
-                        </h6>
-                        <Row className="g-2 mb-2">
-                          <Col md={6}>
-                            <Form.Label className="small fw-semibold text-secondary">
-                              <Stethoscope className="me-1"  size="1em"/> Họ Tên Bác Sĩ Tiếp Nhận <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                              size="sm"
-                              value={doctorName}
-                              onChange={(e) => setDoctorName(e.target.value)}
-                              placeholder="BS. Trực..."
-                              required={hasCritical}
-                            />
-                          </Col>
-                          <Col md={6}>
-                            <Form.Label className="small fw-semibold text-secondary">
-                              <Phone className="me-1"  size="1em"/> Số Điện Thoại / Máy Nhánh <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Control
-                              size="sm"
-                              value={doctorPhone}
-                              onChange={(e) => setDoctorPhone(e.target.value)}
-                              placeholder="VD: 0912.xxx.xxx hoặc Máy nhánh..."
-                              required={hasCritical}
-                            />
-                          </Col>
-                        </Row>
-
-                        <Row className="g-2 mb-2">
-                          <Col md={5}>
-                            <Form.Label className="small fw-semibold text-secondary">
-                              <Hospital className="me-1"  size="1em"/> Khoa Lâm Sàng Tiếp Nhận
-                            </Form.Label>
-                            <Form.Control
-                              size="sm"
-                              value={doctorDepartment}
-                              onChange={(e) => setDoctorDepartment(e.target.value)}
-                              placeholder="VD: Khoa Cấp cứu / Hồi sức..."
-                            />
-                          </Col>
-                          <Col md={4}>
-                            <Form.Label className="small fw-semibold text-secondary">
-                              Kênh Thông Báo <span className="text-danger">*</span>
-                            </Form.Label>
-                            <Form.Select
-                              size="sm"
-                              value={notificationChannel}
-                              onChange={(e) => setNotificationChannel(e.target.value)}
-                            >
-                              <option value="Điện thoại nội bộ khoa cấp cứu">Điện thoại nội bộ khoa cấp cứu</option>
-                              <option value="Điện thoại di động BS trực">Điện thoại di động BS trực</option>
-                              <option value="Bàn giao trực tiếp tại giường bệnh">Bàn giao trực tiếp tại giường bệnh</option>
-                              <option value="Tin nhắn khẩn cấp HIS/LIS">Tin nhắn khẩn cấp HIS/LIS</option>
-                            </Form.Select>
-                          </Col>
-                          <Col md={3}>
-                            <Form.Label className="small fw-semibold text-secondary">
-                              <Clock className="me-1"  size="1em"/> Giờ Báo Động
-                            </Form.Label>
-                            <Form.Control
-                              size="sm"
-                              value={notificationTime}
-                              onChange={(e) => setNotificationTime(e.target.value)}
-                            />
-                          </Col>
-                        </Row>
-
-                        <div>
-                          <Form.Label className="small fw-semibold text-secondary">
-                            Nội Dung Trao Đổi &amp; Ý Kiến Phản Hồi Của Bác Sĩ Điều Trị
-                          </Form.Label>
-                          <Form.Control
-                            as="textarea"
-                            rows={2}
-                            size="sm"
-                            value={callLogNotes}
-                            onChange={(e) => setCallLogNotes(e.target.value)}
-                            placeholder="Ghi nhận tóm tắt chỉ định khẩn cấp hoặc xác nhận của Bác sĩ..."
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Vật tư / Hóa chất tiêu hao (trừ tồn kho tự động) & Ghi chú kỹ thuật */}
-                  <Row className="g-3">
-                    <Col md={5} style={{ minWidth: 0 }}>
-                      <Form.Label className="small fw-semibold text-secondary">
-                        Lô Hóa Chất / Vật Tư Sử Dụng (Tự Động Trừ Kho)
-                      </Form.Label>
-                      <Form.Select
-                        value={selectedReagentLotId}
-                        onChange={(e) => setSelectedReagentLotId(e.target.value)}
-                        disabled={!allowEnter || reagentsLoading}
-                        aria-label="Chọn lô hóa chất sử dụng"
-                        style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
-                      >
-                        <option value="">
-                          {reagentsLoading
-                            ? 'Đang tải danh sách lô vật tư từ kho...'
-                            : '-- Chọn lô hóa chất/vật tư (Tùy chọn) --'}
-                        </option>
-                        {reagentLots.map((lot) => (
-                          <option key={lot.id} value={lot.id}>
-                            {lot.code} · {lot.lotNumber} — {lot.name} (Còn {lot.quantity} {lot.unit}
-                            {lot.expiryDate ? ` · HSD ${new Date(lot.expiryDate).toLocaleDateString('vi-VN', { timeZone: 'UTC' })}` : ''}
-                            {lot.expiryStatus === 'EXPIRING_SOON' ? ' · Sắp hết hạn' : ''})
-                          </option>
-                        ))}
-                      </Form.Select>
-                      {selectedReagentLot && selectedReagentLot.expiryStatus === 'EXPIRING_SOON' && (
-                        <div className="small text-warning mt-1 fw-medium">
-                          Lưu ý: Lô {selectedReagentLot.lotNumber} sắp hết hạn sử dụng.
-                        </div>
-                      )}
-                    </Col>
-                    <Col md={3} style={{ minWidth: 0 }}>
-                      <Form.Label className="small fw-semibold text-secondary">
-                        Số Lượng Tiêu Hao {selectedReagentLot ? `(${selectedReagentLot.unit})` : ''}
-                      </Form.Label>
-                      <InputGroup style={{ height: '38px' }}>
-                        <Form.Control
-                          type="number"
-                          min="0.1"
-                          step="0.1"
-                          value={reagentQuantity}
-                          onChange={(e) => setReagentQuantity(e.target.value)}
-                          disabled={!allowEnter || !selectedReagentLotId}
-                          aria-label="Số lượng vật tư tiêu hao"
-                        />
-                        {selectedReagentLot?.unit && (
-                          <InputGroup.Text className="bg-light small text-muted">{selectedReagentLot.unit}</InputGroup.Text>
-                        )}
-                      </InputGroup>
-                      {selectedReagentLot && (
-                        <div className={`small mt-1 ${Number(reagentQuantity) > Number(selectedReagentLot.quantity) ? 'text-danger fw-semibold' : 'text-muted'}`}>
-                          Tồn khả dụng: {selectedReagentLot.quantity} {selectedReagentLot.unit}
-                        </div>
-                      )}
-                    </Col>
-                    <Col md={4} style={{ minWidth: 0 }}>
-                      <Form.Label className="small fw-semibold text-secondary">Phương Thức Đo &amp; Nhập</Form.Label>
-                      <Form.Control
-                        readOnly
-                        disabled
-                        value="Kỹ thuật viên đo & nhập kết quả thủ công"
-                        className="bg-light fw-medium text-dark small"
-                      />
-                    </Col>
-                    <Col md={12}>
-                      <Form.Label className="small fw-semibold text-secondary">Ghi Chú Kỹ Thuật (Technical Notes)</Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={2}
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Ghi nhận tình trạng huyết thanh, độ đục, kiểm tra quang học hoặc mã báo động máy..."
-                      />
-                    </Col>
-                  </Row>
-                  </div>
-                </Card.Body>
-
-                <Card.Footer className="bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2 px-4 py-3 rounded-bottom-3">
-                  <div className="d-flex gap-2">
-                    <Button
-                      variant="outline-danger"
-                      type="button"
-                      onClick={() => setShowRerunModal(true)}
-                      className="d-flex align-items-center gap-1.5 fw-semibold"
-                    >
-                      <Undo2  size="1em"/> Hủy Kết Quả &amp; Yêu Cầu Chạy Lại
-                    </Button>
-                  </div>
-
-                  <div className="d-flex flex-wrap gap-2">
-                    <Button
-                      variant="outline-secondary"
-                      type="button"
-                      onClick={() => setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })))}
-                    >
-                      Nhập lại giá trị
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      type="button"
-                      onClick={() => setShowPreviewModal(true)}
-                      className="d-flex align-items-center gap-1.5 fw-semibold"
-                    >
-                      <Eye  size="1em"/> Xem Trước (Preview)
-                    </Button>
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      disabled={loading || !sampleId.trim() || !allowEnter || (hasCritical && (!doctorNotified || !confirmRerun))}
-                      className="d-flex align-items-center gap-2 shadow-sm px-3 fw-semibold text-white"
-                      style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', borderRadius: '9999px' }}
-                    >
-                      {loading ? (
-                        <>
-                          <Spinner size="sm" animation="border" />
-                          <span>Đang lưu...</span>
-                        </>
-                      ) : hasCritical ? (
-                        <>
-                          <AlertTriangle  size="1em"/>
-                          <span>Xác Nhận Đã Báo BS &amp; Gửi Phê Duyệt</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2  size="1em"/>
-                          <span>Ký Duyệt Kỹ Thuật &amp; Gửi BS</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </Card.Footer>
-              </Card>
-            </Form>
-          </Col>
-
-          {/* Cột phải: Thông tin mẫu & Lưu ý quy trình */}
-          <Col xl={3} lg={12} style={{ minWidth: 0 }}>
-            <Card className="border-0 shadow-sm mb-3 bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Body className="p-3">
-                <h6 className="fw-bold text-dark mb-2">Thông Tin Ống Mẫu Xét Nghiệm</h6>
-                <div className="badge border mb-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#EEF2F6', color: '#1E60E6', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
-                  {sampleStatus || 'Chưa tra mẫu'}
-                </div>
-                <div className="fw-bold font-monospace small" style={{ color: '#1E60E6', wordBreak: 'break-all' }}>
-                  {sampleId || 'Chưa chọn mẫu'}
-                </div>
-                {sampleDetails ? (
-                  <div className="small text-muted mt-2 border-top pt-2 d-flex flex-column gap-1" style={{ borderColor: 'rgba(15, 23, 42, 0.05)', wordBreak: 'break-word' }}>
-                    <div>Bệnh nhân: <strong className="text-dark">{sampleDetails.patientName}</strong></div>
-                    <div>Mã BN: <code>{sampleDetails.patientId}</code></div>
-                    <div>Gói XN: <strong className="text-dark">{sampleDetails.testPackageName}</strong></div>
-                    <div>Loại mẫu: {sampleDetails.sampleType} ({sampleDetails.tubeColor})</div>
-                  </div>
-                ) : (
-                  <p className="small text-muted mb-0 mt-1">
-                    Quét hoặc nhập mã Barcode để đối chiếu bệnh nhân trước khi nhập kết quả.
-                  </p>
-                )}
-              </Card.Body>
-            </Card>
-
-            <Card className="border-0 shadow-sm bg-white rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
-              <Card.Body className="p-3">
-                <div className="alert alert-secondary py-2 small mb-0">
-                  <Lock className="me-1 text-secondary"  size="1em"/>
-                  Sau khi gửi, kết quả chuyển Bác sĩ thẩm định lâm sàng &amp; ký số trước khi bệnh nhân xem được trên cổng.
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+        <form
+          className="d-flex align-items-center gap-2 flex-grow-1 justify-content-end"
+          style={{ maxWidth: 480 }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = benchSearch.trim();
+            if (!q) return;
+            const exactHit = benchSamples.find(
+              (s) =>
+                String(s.barcode || '').toLowerCase() === q.toLowerCase() ||
+                String(s.id || '').toLowerCase() === q.toLowerCase()
+            );
+            if (exactHit) {
+              openEntryModalForSample(exactHit.barcode || exactHit.id);
+            } else if (/^(SMP|SPC|BC|SA)/i.test(q)) {
+              openEntryModalForSample(q);
+            }
+          }}
+        >
+          <InputGroup size="sm">
+            <InputGroup.Text className="bg-white border-end-0 text-muted">
+              <Search size={14} />
+            </InputGroup.Text>
+            <Form.Control
+              className="border-start-0"
+              placeholder="Quét barcode ống mẫu (SMP-...) hoặc tìm tên BN, gói..."
+              value={benchSearch}
+              onChange={(e) => setBenchSearch(e.target.value)}
+            />
+          </InputGroup>
+          <Button
+            type="submit"
+            size="sm"
+            variant="primary"
+            className="rounded-pill px-3 fw-semibold text-nowrap text-white"
+            style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+            disabled={!benchSearch.trim()}
+            title="Mở nhanh modal nhập kết quả theo mã barcode vừa nhập"
+          >
+            Tra / Nhập KQ
+          </Button>
+        </form>
       </div>
+
+      {/* 4. Bảng quản lý chính toàn màn hình + Phân trang */}
+      <section className="bms-table-standalone-section">
+        <div className="bms-table-standalone-header">
+          <div>
+            <h2 className="bms-table-standalone-title">
+              {benchTab === 'TESTING'
+                ? 'Ống mẫu đang phân tích — Chờ nhập kết quả'
+                : benchTab === 'RERUN'
+                  ? 'Ống mẫu yêu cầu chạy lại kiểm chứng'
+                  : benchTab === 'WAITING_DOCTOR'
+                    ? 'Ống mẫu đã nhập KQ — Chờ Bác sĩ duyệt'
+                    : 'Ống mẫu đã được Bác sĩ duyệt kết quả'}
+            </h2>
+            <p className="bms-table-standalone-subtitle">
+              {benchTab === 'WAITING_DOCTOR'
+                ? 'Kết quả đã được KTV gửi lên hệ thống, đang chờ Bác sĩ thẩm định lâm sàng trước khi trả bệnh nhân.'
+                : benchTab === 'APPROVED'
+                  ? 'Kết quả đã được Bác sĩ thẩm định và phát hành. Bấm "Xem KQ" để đối chiếu lại chỉ số.'
+                  : 'Chọn một ống mẫu và bấm "Nhập KQ" để mở bàn nhập chỉ số theo đúng y lệnh gói dịch vụ.'}
+            </p>
+          </div>
+          <span className="badge bg-light text-dark border rounded-pill px-3 py-1.5">
+            {displayedBenchSamples.length} / {
+              benchTab === 'WAITING_DOCTOR'
+                ? waitingDoctorSamples.length
+                : benchTab === 'APPROVED'
+                  ? approvedByDoctorSamples.length
+                  : benchTab === 'RERUN'
+                    ? rerunOnlySamples.length
+                    : testingOnlySamples.length
+            } ống mẫu
+          </span>
+        </div>
+
+        <div className="bms-table-standalone-body">
+          <div className="table-responsive">
+            <Table hover className="mb-0 align-middle">
+              <thead className="table-light small text-uppercase text-muted">
+                <tr>
+                  <th className="ps-3">Barcode ống</th>
+                  <th>Bệnh nhân</th>
+                  <th>Gói xét nghiệm &amp; Loại ống</th>
+                  <th>Phòng Lab / Cập nhật</th>
+                  <th>Trạng thái</th>
+                  <th className="text-end pe-3">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {benchLoading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-5 text-muted small">
+                      <Spinner animation="border" size="sm" className="me-2 text-primary" />
+                      Đang tải danh sách ống mẫu tại bàn phân tích…
+                    </td>
+                  </tr>
+                ) : displayedBenchSamples.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-5 text-muted small">
+                      <FlaskConical className="mb-2 opacity-25 d-block mx-auto" size={28} />
+                      <div className="fw-semibold text-dark mb-1">
+                        {benchTab === 'TESTING'
+                          ? 'Hiện chưa có ống mẫu nào đang chờ nhập kết quả'
+                          : benchTab === 'RERUN'
+                            ? 'Không có ống mẫu nào đang yêu cầu chạy lại'
+                            : benchTab === 'WAITING_DOCTOR'
+                              ? 'Không có ống mẫu nào đang chờ Bác sĩ duyệt'
+                              : 'Chưa có ống mẫu nào được Bác sĩ duyệt'}
+                      </div>
+                      <div>
+                        {benchTab === 'TESTING'
+                          ? 'Các ống mẫu sau khi bấm "Bắt đầu XN" ở Bước 2 (Tiếp Nhận & Xử Lý Ống Mẫu) sẽ xuất hiện tại đây.'
+                          : 'Bạn có thể chuyển tab hoặc quét trực tiếp mã Barcode ở ô tìm kiếm phía trên.'}
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  benchPag.paginatedItems.map((s) => {
+                    const key = s.barcode || s.id;
+                    const sampleResult = getSampleResult(s);
+                    const stMeta = formatStatusVi(s.status, sampleResult);
+                    const isEnterable = canEnterTestResults(s.status);
+                    const updatedStr = s.updatedAt || s.collectedAt || s.createdAt;
+                    return (
+                      <tr
+                        key={s.id || key}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => openEntryModalForSample(key)}
+                      >
+                        <td className="ps-3">
+                          <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                            <code className="fw-bold text-primary small">{key}</code>
+                            {s.isAliquot && (
+                              <Badge bg="info" style={{ fontSize: '0.65rem' }}>Aliquot</Badge>
+                            )}
+                            {String(s.priority || '').toUpperCase() === 'STAT' && (
+                              <Badge bg="danger" style={{ fontSize: '0.65rem' }}>STAT</Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="fw-semibold small text-dark">{s.patientName || '—'}</div>
+                          <div className="text-muted font-monospace" style={{ fontSize: '0.72rem' }}>
+                            {s.patientId || '—'}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="fw-medium small text-dark">{s.testPackageName || 'Xét nghiệm lâm sàng'}</div>
+                          <div className="d-flex flex-wrap align-items-center gap-1 mt-1">
+                            {s.sampleType && (
+                              <span className="badge bg-light text-secondary border" style={{ fontSize: '0.68rem' }}>
+                                {formatSampleTypeVi(s.sampleType)}
+                              </span>
+                            )}
+                            {s.tubeColor && (
+                              <span className="badge bg-light text-dark border" style={{ fontSize: '0.68rem' }}>
+                                {formatTubeColorVi(s.tubeColor)}
+                              </span>
+                            )}
+                            {s.volumeMl ? (
+                              <span className="text-muted" style={{ fontSize: '0.72rem' }}>{s.volumeMl} mL</span>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="small fw-medium text-dark">{s.labRoom || 'LAB-ROOM-01'}</div>
+                          <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                            {updatedStr ? new Date(updatedStr).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'}
+                          </div>
+                        </td>
+                        <td>
+                          <Badge bg={stMeta.bg} text={stMeta.text} className="rounded-pill px-2.5 py-1">
+                            {stMeta.label}
+                          </Badge>
+                        </td>
+                        <td className="text-end pe-3" onClick={(e) => e.stopPropagation()}>
+                          {isEnterable ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="primary"
+                              className="rounded-pill px-3 py-1 fw-semibold text-white d-inline-flex align-items-center gap-1.5 shadow-sm text-nowrap"
+                              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6', fontSize: '0.78rem' }}
+                              onClick={() => openEntryModalForSample(key)}
+                            >
+                              <FlaskConical size={13} />
+                              <span>Nhập KQ</span>
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline-primary"
+                              className="rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1.5 text-nowrap"
+                              style={{ fontSize: '0.78rem' }}
+                              onClick={() => openEntryModalForSample(key)}
+                            >
+                              <Eye size={13} />
+                              <span>Xem KQ</span>
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </Table>
+          </div>
+          <TablePagination
+            page={benchPag.page}
+            totalPages={benchPag.totalPages}
+            totalItems={benchPag.totalItems}
+            pageSize={benchPag.pageSize}
+            onPageChange={benchPag.setPage}
+            onPageSizeChange={benchPag.setPageSize}
+            itemLabel="ống mẫu"
+          />
+        </div>
+      </section>
+
+      {/* =========================================================================
+          MODAL CHÍNH: BÀN ĐO & NHẬP KẾT QUẢ XÉT NGHIỆM (Mở khi chọn 1 ống mẫu)
+         ========================================================================= */}
+      <Modal
+        show={showEntryModal}
+        onHide={() => !loading && setShowEntryModal(false)}
+        size="xl"
+        centered
+        scrollable
+        backdrop="static"
+      >
+        <Modal.Header closeButton={!loading} style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E2E8F0' }}>
+          <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
+            <FlaskConical style={{ color: '#1E60E6' }} size={18} />
+            <span>{allowEnter ? 'Nhập Kết Quả Xét Nghiệm' : 'Chi Tiết Kết Quả Đã Gửi Bác Sĩ'}</span>
+            {sampleId && (
+              <span className="badge rounded-pill font-monospace" style={{ background: '#EFF6FF', color: '#1E60E6', fontSize: '0.8rem' }}>
+                {sampleId}
+              </span>
+            )}
+            {sampleDetails?.status && (() => {
+              const stMeta = formatStatusVi(sampleDetails.status, getSampleResult(sampleDetails));
+              return (
+                <Badge bg={stMeta.bg} text={stMeta.text} className="rounded-pill px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
+                  {stMeta.label}
+                </Badge>
+              );
+            })()}
+          </Modal.Title>
+        </Modal.Header>
+
+        <Form noValidate onSubmit={onSubmit} className="d-flex flex-column" style={{ minHeight: 0, overflow: 'hidden' }}>
+          <Modal.Body className="p-4" style={{ backgroundColor: '#F8FAFC', overflowY: 'auto' }}>
+            {/* Thẻ tóm tắt Bệnh nhân, Ống mẫu & KTV phụ trách */}
+            <div className="p-3 bg-white rounded-4 border mb-3 shadow-xs" style={{ borderColor: '#E2E8F0' }}>
+              <Row className="g-3 small">
+                <Col md={3}>
+                  <div className="text-muted">Bệnh nhân</div>
+                  <div className="fw-bold text-dark">{sampleDetails?.patientName || 'Đang tra cứu...'}</div>
+                  <div className="text-muted font-monospace" style={{ fontSize: '0.75rem' }}>
+                    {sampleDetails?.patientId || '—'}
+                  </div>
+                </Col>
+                <Col md={3}>
+                  <div className="text-muted">Gói xét nghiệm</div>
+                  <div className="fw-semibold text-dark">{sampleDetails?.testPackageName || 'Xét nghiệm lâm sàng'}</div>
+                  {resolvedOrderLabel && (
+                    <div className="text-primary" style={{ fontSize: '0.75rem' }}>{resolvedOrderLabel}</div>
+                  )}
+                </Col>
+                <Col md={3}>
+                  <div className="text-muted">Ống bệnh phẩm</div>
+                  <div className="fw-semibold text-dark">
+                    {sampleDetails ? formatTubeColorVi(sampleDetails.tubeColor || sampleDetails.sampleType) : '—'}
+                  </div>
+                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                    {sampleDetails?.sampleType ? formatSampleTypeVi(sampleDetails.sampleType) : '—'}
+                    {sampleDetails?.volumeMl ? ` · ${sampleDetails.volumeMl} mL` : ''}
+                  </div>
+                </Col>
+                <Col md={3}>
+                  <div className="text-muted">KTV &amp; Phòng Lab</div>
+                  <div className="fw-semibold text-dark">{benchOperator || operatorDisplay}</div>
+                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                    {labRoomId && labRoomId !== 'UNASSIGNED' ? `${labRoom} (${labRoomId})` : labRoom}
+                  </div>
+                </Col>
+              </Row>
+            </div>
+
+            {/* Các cảnh báo trạng thái */}
+            {sampleDetails && !allowEnter && (
+              <Alert variant="info" className="rounded-3 border-0 shadow-xs mb-3 py-2 small">
+                <Lock className="me-1.5" size="1em" />
+                Mẫu đang ở trạng thái <strong>{formatStatusVi(sampleStatus).label}</strong> — chỉ xem lại kết quả đã gửi lên Bác sĩ (không cho chỉnh sửa ngược bước).
+              </Alert>
+            )}
+            {cancellationSuccess && (
+              <Alert variant="warning" dismissible onClose={() => setCancellationSuccess(null)} className="rounded-3 mb-3 py-2 small">
+                <Undo2 className="me-1.5" size="1em" />
+                <strong>Đã Hủy &amp; Yêu Cầu Chạy Lại:</strong> {cancellationSuccess}
+              </Alert>
+            )}
+            {error && (
+              <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 mb-3 py-2 small">
+                <AlertTriangle className="me-1.5" size="1em" />
+                {error}
+              </Alert>
+            )}
+
+            {/* Bảng nhập chỉ số đo bệnh phẩm */}
+            <div className="bg-white rounded-4 border overflow-hidden mb-3" style={{ borderColor: '#E2E8F0' }}>
+              <div className="px-3 py-2.5 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2" style={{ backgroundColor: '#FFFFFF' }}>
+                <div className="fw-bold text-dark small d-flex align-items-center gap-2">
+                  <span>Bảng Nhập Chỉ Số Đo Bệnh Phẩm ({flags.length} thông số)</span>
+                  {flags.length > 0 && (
+                    <Badge bg={enteredCount === flags.length ? 'success-subtle' : 'light'} text={enteredCount === flags.length ? 'success' : 'secondary'} className="border fw-semibold">
+                      Đã nhập {enteredCount}/{flags.length}
+                    </Badge>
+                  )}
+                  {Object.keys(validationState.fieldErrors).length + validationState.crossErrors.length > 0 && (
+                    <Badge bg="danger" className="fw-semibold">
+                      {Object.keys(validationState.fieldErrors).length + validationState.crossErrors.length} lỗi cần sửa
+                    </Badge>
+                  )}
+                </div>
+                <span className="small text-muted">
+                  Chặn số âm · Kiểm soát dải đo sinh lý &amp; quy tắc số 0 chuẩn ISO 15189
+                </span>
+              </div>
+              <div className="table-responsive">
+                <Table hover align="middle" className="mb-0 table-sm" style={{ tableLayout: 'fixed', width: '100%' }}>
+                  <thead className="table-light text-muted small">
+                    <tr>
+                      <th className="py-2 ps-3" style={{ width: '34%' }}>Thông Số Đo</th>
+                      <th className="py-2" style={{ width: '25%' }}>Kết Quả Đo</th>
+                      <th className="py-2" style={{ width: '24%' }}>Tham Chiếu &amp; Dải Nhập</th>
+                      <th className="py-2 text-end pe-3" style={{ width: '17%' }}>Đánh Giá</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paramsLoading && (
+                      <tr>
+                        <td colSpan={4} className="text-center text-muted py-4">
+                          <Spinner animation="border" size="sm" className="me-2" /> Đang nạp chỉ số theo y lệnh / gói dịch vụ…
+                        </td>
+                      </tr>
+                    )}
+                    {!paramsLoading && flags.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="text-center py-4 text-muted small">
+                          Không tìm thấy chỉ số xét nghiệm cho ống mẫu này.
+                        </td>
+                      </tr>
+                    )}
+                    {!paramsLoading && (Array.isArray(flags) ? flags : []).map((p, idx) => {
+                      const panicText = formatPanicBadge(p);
+                      const codeKey = String(p.code || '').trim().toUpperCase();
+                      const rowError = validationState.fieldErrors[codeKey] || null;
+                      const rule = getMeasurementRule(p);
+                      const hasVal = hasEnteredValue(p.value);
+                      return (
+                        <tr
+                          key={`${p.code}-${idx}`}
+                          className={
+                            rowError
+                              ? 'table-danger'
+                              : p.flag === 'CRITICAL'
+                                ? 'table-danger'
+                                : p.flag !== 'NORMAL' && hasVal
+                                  ? 'table-warning'
+                                  : undefined
+                          }
+                        >
+                          <td className="ps-3" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                            <div className="fw-semibold text-dark small" style={{ lineHeight: 1.35 }}>{p.name}</div>
+                            <div className="d-flex flex-wrap align-items-center gap-1 mt-0.5">
+                              <span className="badge bg-light text-secondary border font-monospace" style={{ fontSize: '0.68rem' }}>{p.code}</span>
+                              {panicText && (
+                                <Badge bg="danger-subtle" text="danger" className="border border-danger-subtle" style={{ fontSize: '0.68rem' }}>
+                                  {panicText}
+                                </Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            {isQualitativeParam(p) ? (
+                              <Form.Select
+                                size="sm"
+                                className="fw-semibold w-100"
+                                isInvalid={Boolean(rowError)}
+                                value={p.value || ''}
+                                onChange={(e) => setValue(idx, e.target.value)}
+                                disabled={viewOnlyMode || !allowEnter}
+                              >
+                                <option value="">-- Chọn kết quả --</option>
+                                <option value="Âm tính (Negative)">Âm tính (Negative)</option>
+                                <option value="Dương tính (Positive)">Dương tính (Positive)</option>
+                              </Form.Select>
+                            ) : (
+                              <Form.Control
+                                type="number"
+                                step="any"
+                                min={rule.min}
+                                max={rule.max}
+                                size="sm"
+                                isInvalid={Boolean(rowError)}
+                                className="text-end fw-bold font-monospace w-100"
+                                value={p.value === 0 || p.value === '0' ? '0' : (p.value ?? '')}
+                                onKeyDown={(e) => {
+                                  if (['-', 'e', 'E', '+'].includes(e.key)) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                onChange={(e) => setValue(idx, e.target.value)}
+                                readOnly={viewOnlyMode || !allowEnter}
+                                placeholder={rule.allowZero ? `≥ 0 (${rule.min}–${rule.max})` : `> 0 (${rule.min}–${rule.max})`}
+                              />
+                            )}
+                            {rowError && (
+                              <div className="invalid-feedback d-block fw-medium mt-1" style={{ fontSize: '0.72rem', lineHeight: 1.3 }}>
+                                {rowError}
+                              </div>
+                            )}
+                          </td>
+                          <td className="small" style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                            <div className="text-dark font-monospace fw-medium">{formatReferenceRange(p)}</div>
+                            {p.unit ? <div className="text-muted" style={{ fontSize: '11px' }}>Đơn vị: {p.unit}</div> : null}
+                            <div className="text-muted mt-0.5" style={{ fontSize: '10.5px', lineHeight: 1.25 }}>
+                              {formatRuleHintVi(p)}
+                            </div>
+                          </td>
+                          <td className="text-end pe-3">{getFlagBadge(p.flag, p.value, Boolean(rowError))}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Cảnh báo lỗi ràng buộc chéo giữa các chỉ số (WBC% > 100%, BILI_D > BILI_T, ALB > TP) */}
+            {validationState.crossErrors.length > 0 && (
+              <Alert variant="danger" className="py-2 small mb-3 rounded-3">
+                <div className="fw-bold d-flex align-items-center gap-1.5 mb-1">
+                  <AlertTriangle size={14} />
+                  <span>Phát hiện mâu thuẫn sinh lý giữa các chỉ số:</span>
+                </div>
+                <ul className="mb-0 ps-3">
+                  {validationState.crossErrors.map((msg, i) => (
+                    <li key={i}>{msg}</li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
+
+            {/* Cảnh báo chỉ số bất thường */}
+            {abnormalAnalytes.length > 0 && (
+              <div className="alert alert-warning py-2 small mb-3 rounded-3">
+                <strong>Phát hiện {abnormalAnalytes.length} chỉ số ngoài khoảng tham chiếu:</strong>{' '}
+                {abnormalAnalytes.map((a) => `${a.code} (${a.value} ${a.unit})`).join(', ')}. Cần rà soát kỹ thuật trước khi chuyển Bác sĩ phê duyệt.
+              </div>
+            )}
+
+            {/* Ghi chú kỹ thuật */}
+            <div className="p-3 bg-white rounded-4 border" style={{ borderColor: '#E2E8F0' }}>
+              <Form.Label className="small fw-semibold text-secondary mb-1">Ghi Chú Kỹ Thuật (Technical Notes)</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                size="sm"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                readOnly={!allowEnter}
+                placeholder="Ghi nhận tình trạng huyết thanh, độ đục, kiểm tra quang học hoặc mã báo động máy..."
+              />
+            </div>
+          </Modal.Body>
+
+          <Modal.Footer className="bg-white border-top d-flex flex-wrap justify-content-between align-items-center gap-2 px-4 py-3">
+            <div>
+              {allowEnter && (
+                <Button
+                  variant="outline-danger"
+                  size="sm"
+                  type="button"
+                  className="rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
+                  onClick={() => setShowRerunModal(true)}
+                >
+                  <Undo2 size={14} /> Hủy KQ &amp; Yêu Cầu Chạy Lại
+                </Button>
+              )}
+            </div>
+
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              <Button
+                variant="light"
+                size="sm"
+                type="button"
+                className="rounded-pill px-3 border fw-semibold"
+                disabled={loading}
+                onClick={() => setShowEntryModal(false)}
+              >
+                Đóng
+              </Button>
+              {allowEnter && (
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  type="button"
+                  className="rounded-pill px-3 fw-semibold"
+                  onClick={() => {
+                    setSubmitAttempted(false);
+                    setError(null);
+                    setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })));
+                  }}
+                >
+                  Nhập lại giá trị
+                </Button>
+              )}
+              <Button
+                variant="outline-primary"
+                size="sm"
+                type="button"
+                className="rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5"
+                onClick={() => setShowPreviewModal(true)}
+              >
+                <Eye size={14} /> Xem Trước
+              </Button>
+              {allowEnter && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  type="submit"
+                  disabled={loading || !sampleId.trim() || !allowEnter || liveValidation.hasErrors}
+                  className="rounded-pill px-4 py-1.5 fw-semibold text-white d-inline-flex align-items-center gap-1.5 shadow-sm"
+                  style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
+                  title={liveValidation.hasErrors ? 'Vui lòng sửa các chỉ số nhập sai dải đo trước khi gửi' : undefined}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner size="sm" animation="border" />
+                      <span>Đang lưu...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={14} />
+                      <span>Xác Nhận Kỹ Thuật &amp; Gửi BS</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </Modal.Footer>
+        </Form>
+      </Modal>
 
       {/* Modal 1: Xem Trước Kết Quả (Preview Results Modal) */}
       <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
@@ -1454,27 +1797,31 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
                 </tr>
               </thead>
               <tbody>
-                {flags.filter(p => p.value !== 0 && p.value !== '').length === 0 ? (
+                {flags.filter((p) => hasEnteredValue(p.value)).length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center py-3 text-muted">
                       Chưa có chỉ số nào được nhập giá trị đo. Vui lòng nhập số liệu từ máy trước khi xem trước.
                     </td>
                   </tr>
                 ) : (
-                  flags.filter(p => p.value !== 0 && p.value !== '').map(p => (
-                    <tr key={p.code}>
+                  flags.filter((p) => hasEnteredValue(p.value)).map((p) => {
+                    const codeKey = String(p.code || '').trim().toUpperCase();
+                    const rowError = liveValidation.fieldErrors[codeKey];
+                    return (
+                    <tr key={p.code} className={rowError ? 'table-danger' : undefined}>
                       <td className="ps-3">
                         <strong className="text-dark">{p.name}</strong>
                         <span className="badge bg-light text-secondary border font-monospace ms-2">{p.code}</span>
                       </td>
-                      <td className="text-end fw-bold font-monospace fs-6" style={{ color: p.flag === 'CRITICAL' ? '#dc2626' : p.flag !== 'NORMAL' ? '#d97706' : '#059669' }}>
+                      <td className="text-end fw-bold font-monospace fs-6" style={{ color: rowError || p.flag === 'CRITICAL' ? '#dc2626' : p.flag !== 'NORMAL' ? '#d97706' : '#059669' }}>
                         {p.value}
                       </td>
                       <td className="text-secondary small">{p.unit}</td>
-                      <td className="small text-muted font-monospace">{p.refLow} &ndash; {p.refHigh} {p.unit}</td>
-                      <td className="text-end pe-3">{getFlagBadge(p.flag, p.value)}</td>
+                      <td className="small text-muted font-monospace">{formatReferenceRange(p)}</td>
+                      <td className="text-end pe-3">{getFlagBadge(p.flag, p.value, Boolean(rowError))}</td>
                     </tr>
-                  ))
+                  );
+                  })
                 )}
               </tbody>
             </Table>
@@ -1491,7 +1838,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               <Col sm={4}>• Đông dây / Cục đông: <strong className="text-success">Âm tính</strong></Col>
               <Col sm={4}>• Độ đục lipid: <strong className="text-success">Bình thường</strong></Col>
               <Col sm={6}>• Nội kiểm IQC: <strong className="text-success">Đạt chuẩn Westgard (Chấp nhận)</strong></Col>
-              <Col sm={6}>• Kỹ thuật viên ký số: <strong className="text-dark">{benchOperator || operatorDisplay}</strong></Col>
+              <Col sm={6}>• Kỹ thuật viên thực hiện: <strong className="text-dark">{benchOperator || operatorDisplay}</strong></Col>
             </Row>
           </div>
         </Modal.Body>
@@ -1505,11 +1852,11 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               setShowPreviewModal(false);
               onSubmit(e);
             }}
-            disabled={loading || !sampleId.trim() || !allowEnter || (hasCritical && (!doctorNotified || !confirmRerun))}
+            disabled={loading || !sampleId.trim() || !allowEnter || liveValidation.hasErrors}
             className="d-flex align-items-center gap-2 fw-semibold text-white px-3 shadow-sm"
             style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
           >
-            <FileSignature  size="1em"/> Xác Nhận Ký Số Kỹ Thuật &amp; Gửi Bác Sĩ
+            <CheckCircle2 size="1em"/> Xác Nhận Kỹ Thuật &amp; Gửi Bác Sĩ
           </Button>
         </Modal.Footer>
       </Modal>
@@ -1592,7 +1939,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           </Button>
         </Modal.Footer>
       </Modal>
-    </Container>
+    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Printer, Megaphone, Check, Clock, UserCheck, AlertCircle, PlusCircle, Hospital, ShieldCheck, ListOrdered } from 'lucide-react';
 import { queueApi } from "../api/queueApi";
-import WorkflowStepperBar from "../../../shared/components/WorkflowStepperBar";
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 
 export default function QueueBoardPage() {
   const [loading, setLoading] = useState(true);
@@ -23,6 +23,7 @@ export default function QueueBoardPage() {
   const [actionMessage, setActionMessage] = useState(null);
 
   const [boardError, setBoardError] = useState(null);
+  const queuePag = usePagination(data.currentQueue || [], 10);
 
   const DEFAULT_RECEPTION_COUNTERS = [
     {
@@ -194,15 +195,15 @@ export default function QueueBoardPage() {
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
-            <Clock size={11} /> QUY TRÌNH TIẾP ĐÓN • BƯỚC 3: ĐIỀU PHỐI &amp; GỌI SỐ HÀNG ĐỢI
+            <Clock size={11} /> QUY TRÌNH TIẾP ĐÓN • THEO DÕI &amp; ĐIỀU PHỐI HÀNG ĐỢI
           </span>
           <div className="bms-page-title-row">
             <h1 className="bms-page-title">
-              Bảng Gọi Số &amp; Điều Phối Hàng Đợi (Realtime)
+              Bảng Theo Dõi &amp; Điều Phối Hàng Đợi (Realtime)
             </h1>
           </div>
           <p className="text-muted mb-0 small" style={{ maxWidth: '850px' }}>
-            Hiển thị số thứ tự đang gọi tại Quầy Tiếp đón và Phòng Lấy mẫu.
+            Theo dõi trạng thái số thứ tự đã cấp tại quầy tiếp đón. Bác sĩ sẽ gọi bệnh nhân trực tiếp trên Bàn Khám.
           </p>
         </div>
         <div className="bms-page-actions d-flex align-items-center gap-2">
@@ -224,18 +225,6 @@ export default function QueueBoardPage() {
           </div>
         </div>
       </div>
-
-      {/* Workflow Guidance Bar for Receptionist */}
-      <WorkflowStepperBar
-        title="Quy trình tiếp đón Lễ tân (3 bước)"
-        hint="Bệnh nhân đã Check-in & cấp STT tự động sang hàng đợi phòng khám của Bác sĩ"
-        activeStep={3}
-        steps={[
-          { id: 'rec-1', label: 'Tiếp đón & Check-in', desc: 'Quét QR hoặc bấm Check-in trực tiếp trên danh sách chờ', path: '/receptionist/check-in' },
-          { id: 'rec-2', label: 'Khách vãng lai (nếu chưa đặt)', desc: 'Đăng ký hồ sơ mới theo CCCD đối soát CSDL & cấp STT', path: '/receptionist/create-patient' },
-          { id: 'rec-3', label: 'Bảng gọi số & chuyển Bác sĩ', desc: 'Theo dõi STT đã cấp & gọi bệnh nhân vào phòng khám', path: '/reception/queue' }
-        ]}
-      />
 
       {boardError && (
         <div className="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm mb-4" role="alert">
@@ -270,7 +259,7 @@ export default function QueueBoardPage() {
                     Hàng Đợi Bệnh Nhân Tiếp Đón — Ngày {new Date().toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" })}
                   </h5>
                   <div className="text-muted small">
-                    Theo dõi trạng thái lượt gọi số và phân bổ vào các phòng lấy mẫu y tế
+                    Theo dõi trạng thái chờ khám — Bác sĩ sẽ gọi số trực tiếp từ Bàn Khám
                   </div>
                 </div>
 
@@ -285,22 +274,21 @@ export default function QueueBoardPage() {
                 <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
                   <thead style={{ background: '#F8FAFC' }}>
                     <tr>
-                    <th scope="col" style={{ width: "16%" }}>STT &amp; Ưu Tiên</th>
-                    <th scope="col" style={{ width: "24%" }}>Bệnh Nhân</th>
-                    <th scope="col" style={{ width: "24%" }}>Gói Xét Nghiệm</th>
-                    <th scope="col" style={{ width: "20%" }}>Tiếp Nhận &amp; Trạng Thái</th>
-                    <th scope="col" className="text-end pe-3" style={{ width: "16%" }}>Thao Tác</th>
+                    <th scope="col" style={{ width: "18%" }}>STT &amp; Ưu Tiên</th>
+                    <th scope="col" style={{ width: "28%" }}>Bệnh Nhân</th>
+                    <th scope="col" style={{ width: "28%" }}>Gói Xét Nghiệm</th>
+                    <th scope="col" style={{ width: "26%" }}>Tiếp Nhận &amp; Trạng Thái</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.currentQueue.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="text-center py-3 text-muted">
+                      <td colSpan="4" className="text-center py-3 text-muted">
                         Hiện không có bệnh nhân nào trong hàng đợi.
                       </td>
                     </tr>
                   ) : (
-                    data.currentQueue.map((ticket) => (
+                    queuePag.paginatedItems.map((ticket) => (
                       <tr
                         key={ticket.id}
                         className={ticket.status === "Called" ? "table-success" : ""}
@@ -340,31 +328,21 @@ export default function QueueBoardPage() {
                             {ticket.counterName ? ` · ${ticket.counterName}` : ''}
                           </div>
                         </td>
-                        <td className="text-end pe-3">
-                          {ticket.status === "Called" || ticket.status === "Collecting" || ticket.status === "Served" || ticket.status === "Completed" || ticket.status === "Done" ? (
-                            <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-semibold">
-                              <Check className="me-1" size="1em"/> Đã gọi
-                            </span>
-                          ) : ticket.status === "Waiting" || !ticket.status ? (
-                            <button
-                              onClick={() => handleCallNext(ticket)}
-                              disabled={!selectedCounter}
-                              title={!selectedCounter ? "Vui lòng chọn quầy trước khi gọi" : ""}
-                              className="btn btn-sm px-2.5 py-1 rounded-pill shadow-sm text-white"
-                              style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
-                            >
-                              <Megaphone className="me-1" size="1em"/> Gọi số
-                            </button>
-                          ) : (
-                            <span className="text-muted small">{ticket.status}</span>
-                          )}
-                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
             </div>
+            <TablePagination
+              page={queuePag.page}
+              totalPages={queuePag.totalPages}
+              totalItems={queuePag.totalItems}
+              pageSize={queuePag.pageSize}
+              onPageChange={queuePag.setPage}
+              onPageSizeChange={queuePag.setPageSize}
+              itemLabel="lượt chờ"
+            />
           </div>
         </div>
       </div>

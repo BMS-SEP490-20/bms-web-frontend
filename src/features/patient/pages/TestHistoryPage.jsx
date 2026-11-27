@@ -113,7 +113,7 @@ function HistoryDetail({ id, onClose }) {
                 </h5>
                 {(data.summary?.available || data.summary?.approvedAt || data.approvedAt || data.digitalSignature) ? (
                   <span className="badge bg-success-subtle text-success border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
-                    <CheckCircle2 className="me-1"  size="1em"/> Đã duyệt và ký số
+                    <CheckCircle2 className="me-1"  size="1em"/> Bác sĩ đã phê duyệt
                   </span>
                 ) : (
                   <span className="badge bg-warning-subtle text-warning-emphasis border-0 px-3 py-1.5 fw-semibold" style={{ borderRadius: 9999, fontSize: 12 }}>
@@ -219,18 +219,18 @@ function HistoryDetail({ id, onClose }) {
                       <div>
                         <div className="fw-bold text-dark small">
                           {data.approvingDoctorName || data.reviewedBy || data.doctorName
-                            || (data.summary?.approvedAt || data.summary?.available ? 'Bác sĩ lâm sàng đã ký duyệt' : 'Chưa ghi nhận bác sĩ ký')}
+                            || (data.summary?.approvedAt || data.summary?.available ? 'Bác sĩ lâm sàng đã phê duyệt' : 'Chưa ghi nhận bác sĩ duyệt')}
                         </div>
-                        <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ Thẩm định &amp; Ký số Chuyên khoa</div>
+                        <div className="text-muted" style={{ fontSize: 11.5 }}>Bác sĩ Thẩm định Chuyên khoa</div>
                       </div>
                     </div>
                     {(data.digitalSignature || data.signedAt || data.approvedAt || data.summary?.approvedAt || data.summary?.available) ? (
                       <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">
-                        <CheckCircle2 className="me-1"  size="1em"/> Đã ký duyệt
+                        <CheckCircle2 className="me-1"  size="1em"/> Đã phê duyệt
                       </span>
                     ) : (
                       <span className="badge bg-secondary-subtle text-secondary border px-2 py-1 small fw-semibold">
-                        Chưa có chữ ký
+                        Chờ phê duyệt
                       </span>
                     )}
                   </div>
@@ -337,7 +337,7 @@ function HistoryDetail({ id, onClose }) {
                     className="btn btn-primary btn-sm d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold"
                     style={{ backgroundColor: '#1E60E6', borderRadius: '8px' }}
                   >
-                    <Download  size="1em"/> Tải Phiếu Kết Quả Ký Số (PDF)
+                    <Download  size="1em"/> Tải Phiếu Kết Quả (PDF)
                   </Link>
                   <a
                     href="tel:19006868"

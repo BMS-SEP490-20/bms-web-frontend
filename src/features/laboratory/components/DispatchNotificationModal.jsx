@@ -33,22 +33,23 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
     const [testPackageName, setTestPackageName] = useState("");
 
     const [channel, setChannel] = useState(3); // Email (Primary)
-    const [isCritical, setIsCritical] = useState(false);
     const [priority, setPriority] = useState(1); // Normal
-    const [criticalParamsText, setCriticalParamsText] = useState("");
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
-    const [clinicalRecommendation, setClinicalRecommendation] = useState("Yêu cầu nhập viện cấp cứu để truyền dịch và theo dõi monitor liên tục.");
 
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
 
-    // Load completed patients from MongoDB when modal is opened
+    const buildItemKey = (item, idx) =>
+        `${item?.testOrderId || ""}__${item?.specimenBarcode || ""}__${idx}`;
+
+    // Load Doctor-approved test orders from MongoDB when modal is opened
     useEffect(() => {
         if (!show) return;
 
         let active = true;
         setLoadingPatients(true);
+        setErrorMessage(null);
         fetchCompletedTestPatients()
             .then((list) => {
                 if (!active) return;
@@ -58,12 +59,23 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                 if (items.length > 0) {
                     const first = items[0];
                     applyPatientSelection(first);
-                    setSelectedCompletedKey(first.specimenBarcode || first.testOrderId || first.patientId);
+                    setSelectedCompletedKey(buildItemKey(first, 0));
+                } else {
+                    setSelectedCompletedKey("");
+                    setTestOrderId("");
+                    setSpecimenBarcode("");
+                    setPatientId("");
+                    setPatientName("");
+                    setPatientPhone("");
+                    setPatientEmail("");
+                    setTestPackageName("");
+                    setTitle("");
+                    setMessage("");
                 }
             })
             .catch((err) => {
                 if (active) {
-                    setErrorMessage(err?.response?.data?.message || err?.message || "Không thể tải danh sách bệnh nhân hoàn thành xét nghiệm.");
+                    setErrorMessage(err?.response?.data?.message || err?.message || "Không thể tải danh sách đơn xét nghiệm đã được Bác sĩ duyệt.");
                 }
             })
             .finally(() => {
@@ -84,41 +96,17 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
         setPatientPhone(found.patientPhone || "");
         setPatientEmail(found.patientEmail || "");
         setTestPackageName(found.testPackageName || "");
-
-        if (found.isCritical) {
-            setIsCritical(true);
-            setPriority(4);
-            setCriticalParamsText(found.conclusionNotes || "Chỉ số xét nghiệm vượt ngưỡng báo động nguy kịch");
-            setTitle(`[CẢNH BÁO NGUY HIỂM] Chỉ số xét nghiệm hoảng loạn - Đơn ${found.testOrderId}`);
-            setMessage(`CẢNH BÁO Y KHOA: Kết quả xét nghiệm của bệnh nhân ${found.patientName} (${found.testPackageName || 'Xét nghiệm'}) có chỉ số vượt ngưỡng nguy kịch. Vui lòng liên hệ bác sĩ hoặc cơ sở y tế ngay lập tức.`);
-        } else {
-            setIsCritical(false);
-            setPriority(1);
-            setTitle(`Kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã hoàn tất`);
-            setMessage(`Kính gửi quý khách ${found.patientName}, kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã được duyệt y khoa và sẵn sàng để xem chi tiết.${found.conclusionNotes ? ' Kết luận: ' + found.conclusionNotes : ''}`);
-        }
+        setPriority(1);
+        setTitle(`Kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã được Bác sĩ duyệt`);
+        setMessage(`Kính gửi quý khách ${found.patientName}, kết quả xét nghiệm đơn ${found.testOrderId} (${found.testPackageName || 'Xét nghiệm lâm sàng'}) đã được Bác sĩ phê duyệt y khoa và sẵn sàng để xem chi tiết.${found.conclusionNotes ? ' Kết luận: ' + found.conclusionNotes : ''}`);
     };
 
     const handleSelectCompletedPatient = (e) => {
         const val = e.target.value;
         setSelectedCompletedKey(val);
-        const found = completedPatients.find(p => (p.specimenBarcode === val || p.testOrderId === val || p.patientId === val));
+        const found = completedPatients.find((p, idx) => buildItemKey(p, idx) === val);
         if (found) {
             applyPatientSelection(found);
-        }
-    };
-
-    const handleToggleCritical = (e) => {
-        const checked = e.target.checked;
-        setIsCritical(checked);
-        if (checked) {
-            setPriority(4); // Critical
-            setTitle(`[CẢNH BÁO NGUY HIỂM] Chỉ số xét nghiệm hoảng loạn - Đơn ${testOrderId}`);
-            setMessage(`CẢNH BÁO Y KHOA: Kết quả xét nghiệm của bệnh nhân ${patientName} có chỉ số vượt ngưỡng nguy kịch. Vui lòng liên hệ bác sĩ hoặc phòng cấp cứu ngay lập tức.`);
-        } else {
-            setPriority(1); // Normal
-            setTitle(`Kết quả xét nghiệm đơn ${testOrderId} đã hoàn tất`);
-            setMessage(`Kính gửi quý khách ${patientName}, hồ sơ xét nghiệm (${testOrderId}) đã được duyệt y khoa và sẵn sàng để xem chi tiết.`);
         }
     };
 
@@ -126,10 +114,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
         e.preventDefault();
         setSubmitting(true);
         setErrorMessage(null);
-
-        const criticalList = isCritical
-            ? criticalParamsText.split("\n").map((s) => s.trim()).filter(Boolean)
-            : [];
 
         const payload = {
             testOrderId: testOrderId.trim(),
@@ -140,13 +124,13 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
             patientEmail: patientEmail.trim() || undefined,
             testPackageName: testPackageName.trim() || undefined,
             channel: parseInt(channel, 10),
-            priority: isCritical ? 4 : parseInt(priority, 10),
-            isCriticalPanicValue: isCritical,
-            criticalParameters: criticalList,
-            requiresImmediateAction: isCritical,
+            priority: parseInt(priority, 10),
+            isCriticalPanicValue: false,
+            criticalParameters: [],
+            requiresImmediateAction: false,
             title: title.trim() || undefined,
             message: message.trim() || undefined,
-            clinicalRecommendation: isCritical ? clinicalRecommendation.trim() : undefined
+            clinicalRecommendation: undefined
         };
 
         try {
@@ -172,14 +156,14 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                     <div
                         className="modal-header border-bottom"
                         style={{
-                            backgroundColor: isCritical ? "#FEF2F2" : "#F8FAFC",
-                            borderColor: isCritical ? "#FECACA" : "#E2E8F0",
-                            color: isCritical ? "#991B1B" : "#0F172A"
+                            backgroundColor: "#F8FAFC",
+                            borderColor: "#E2E8F0",
+                            color: "#0F172A"
                         }}
                     >
                         <h5 className="modal-title fw-bold d-flex align-items-center gap-2 fs-6">
-                            {isCritical ? <AlertTriangle className="text-danger"  size="1em"/> : <Send className="text-primary"  size="1em"/>}
-                            <span>{isCritical ? "Phát cảnh báo giá trị nguy kịch" : "Phát thông báo kết quả xét nghiệm"}</span>
+                            <Send className="text-primary" size="1em" />
+                            <span>Phát thông báo kết quả xét nghiệm</span>
                         </h5>
                         <button
                             type="button"
@@ -197,12 +181,12 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             )}
 
-                            {/* CHỌN BỆNH NHÂN ĐÃ HOÀN THÀNH XÉT NGHIỆM */}
+                            {/* CHỌN ĐƠN XÉT NGHIỆM BÁC SĨ ĐÃ DUYỆT KẾT QUẢ */}
                             <div className="p-3 rounded border mb-4 bg-light shadow-xs border-primary-subtle">
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <label className="form-label text-primary fw-bold small mb-0 d-flex align-items-center gap-2">
-                                        <UserCheck className="fs-5"  size="1em"/>
-                                        <span>Chọn Bệnh Nhân Đã Hoàn Thành Xét Nghiệm</span>
+                                        <UserCheck className="fs-5" size="1em" />
+                                        <span>Chọn Đơn Xét Nghiệm Bác Sĩ Đã Duyệt Kết Quả</span>
                                     </label>
                                     {loadingPatients && (
                                         <div className="d-flex align-items-center gap-1 text-muted small">
@@ -218,42 +202,19 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                     disabled={loadingPatients}
                                 >
                                     {completedPatients.length === 0 ? (
-                                        <option value="">{loadingPatients ? "Đang tải dữ liệu..." : "Chưa có bệnh nhân nào hoàn thành xét nghiệm"}</option>
+                                        <option value="">{loadingPatients ? "Đang tải dữ liệu..." : "Chưa có đơn xét nghiệm nào được Bác sĩ duyệt kết quả"}</option>
                                     ) : (
                                         completedPatients.map((item, idx) => (
-                                            <option key={idx} value={item.specimenBarcode || item.testOrderId || item.patientId}>
-                                                [{item.patientId}] {item.patientName} • Đơn: {item.testOrderId} • Mẫu: {item.specimenBarcode || '—'} • {item.testPackageName || 'Xét nghiệm'} {item.isCritical ? '(Nguy kịch)' : '(Hoàn tất)'}
+                                            <option key={buildItemKey(item, idx)} value={buildItemKey(item, idx)}>
+                                                [{item.patientId}] {item.patientName} • Đơn: {item.testOrderId} • Mẫu: {item.specimenBarcode || '—'} • {item.testPackageName || 'Xét nghiệm'} (Bác sĩ đã duyệt)
                                             </option>
                                         ))
                                     )}
                                 </select>
                                 <small className="text-muted d-block mt-2">
-                                    <CheckCircle2 className="text-success me-1"  size="1em"/>
-                                    Dữ liệu được nạp tự động từ các xét nghiệm đã hoàn tất (Completed / Approved) trong cơ sở dữ liệu. Khi chọn bệnh nhân, tất cả thông tin định danh, mẫu bệnh phẩm, đơn chỉ định và nội dung thông báo sẽ tự động điền.
+                                    <CheckCircle2 className="text-success me-1" size="1em" />
+                                    Chỉ hiển thị các đơn xét nghiệm đã được Bác sĩ phê duyệt kết quả trong cơ sở dữ liệu để gửi thông báo qua Email cho bệnh nhân.
                                 </small>
-                            </div>
-
-                            {/* Critical Panic Toggle Switch */}
-                            <div className="p-3 rounded border mb-4" style={{ backgroundColor: isCritical ? "#fee2e2" : "#f8fafc", borderColor: isCritical ? "#ef4444" : "#cbd5e1" }}>
-                                <div className="form-check form-switch d-flex align-items-center gap-3">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        role="switch"
-                                        id="panicSwitch"
-                                        style={{ width: "2.8em", height: "1.4em", cursor: "pointer" }}
-                                        checked={isCritical}
-                                        onChange={handleToggleCritical}
-                                    />
-                                    <label className="form-check-label fw-bold mb-0 cursor-pointer" htmlFor="panicSwitch">
-                                        <span className={isCritical ? "text-danger fs-6" : "text-dark"}>
-                                            Kích hoạt Cảnh Báo Giá Trị Hoảng Loạn (Panic / Critical Value Alert)
-                                        </span>
-                                        <small className="d-block text-muted fw-normal">
-                                            Tự động ưu tiên khẩn cấp (Critical Priority), kích hoạt đa kênh tức thời và gắn cờ can thiệp y tế ngay lập tức.
-                                        </small>
-                                    </label>
-                                </div>
                             </div>
 
                             {/* Order & Specimen Info */}
@@ -380,45 +341,13 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                         className="form-select"
                                         value={priority}
                                         onChange={(e) => setPriority(Number(e.target.value))}
-                                        disabled={isCritical}
                                     >
                                         <option value={1}>Bình Thường (Normal)</option>
                                         <option value={2}>Ưu Tiên Cao (High)</option>
                                         <option value={3}>Khẩn Cấp (Urgent)</option>
-                                        <option value={4}>Nguy Kịch / Hoảng Loạn (Critical)</option>
                                     </select>
                                 </div>
                             </div>
-
-                            {/* Panic Parameters Section (Conditional) */}
-                            {isCritical && (
-                                <div className="mb-3 p-3 bg-danger-subtle rounded border border-danger">
-                                    <label className="form-label text-danger fw-bold small d-flex align-items-center gap-1">
-                                        <AlertTriangle  size="1em"/>
-                                        Danh Sách Chỉ Số Vượt Ngưỡng Nguy Kịch (Mỗi chỉ số 1 dòng)
-                                    </label>
-                                    <textarea
-                                        className="form-control font-monospace small"
-                                        rows="3"
-                                        value={criticalParamsText}
-                                        onChange={(e) => setCriticalParamsText(e.target.value)}
-                                        placeholder="Glucose: 29.4 mmol/L (Ngưỡng nguy hiểm > 25.0)..."
-                                    ></textarea>
-
-                                    <div className="mt-2">
-                                        <label className="form-label text-danger fw-bold small">
-                                            Khuyến Nghị Lâm Sàng & Hướng Xử Trí Khẩn
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            value={clinicalRecommendation}
-                                            onChange={(e) => setClinicalRecommendation(e.target.value)}
-                                            placeholder="Yêu cầu nhập viện cấp cứu để truyền dịch..."
-                                        />
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Custom Message & Title */}
                             <div className="mb-3">
@@ -459,8 +388,8 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                             </button>
                             <button
                                 type="submit"
-                                className={`btn ${isCritical ? "btn-danger" : "btn-primary"} d-flex align-items-center gap-2 shadow-xs`}
-                                disabled={submitting}
+                                className="btn btn-primary d-flex align-items-center gap-2 shadow-xs"
+                                disabled={submitting || completedPatients.length === 0}
                             >
                                 {submitting ? (
                                     <>
@@ -469,8 +398,8 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                     </>
                                 ) : (
                                     <>
-                                        <Send  size="1em"/>
-                                        <span>{isCritical ? "Phát Báo Động Nguy Kịch" : "Gửi Thông Báo Ngay"}</span>
+                                        <Send size="1em" />
+                                        <span>Gửi Thông Báo Ngay</span>
                                     </>
                                 )}
                             </button>

@@ -250,14 +250,14 @@ export default function TestReportPage() {
                                 <small className="text-muted d-block">Kỹ thuật viên thực hiện xét nghiệm</small>
                                 <strong className="text-dark d-block">{report.analysedBy || 'KTV. Xét Nghiệm'}</strong>
                                 <small className="text-success font-monospace d-flex align-items-center gap-1 mt-1">
-                                    <ShieldCheck  size="1em"/> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã ký số xác thực (MLT)
+                                    <CheckCircle2  size="1em"/> {new Date(report.analysedAt).toLocaleDateString("vi-VN")} · Đã kiểm chuẩn kỹ thuật (MLT)
                                 </small>
                             </div>
                             <div className="text-end">
                                 <small className="text-muted d-block">Bác sĩ điều trị phê duyệt</small>
                                 <strong className="text-dark d-block">{report.approvedBy || 'Bác sĩ điều trị'}</strong>
                                 <small className="text-primary font-monospace d-flex align-items-center justify-content-end gap-1 mt-1">
-                                    <CheckCircle2  size="1em"/> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Chữ ký số y tế hợp chuẩn (MD)
+                                    <CheckCircle2  size="1em"/> {new Date(report.approvedAt).toLocaleDateString("vi-VN")} · Đã phê duyệt lâm sàng (MD)
                                 </small>
                             </div>
                         </div>
@@ -266,7 +266,7 @@ export default function TestReportPage() {
                         <div className="mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: "11px", fontStyle: "italic", borderColor: "#e2e8f0" }}>
                             Phiếu kết quả chỉ có giá trị tham khảo lâm sàng sau khi được bác sĩ duyệt. Vui lòng trao đổi với bác sĩ điều trị để được tư vấn chi tiết.
                             <div className="mt-1 font-monospace text-secondary">
-                                {report.verificationHash ? `Mã tra cứu phiếu: ${report.verificationHash}` : "Bản in kết quả xét nghiệm hệ thống BMS"}
+                                Bản in kết quả xét nghiệm hệ thống BMS
                             </div>
                         </div>
                     </div>

@@ -13,6 +13,7 @@ import {
   Form, InputGroup, Modal, Spinner
 } from 'react-bootstrap';
 import { Search as LucideSearch, RefreshCw, FileOutput, AlertTriangle, CheckCircle2, XCircle, Info, Lock, Eye, X as LucideX, UserCheck } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { auditLogService } from '../../../services/auditLogService';
 
 const AuditLogPage = () => {
@@ -74,6 +75,7 @@ const AuditLogPage = () => {
 
   // Safe logs array guard
   const safeLogs = useMemo(() => (Array.isArray(logs) ? logs : []), [logs]);
+  const logsPag = usePagination(safeLogs, 10);
 
   // Export to CSV
   const handleExportCSV = () => {
@@ -336,7 +338,7 @@ const AuditLogPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {safeLogs.map((item) => (
+                  {logsPag.paginatedItems.map((item) => (
                     <tr key={item.auditId || item.id}>
                       <td className="ps-4 small text-secondary font-monospace">
                         {item.timestamp ? new Date(item.timestamp).toLocaleString('vi-VN', {
@@ -401,6 +403,15 @@ const AuditLogPage = () => {
                   ))}
                 </tbody>
               </table>
+              <TablePagination
+                page={logsPag.page}
+                totalPages={logsPag.totalPages}
+                totalItems={logsPag.totalItems}
+                pageSize={logsPag.pageSize}
+                onPageChange={logsPag.setPage}
+                onPageSizeChange={logsPag.setPageSize}
+                itemLabel="bản ghi audit"
+              />
             </div>
           ) : (
             <div className="text-center py-3">

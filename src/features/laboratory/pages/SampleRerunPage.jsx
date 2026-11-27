@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { RotateCw, ArrowLeft, AlertTriangle, CheckCircle2, Info, TestTube2, Microscope, Stethoscope, X } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import {
     fetchOpenReruns,
     fetchSampleRerunDetails,
@@ -60,6 +61,7 @@ export default function SampleRerunPage() {
 
     // Open reruns state
     const [openReruns, setOpenReruns] = useState([]);
+    const rerunPag = usePagination(openReruns, 8);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -406,7 +408,7 @@ export default function SampleRerunPage() {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            openReruns.map((r, idx) => (
+                                            rerunPag.paginatedItems.map((r, idx) => (
                                                 <tr key={idx}>
                                                     <td className="ps-3">
                                                         <code className="text-primary fw-semibold small bg-light px-1.5 py-0.5 rounded">
@@ -430,6 +432,17 @@ export default function SampleRerunPage() {
                                         )}
                                     </tbody>
                                 </table>
+                                <TablePagination
+                                    page={rerunPag.page}
+                                    totalPages={rerunPag.totalPages}
+                                    totalItems={rerunPag.totalItems}
+                                    pageSize={rerunPag.pageSize}
+                                    onPageChange={rerunPag.setPage}
+                                    onPageSizeChange={rerunPag.setPageSize}
+                                    pageSizeOptions={[8, 15, 30]}
+                                    itemLabel="yêu cầu chạy lại"
+                                    compact
+                                />
                             </div>
                         </section>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Thermometer, Droplet as Droplets, Wifi, AlertCircle as WifiOff, AlertTriangle, RefreshCw, Download, SlidersHorizontal as Sliders, Search, Database, HeartPulse as Activity, Eye, History, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import {
   getIotMonitorDashboard,
@@ -743,6 +744,8 @@ export default function IotMonitorPage() {
   const logs = dashboard?.items || [];
   const chartSeries = dashboard?.chartSeries || [];
   const outages = dashboard?.outages || [];
+  const outagesPag = usePagination(outages, 8);
+  const logsPag = usePagination(logs, 10);
 
   const hasActiveFilters =
     statusFilter !== 'ALL' ||
@@ -1327,7 +1330,7 @@ export default function IotMonitorPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {outages.slice(0, 8).map((o) => {
+                  {outagesPag.paginatedItems.map((o) => {
                     const isSelected = selectedOutageId === o.id;
                     return (
                       <tr
@@ -1384,6 +1387,17 @@ export default function IotMonitorPage() {
                 </tbody>
               </table>
             </div>
+            <TablePagination
+              page={outagesPag.page}
+              totalPages={outagesPag.totalPages}
+              totalItems={outagesPag.totalItems}
+              pageSize={outagesPag.pageSize}
+              onPageChange={outagesPag.setPage}
+              onPageSizeChange={outagesPag.setPageSize}
+              pageSizeOptions={[8, 15, 30]}
+              itemLabel="sự cố mất kết nối"
+              compact
+            />
           </div>
         </div>
       )}
@@ -1508,7 +1522,7 @@ export default function IotMonitorPage() {
                   </td>
                 </tr>
               ) : (
-                logs.map((row) => {
+                logsPag.paginatedItems.map((row) => {
                   const isViolation = row.isAnomaly || row.status === 'Warning' || row.status === 'Critical';
                   return (
                     <tr
@@ -1637,6 +1651,15 @@ export default function IotMonitorPage() {
               </tbody>
             </table>
           </div>
+          <TablePagination
+            page={logsPag.page}
+            totalPages={logsPag.totalPages}
+            totalItems={logsPag.totalItems}
+            pageSize={logsPag.pageSize}
+            onPageChange={logsPag.setPage}
+            onPageSizeChange={logsPag.setPageSize}
+            itemLabel="bản ghi cảm biến"
+          />
         </div>
       </div>
 

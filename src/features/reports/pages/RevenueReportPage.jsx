@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Banknote, TrendingUp, PieChart, Receipt, UserCheck, Download, Filter as LucideFilter, Calendar, RefreshCw, CreditCard, QrCode, Search, ArrowUp, ArrowDown, Building2, Stethoscope, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchRevenueReport,
     fetchRevenueExportTransactions
@@ -143,6 +144,8 @@ export default function RevenueReportPage() {
             r.paymentMethod.toLowerCase().includes(q)
         );
     }, [exportRows, searchTerm]);
+
+    const txPag = usePagination(filteredTransactions, 10);
 
     // Trend SVG chart data calculation
     const trendRender = useMemo(() => {
@@ -616,7 +619,7 @@ export default function RevenueReportPage() {
                             )}
                         </div>
                         <span className="bms-filter-meta">
-                            Hiển thị <strong>{Math.min(filteredTransactions.length, 50)}</strong> / {filteredTransactions.length} giao dịch
+                            Tổng <strong>{filteredTransactions.length}</strong> giao dịch
                         </span>
                     </div>
 
@@ -653,7 +656,7 @@ export default function RevenueReportPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredTransactions.slice(0, 50).map((row, idx) => (
+                                    {txPag.paginatedItems.map((row, idx) => (
                                         <tr key={idx}>
                                             <td className="ps-4">
                                                 <div className="fw-bold font-monospace text-primary">{row.transactionNumber}</div>
@@ -683,11 +686,15 @@ export default function RevenueReportPage() {
                                 </tbody>
                             </table>
                         </div>
-                        {filteredTransactions.length > 50 && (
-                            <div className="p-3 text-center small text-muted border-top" style={{ background: '#F8FAFC' }}>
-                                Đang hiển thị 50 / {filteredTransactions.length} giao dịch. Nhấn &ldquo;Xuất CSV&rdquo; để tải toàn bộ.
-                            </div>
-                        )}
+                        <TablePagination
+                            page={txPag.page}
+                            totalPages={txPag.totalPages}
+                            totalItems={txPag.totalItems}
+                            pageSize={txPag.pageSize}
+                            onPageChange={txPag.setPage}
+                            onPageSizeChange={txPag.setPageSize}
+                            itemLabel="giao dịch"
+                        />
                         </div>
                     </div>
                 </>

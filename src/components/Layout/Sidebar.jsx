@@ -65,20 +65,22 @@ const MENU_SECTIONS = [
       { id: 'mgr-dash', path: '/dashboard', label: 'Tổng Quan Điều Hành', icon: Gauge, roles: [MANAGER] },
       { id: 'mgr-approval', path: '/laboratory/verify-results', label: 'Thẩm Định Kỹ Thuật', icon: CheckCircle2, roles: [MANAGER] },
       { id: 'mgr-qc', path: '/qc/management', label: 'Kiểm Soát Chất Lượng (QC)', icon: FlaskConical, roles: [MANAGER] },
-      { id: 'mgr-notifications', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả XN', icon: Bell, roles: [MANAGER] },
+      { id: 'mgr-qc-flags', path: '/manager/qc-flags', label: 'Cảnh Báo Vi Phạm Westgard', icon: AlertTriangle, roles: [MANAGER] },
       { id: 'mgr-schedule', path: '/manage/schedule', label: 'Phân Bổ & Xếp Lịch Ca Trực', icon: Clock, roles: [MANAGER] },
       { id: 'mgr-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: Users, roles: [MANAGER] }
     ]
   },
   {
-    category: 'Vật Tư, Báo Cáo & Phản Hồi',
+    category: 'Vật Tư, Hóa Đơn, Báo Cáo & IoT',
     roles: [MANAGER],
     items: [
+      { id: 'mgr-invoices', path: '/invoices', label: 'Quản Lý Hóa Đơn & Biên Lai', icon: Receipt, roles: [MANAGER] },
       { id: 'mgr-inventory', path: '/inventory', label: 'Kho Vật Tư Y Tế & Hóa Chất', icon: TestTube2, roles: [MANAGER] },
       { id: 'mgr-feedback', path: '/manager/feedback', label: 'Phản Hồi Khách Hàng', icon: Star, roles: [MANAGER] },
       { id: 'mgr-tat', path: '/reports/tat', label: 'Thống Kê Hiệu Suất TAT', icon: BarChart3, roles: [MANAGER] },
-      { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu', icon: Receipt, roles: [MANAGER] },
+      { id: 'mgr-revenue', path: '/reports/revenue', label: 'Báo Cáo Doanh Thu', icon: TrendingUp, roles: [MANAGER] },
       { id: 'mgr-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Cảm Biến IoT', icon: HeartPulse, roles: [MANAGER] },
+      { id: 'mgr-iot-thresholds', path: '/manager/iot-thresholds', label: 'Cấu Hình Ngưỡng IoT', icon: ShieldCheck, roles: [MANAGER] },
       { id: 'mgr-iot-alerts', path: '/iot/alerts', label: 'Cảnh Báo Ngưỡng IoT', icon: AlertTriangle, roles: [MANAGER] }
     ]
   },
@@ -93,35 +95,42 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= LAB TECHNICIAN SECTIONS (KỸ THUẬT VIÊN) =================
+  // ================= LAB TECHNICIAN SECTIONS (PHÂN TẦNG THEO MỨC ĐỘ ƯU TIÊN & LUỒNG ISO 15189) =================
   {
-    category: 'Quy Trình Xét Nghiệm Lab (Theo Thứ Tự)',
+    category: 'Luồng Chính · Xử Lý Mẫu',
+    featured: true,
     roles: [LAB],
     items: [
-      { id: 'lab-queue', path: '/lab/queue', label: '1. Hàng Đợi & Lấy Mẫu Bệnh Phẩm', icon: Clock, roles: [LAB] },
-      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: '2. Tiếp Nhận & Quét Ống Mẫu', icon: TestTube2, roles: [LAB] },
-      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: '3. Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, roles: [LAB] },
-      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Gom Đợt Lấy Mẫu & In Barcode', icon: LucideBarcode, roles: [LAB] },
+      { id: 'lab-queue', path: '/lab/queue', label: 'Hàng Đợi & Lấy Mẫu', icon: Clock, badge: { text: 'B1', bg: 'primary' }, roles: [LAB] },
+      { id: 'lab-checkin', path: '/laboratory/checkinsample', label: 'Tiếp Nhận & Xử Lý Mẫu', icon: TestTube2, badge: { text: 'B2', bg: 'primary' }, roles: [LAB] },
+      { id: 'lab-enter-results', path: '/laboratory/enter-test-results', label: 'Nhập Kết Quả Xét Nghiệm', icon: FlaskConical, badge: { text: 'B3', bg: 'primary' }, roles: [LAB] }
+    ]
+  },
+  {
+    category: 'Kiểm Soát Chất Lượng & IoT',
+    roles: [LAB],
+    items: [
+      { id: 'lab-qc', path: '/laboratory/qc', label: 'Nội Kiểm Westgard (IQC)', icon: FlaskConical, roles: [LAB] },
+      { id: 'lab-qc-flags', path: '/laboratory/qc-flags', label: 'Cảnh Báo Vi Phạm QC', icon: AlertTriangle, roles: [LAB] },
+      { id: 'lab-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ IoT', icon: HeartPulse, roles: [LAB] }
+    ]
+  },
+  {
+    category: 'Hỗ Trợ Gom Đợt & Lô Mẫu',
+    roles: [LAB],
+    items: [
+      { id: 'lab-sample-list', path: '/laboratory/sample-list', label: 'Gom Đợt & In Barcode', icon: LucideBarcode, roles: [LAB] },
       { id: 'lab-batches', path: '/laboratory/batches', label: 'Quản Lý Lô Mẫu (Batch)', icon: ClipboardCheck, roles: [LAB] }
     ]
   },
   {
-    category: 'Kiểm Soát Chất Lượng (QC)',
+    category: 'Truy Vết, Ghi Chú & Ca Trực',
     roles: [LAB],
     items: [
-      { id: 'lab-qc', path: '/laboratory/qc', label: 'Kiểm Chuẩn Nội Kiểm (Westgard QC)', icon: FlaskConical, roles: [LAB] },
-      { id: 'lab-qc-flags', path: '/laboratory/qc-flags', label: 'Cảnh Báo Vi Phạm Westgard', icon: AlertTriangle, roles: [LAB] }
-    ]
-  },
-  {
-    category: 'Truy Vết & Thiết Bị IoT',
-    roles: [LAB],
-    items: [
-      { id: 'lab-specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử & Truy Vết Mẫu Máu', icon: History, roles: [LAB] },
-      { id: 'lab-iot-monitor', path: '/iot/monitor', label: 'Giám Sát Nhiệt Độ IoT', icon: HeartPulse, roles: [LAB] },
-      { id: 'lab-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: Bell, roles: [LAB] },
-      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [LAB] },
-      { id: 'lab-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [LAB] }
+      { id: 'lab-specimen-history', path: '/laboratory/specimens/history', label: 'Lịch Sử & Truy Vết Mẫu', icon: History, roles: [LAB] },
+      { id: 'lab-trace-origin', path: '/laboratory/trace', label: 'Truy Xuất Nguồn Gốc Mẫu', icon: Search, roles: [LAB] },
+      { id: 'lab-test-notes', path: '/laboratory/test-notes', label: 'Ghi Chú Xét Nghiệm', icon: FileText, roles: [LAB] },
+      { id: 'lab-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Calendar, roles: [LAB] }
     ]
   },
 
@@ -132,8 +141,9 @@ const MENU_SECTIONS = [
     items: [
       { id: 'doc-console', path: '/doctor/console', label: 'Bàn Khám & Hàng Đợi Bệnh Nhân', icon: Stethoscope, roles: [DOCTOR] },
       { id: 'doc-order', path: '/doctor/orders/create', label: 'Chỉ Định Xét Nghiệm', icon: FileText, roles: [DOCTOR] },
-      { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Duyệt Kết Quả Xét Nghiệm & Ký Số', icon: CheckCircle2, roles: [DOCTOR] },
-      { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án & Kết Luận Chẩn Đoán', icon: FileHeart, roles: [DOCTOR] }
+      { id: 'doc-biochem', path: '/laboratory/biochemical-results', label: 'Duyệt Kết Quả Xét Nghiệm', icon: CheckCircle2, roles: [DOCTOR] },
+      { id: 'doc-emr', path: '/doctor/emr', label: 'Bệnh Án & Kết Luận Chẩn Đoán', icon: FileHeart, roles: [DOCTOR] },
+      { id: 'doc-notifs', path: '/laboratory/notifications', label: 'Thông Báo Kết Quả Xét Nghiệm', icon: Bell, roles: [DOCTOR] }
     ]
   },
   {
@@ -143,8 +153,7 @@ const MENU_SECTIONS = [
       { id: 'doc-assessments', path: '/medical-assessments', label: 'Đánh Giá Lâm Sàng (ICD-10)', icon: ClipboardCheck, roles: [DOCTOR] },
       { id: 'doc-appointments', path: '/appointments', label: 'Danh Sách Lịch Hẹn Khám', icon: Calendar, roles: [DOCTOR] },
       { id: 'doc-patients', path: '/patients', label: 'Hồ Sơ Bệnh Nhân', icon: Users, roles: [DOCTOR] },
-      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [DOCTOR] },
-      { id: 'doc-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [DOCTOR] }
+      { id: 'doc-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [DOCTOR] }
     ]
   },
 
@@ -164,8 +173,7 @@ const MENU_SECTIONS = [
     items: [
       { id: 'rec-appointments', path: '/appointments', label: 'Sổ Lịch Hẹn Khám (Quầy)', icon: Calendar, roles: [RECEPTIONIST] },
       { id: 'rec-patients', path: '/patients', label: 'Tra Cứu Hồ Sơ Bệnh Nhân', icon: Users, roles: [RECEPTIONIST] },
-      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [RECEPTIONIST] },
-      { id: 'rec-feedback', path: '/feedback', label: 'Đóng Góp Ý Kiến Bệnh Nhân', icon: Star, roles: [RECEPTIONIST] }
+      { id: 'rec-shifts', path: '/shifts/view', label: 'Lịch Ca Trực Của Tôi', icon: Clock, roles: [RECEPTIONIST] }
     ]
   },
 
@@ -368,15 +376,31 @@ export default function Sidebar({
         }}
       >
         {filteredSections.map((section, idx) => (
-          <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          <div
+            key={idx}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px',
+              ...(!isCollapsed && section.featured
+                ? {
+                    background: '#F4F8FF',
+                    border: '1px solid #DBEAFE',
+                    borderRadius: '16px',
+                    padding: '8px 6px'
+                  }
+                : {})
+            }}
+          >
             {!isCollapsed && (
               <div
                 style={{
-                  fontSize: '0.7rem',
-                  fontWeight: 650,
-                  letterSpacing: '0.02em',
-                  color: '#9CA3AF',
-                  padding: '4px 12px',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.03em',
+                  textTransform: 'uppercase',
+                  color: section.featured ? '#1E60E6' : '#9CA3AF',
+                  padding: section.featured ? '2px 10px 4px' : '4px 12px',
                   marginBottom: '2px'
                 }}
               >
@@ -440,12 +464,20 @@ export default function Sidebar({
                   {!isCollapsed && item.badge && (
                     <span
                       style={{
-                        fontSize: '0.68rem',
-                        fontWeight: 650,
-                        padding: '2px 8px',
+                        fontSize: '0.66rem',
+                        fontWeight: 700,
+                        padding: '2px 7px',
                         borderRadius: '9999px',
-                        backgroundColor: item.badge.bg === 'warning' ? '#FFF4E5' : '#E8EFFE',
-                        color: item.badge.bg === 'warning' ? '#8C5300' : '#1E60E6'
+                        backgroundColor: active
+                          ? 'rgba(255, 255, 255, 0.22)'
+                          : item.badge.bg === 'warning'
+                            ? '#FFF4E5'
+                            : '#E8EFFE',
+                        color: active
+                          ? '#FFFFFF'
+                          : item.badge.bg === 'warning'
+                            ? '#8C5300'
+                            : '#1E60E6'
                       }}
                     >
                       {item.badge.text}

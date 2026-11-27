@@ -17,16 +17,19 @@ import {
   Card, Table, Badge, Button, Form, Row, Col,
   Modal, Spinner, InputGroup, Alert
 } from 'react-bootstrap';
-import { TestTube2, Clock, ArrowLeftRight, RotateCw, Search as LucideSearch, RefreshCw, Barcode as LucideBarcode, CheckCircle2, AlertTriangle, History as LucideHistory, User, FlaskConical, X as LucideX, Eye, Save, Info, ArrowRight } from 'lucide-react';
+import { TestTube2, Clock, ArrowLeftRight, RotateCw, Search as LucideSearch, RefreshCw, Barcode as LucideBarcode, CheckCircle2, AlertTriangle, History as LucideHistory, User, FlaskConical, X as LucideX, Eye, Save, Info, ArrowRight, Package } from 'lucide-react';
 import api from '../../../config/api';
 import PageHeader from '../../../components/ui/PageHeader';
 import StatRow from '../../../components/ui/StatRow';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { searchPatients } from '../../../services/patientService';
 import { getStoredUser, hasRole, ROLES } from '../../../constants/roles';
 import {
   ALLOWED_SAMPLE_TRANSITIONS as ALLOWED_TRANSITIONS,
   canCollectSample,
+  canCreateAliquot,
   canEnterTestResults,
+  canReceiveSample,
   canRejectSample,
   canStartTesting,
   canViewTestResults,
@@ -35,7 +38,8 @@ import {
   primaryForwardAction
 } from '../../../shared/workflow/sampleWorkflowGates';
 import { resolveDutyAssignment } from '../../../shared/workflow/dutyAssignment';
-import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
+import { formatTubeColorVi, formatSampleTypeVi, matchSuppliesFromInventory } from '../../../shared/workflow/labConsumables';
+import { getInventory, consumeInventory } from '../../inventory/api/inventoryApi';
 
 /**
  * Standard Clinical Lab Test Parameters (Clean Human-Operated Routine Entry).
@@ -56,8 +60,8 @@ const DEFAULT_TEST_PARAMS = [
 
 const STATUS_META = {
   PendingCollection: { label: 'Chờ lấy mẫu', bg: 'secondary' },
-  Collected: { label: 'Đã lấy mẫu (Sẵn sàng nhập KQ)', bg: 'info' },
-  InTransit: { label: 'Đã lấy mẫu', bg: 'info' },
+  Collected: { label: 'Đã lấy mẫu (Chờ tiếp nhận Lab)', bg: 'info' },
+  InTransit: { label: 'Đang vận chuyển về Lab', bg: 'info' },
   Received: { label: 'Đã tiếp nhận Lab', bg: 'primary' },
   Processing: { label: 'Đang xử lý', bg: 'warning', text: 'dark' },
   Testing: { label: 'Đang xét nghiệm', bg: 'warning', text: 'dark' },
@@ -199,6 +203,19 @@ const SampleQueuePage = () => {
   });
   const [collectionError, setCollectionError] = useState('');
   const [collectionSubmitting, setCollectionSubmitting] = useState(false);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [collectionSupplies, setCollectionSupplies] = useState([]);
+
+  const loadInventoryForCollection = useCallback(async () => {
+    try {
+      const data = await getInventory({ page: 1, pageSize: 100 });
+      const list = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+      setInventoryItems(list);
+      return list;
+    } catch {
+      return [];
+    }
+  }, []);
 
   // =========================================================================
   // MODAL 2: UPDATE SAMPLE STATUS (Cập nhật trạng thái vòng đời mẫu ISO 15189)
@@ -520,6 +537,32 @@ const SampleQueuePage = () => {
     setCollectionTargetSample(sample);
     setCollectionError('');
 
+    const initSupplies = (invList) => {
+      const { recommended } = matchSuppliesFromInventory(
+        invList,
+        sample?.testPackageName || '',
+        sample?.tubeColor || '',
+        'COLLECTION'
+      );
+      setCollectionSupplies(
+        recommended.map((item) => ({
+          id: item.id,
+          code: item.code,
+          name: item.name,
+          lotNumber: item.lotNumber,
+          unit: item.unit,
+          stock: Number(item.quantity || 0),
+          quantity: 1,
+          checked: true
+        }))
+      );
+    };
+    if (inventoryItems.length > 0) {
+      initSupplies(inventoryItems);
+    } else {
+      loadInventoryForCollection().then(initSupplies);
+    }
+
     const fallbackStaff =
       findStaffMatch(staffOptions, {
         idOrCode: currentUser?.id || currentUser?.employeeCode || currentUser?.username,
@@ -625,23 +668,48 @@ const SampleQueuePage = () => {
       notes: collectionForm.notes.trim() || undefined
     };
 
+    const checkedSupplies = collectionSupplies.filter((s) => s.checked && Number(s.quantity) > 0);
+    if (checkedSupplies.length === 0) {
+      setCollectionError('Vui lòng xác nhận ít nhất 1 vật tư y tế tiêu hao khi lấy máu (kim lấy máu, ống nghiệm...).');
+      return;
+    }
+
     setCollectionSubmitting(true);
     try {
+      const consumeRes = await consumeInventory({
+        sampleId: collectionForm.barcode.trim() || collectionTargetSample?.barcode || '',
+        testPackageCode: collectionTargetSample?.testPackageName || '',
+        stage: 'Lấy mẫu bệnh phẩm (Bước 1)',
+        notes: collectionForm.notes.trim() || undefined,
+        items: checkedSupplies.map((s) => ({
+          reagentId: s.id,
+          quantity: Number(s.quantity) || 1
+        }))
+      });
+      const consumedList = Array.isArray(consumeRes?.data) ? consumeRes.data : [];
+      const supplyNote = consumedList.length > 0
+        ? ` [Vật tư lấy máu: ${consumedList.map((c) => `${c.code} (${c.lotNumber}) x${c.consumedQuantity} ${c.unit}`).join(', ')}]`
+        : '';
+      const payloadWithSupplies = {
+        ...payload,
+        notes: `${payload.notes || ''}${supplyNote}`.trim() || undefined
+      };
+
       let res;
       if (collectionTargetSample?.id) {
-        res = await api.post(`/laboratory/samples/${encodeURIComponent(collectionTargetSample.id)}/collection-time`, payload);
+        res = await api.post(`/laboratory/samples/${encodeURIComponent(collectionTargetSample.id)}/collection-time`, payloadWithSupplies);
       } else if (collectionForm.sampleId.trim()) {
-        res = await api.post(`/laboratory/samples/${encodeURIComponent(collectionForm.sampleId.trim())}/collection-time`, payload);
+        res = await api.post(`/laboratory/samples/${encodeURIComponent(collectionForm.sampleId.trim())}/collection-time`, payloadWithSupplies);
       } else {
-        res = await api.post('/laboratory/samples/record-collection', payload);
+        res = await api.post('/laboratory/samples/record-collection', payloadWithSupplies);
       }
 
       const updatedSample = res.data?.data;
       setSuccessMsg(
-        res.data?.message ||
-        `Đã ghi nhận thời gian lấy mẫu thành công cho Barcode ${updatedSample?.barcode || payload.barcode}.`
+        `Đã ghi nhận thời gian lấy mẫu cho Barcode ${updatedSample?.barcode || payload.barcode} & xuất ${checkedSupplies.length} vật tư lấy máu từ kho.`
       );
       setShowCollectionModal(false);
+      loadInventoryForCollection();
       await fetchQueue();
     } catch (err) {
       setCollectionError(extractApiError(err, 'Không thể ghi nhận thời gian lấy mẫu.'));
@@ -653,11 +721,11 @@ const SampleQueuePage = () => {
   // =========================================================================
   // HANDLERS: UPDATE SAMPLE STATUS MODAL
   // =========================================================================
-  /** Một nút: Collected/Received/Processing → Testing (chain PUT theo BE, không mở modal chọn trạng thái). */
+  /** Chuyển mẫu đã tiếp nhận Lab (Received / Processing) sang Đang xét nghiệm (Testing). */
   const handleStartTesting = async (sample) => {
     const steps = pathToTesting(sample?.status);
     if (!steps || steps.length === 0) {
-      setErrorMsg('Mẫu không thể chuyển sang Đang xét nghiệm từ trạng thái hiện tại.');
+      setErrorMsg('Mẫu cần hoàn tất bước Tiếp nhận Lab (Received) trước khi bắt đầu xét nghiệm.');
       return;
     }
     setErrorMsg('');
@@ -669,13 +737,13 @@ const SampleQueuePage = () => {
           technicianName: dutyTechName || defaultOperatorName || undefined,
           labRoom: dutyRoomId || sample.labRoom || 'LAB-ROOM-01',
           timestamp: new Date().toISOString(),
-          notes: `Chuyển ${nextStatus} (nút Đang xét nghiệm)`
+          notes: `Bắt đầu phân tích trên máy xét nghiệm (${nextStatus})`
         });
       }
-      setSuccessMsg(`Mẫu ${sample.barcode || sample.id} → Đang xét nghiệm. Bấm Nhập KQ để nhập kết quả.`);
+      setSuccessMsg(`Mẫu ${sample.barcode || sample.id} đã chuyển sang Đang xét nghiệm. Bấm Nhập KQ để ghi nhận chỉ số.`);
       await fetchQueue();
     } catch (err) {
-      setErrorMsg(extractApiError(err, 'Không chuyển được sang Đang xét nghiệm.'));
+      setErrorMsg(extractApiError(err, 'Không thể bắt đầu xét nghiệm cho mẫu này.'));
     }
   };
 
@@ -859,6 +927,7 @@ const SampleQueuePage = () => {
   const collectedCount = sampleListSafe.filter(s => ['Collected', 'InTransit', 'Received'].includes(s?.status)).length;
   const processingCount = sampleListSafe.filter(s => ['Processing', 'Testing', 'RerunRequested'].includes(s?.status)).length;
   const completedCount = sampleListSafe.filter(s => s?.status === 'Completed').length;
+  const queuePag = usePagination(sampleListSafe, 10);
 
   return (
     <div className="w-100 py-1">
@@ -866,10 +935,10 @@ const SampleQueuePage = () => {
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Hàng đợi mẫu bệnh phẩm</h1>
+            <h1 className="bms-page-title">Hàng đợi &amp; Lấy mẫu bệnh phẩm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Quản lý tiếp nhận, ghi nhận giờ lấy mẫu và cập nhật trạng thái xử lý tại phòng xét nghiệm.
+            Ghi nhận thời điểm lấy mẫu bệnh phẩm (Bước 1) và theo dõi trạng thái xử lý tại phòng xét nghiệm.
           </p>
         </div>
         <div className="bms-page-actions">
@@ -889,19 +958,6 @@ const SampleQueuePage = () => {
           )}
         </div>
       </div>
-
-      {/* Quy trình 4 bước cho KTV Phòng Lab */}
-      <WorkflowStepperBar
-        title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
-        hint="Chỉ định mới từ Bác sĩ luôn nổi lên dòng đầu tiên — bấm nút hành động ở cột cuối để đi tiếp"
-        activeStep={1}
-        steps={[
-          { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
-          { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu (hoặc bấm Đang xét nghiệm)', path: '/laboratory/checkinsample' },
-          { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
-          { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
-        ]}
-      />
 
       {successMsg && (
         <Alert variant="success" dismissible onClose={() => setSuccessMsg('')} className="rounded-3">
@@ -1064,7 +1120,7 @@ const SampleQueuePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sampleListSafe.map((s) => (
+                  {queuePag.paginatedItems.map((s) => (
                     <tr key={s.id}>
                       <td className="ps-3" style={{ wordBreak: 'break-all' }}>
                         <div className="fw-bold font-monospace text-primary d-flex align-items-start gap-1" style={{ fontSize: '0.75rem', lineHeight: 1.3 }}>
@@ -1096,9 +1152,9 @@ const SampleQueuePage = () => {
                           {s.testPackageName || 'Xét nghiệm lâm sàng'}
                         </div>
                         <div className="small text-muted d-flex flex-wrap gap-1 align-items-center mt-1">
-                          <Badge bg="secondary" className="fw-normal" style={{ fontSize: '0.7rem' }}>{s.sampleType || 'Blood'}</Badge>
-                          {s.tubeColor && <Badge bg="light" text="dark" className="border" style={{ fontSize: '0.7rem' }}>{s.tubeColor}</Badge>}
-                          {s.volumeMl ? <span style={{ fontSize: '0.72rem' }}>{s.volumeMl} ml</span> : null}
+                          <Badge bg="secondary" className="fw-normal" style={{ fontSize: '0.7rem' }}>{formatSampleTypeVi(s.sampleType || 'Blood')}</Badge>
+                          {s.tubeColor && <Badge bg="light" text="dark" className="border" style={{ fontSize: '0.7rem' }}>{formatTubeColorVi(s.tubeColor)}</Badge>}
+                          {s.volumeMl ? <span style={{ fontSize: '0.72rem' }}>{s.volumeMl} mL</span> : null}
                         </div>
                         {s.rejectionReason && (
                           <div className="text-danger small mt-1" style={{ fontSize: '0.72rem', wordBreak: 'break-word' }}>
@@ -1123,104 +1179,60 @@ const SampleQueuePage = () => {
                         <div className="d-flex flex-wrap gap-1 justify-content-end align-items-center">
                           {(() => {
                             const st = normalizeSampleStatus(s.status);
-                            const fwd = primaryForwardAction(st);
                             const btnStyle = { fontSize: '0.75rem', borderRadius: '9999px' };
-                            const sampleKey = encodeURIComponent(s.barcode || s.sampleCode || s.id);
+
+                            if (st === 'PendingCollection') {
+                              return (
+                                <>
+                                  {canCollectSample(st) && canRecordSampleTime && (
+                                    <Button
+                                      variant="success"
+                                      size="sm"
+                                      className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1 shadow-sm"
+                                      style={btnStyle}
+                                      title="Ghi nhận thời điểm lấy mẫu bệnh phẩm"
+                                      onClick={() => openRecordCollectionModal(s)}
+                                    >
+                                      <Clock size="1em" />
+                                      <span>Lấy Mẫu</span>
+                                    </Button>
+                                  )}
+                                  {canRejectSample(st) && (
+                                    <Button
+                                      variant="outline-danger"
+                                      size="sm"
+                                      className="px-2 py-1"
+                                      style={btnStyle}
+                                      title="Từ chối / hủy lấy mẫu"
+                                      onClick={() => openStatusUpdateModal(s, 'Rejected')}
+                                    >
+                                      <LucideX size="1em" />
+                                    </Button>
+                                  )}
+                                </>
+                              );
+                            }
 
                             if (st === 'Rejected') {
                               return <Badge bg="dark" className="px-2.5 py-1" style={{ fontSize: '0.72rem' }}>Đã từ chối</Badge>;
                             }
 
-                            // Queue chỉ 3 nút: Lấy Mẫu → Đang xét nghiệm → Nhập KQ (rồi Xem KQ)
+                            const stageHint =
+                              st === 'Collected' || st === 'InTransit'
+                                ? 'Chờ Bước 2 (Tiếp nhận)'
+                                : st === 'Received' || st === 'Processing'
+                                  ? 'Đang ở Bước 2 (Xử lý Lab)'
+                                  : st === 'Testing' || st === 'RerunRequested'
+                                    ? 'Chờ Bước 3 (Nhập KQ)'
+                                    : 'Hoàn tất tại Lab';
+
                             return (
-                              <>
-                                {fwd.kind === 'collect' && canCollectSample(st) && canRecordSampleTime && (
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1 shadow-sm"
-                                    style={btnStyle}
-                                    title="Ghi nhận lấy mẫu"
-                                    onClick={() => openRecordCollectionModal(s)}
-                                  >
-                                    <Clock size="1em" />
-                                    <span>Lấy Mẫu</span>
-                                  </Button>
-                                )}
-
-                                {fwd.kind === 'toTesting' && canStartTesting(st) && (
-                                  <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1 shadow-sm"
-                                    style={btnStyle}
-                                    title="Chuyển mẫu sang Đang xét nghiệm — sau đó bấm Nhập KQ"
-                                    onClick={() => void handleStartTesting(s)}
-                                  >
-                                    <FlaskConical size="1em" />
-                                    <span>Đang xét nghiệm</span>
-                                  </Button>
-                                )}
-
-                                {fwd.kind === 'enter' && canEnterTestResults(st) && (
-                                  <Button
-                                    variant="warning"
-                                    size="sm"
-                                    className="px-3 py-1 text-nowrap d-flex align-items-center gap-1 fw-bold text-white shadow-sm"
-                                    style={{ ...btnStyle, backgroundColor: '#f59e0b', borderColor: '#f59e0b' }}
-                                    title="Nhập kết quả"
-                                    onClick={() => navigate(`/laboratory/enter-test-results?sampleId=${sampleKey}`)}
-                                  >
-                                    <FlaskConical size="1em" />
-                                    <span>Nhập KQ</span>
-                                  </Button>
-                                )}
-
-                                {fwd.kind === 'view' && canViewTestResults(st) && (
-                                  <Button
-                                    variant="outline-primary"
-                                    size="sm"
-                                    className="px-2.5 py-1 text-nowrap d-flex align-items-center gap-1"
-                                    style={btnStyle}
-                                    title="Xem kết quả đã nhập"
-                                    onClick={() =>
-                                      navigate(
-                                        `/laboratory/enter-test-results?sampleId=${sampleKey}&mode=view`
-                                      )
-                                    }
-                                  >
-                                    <Eye size="1em" />
-                                    <span>Xem KQ</span>
-                                  </Button>
-                                )}
-
-                                {canRecordSampleTime && !s.isAliquot && ['Collected', 'Received', 'Processing', 'Testing'].includes(st) && (
-                                  <Button
-                                    variant="outline-info"
-                                    size="sm"
-                                    className="px-2 py-1 text-nowrap d-flex align-items-center gap-1"
-                                    style={btnStyle}
-                                    title="Chiết mẫu phụ (Aliquot) cho nhiều máy phân tích"
-                                    onClick={() => void handleCreateAliquot(s)}
-                                  >
-                                    <TestTube2 size="1em" />
-                                    <span>Chiết mẫu</span>
-                                  </Button>
-                                )}
-
-                                {canRejectSample(st) && st === 'PendingCollection' && (
-                                  <Button
-                                    variant="outline-danger"
-                                    size="sm"
-                                    className="px-2 py-1"
-                                    style={btnStyle}
-                                    title="Từ chối / hủy lấy mẫu"
-                                    onClick={() => openStatusUpdateModal(s, 'Rejected')}
-                                  >
-                                    <LucideX size="1em" />
-                                  </Button>
-                                )}
-                              </>
+                              <span
+                                className="badge bg-light text-secondary border px-2.5 py-1 fw-medium text-nowrap"
+                                style={{ fontSize: '0.72rem', borderRadius: '9999px' }}
+                              >
+                                {stageHint}
+                              </span>
                             );
                           })()}
                         </div>
@@ -1229,6 +1241,15 @@ const SampleQueuePage = () => {
                   ))}
                 </tbody>
               </Table>
+              <TablePagination
+                page={queuePag.page}
+                totalPages={queuePag.totalPages}
+                totalItems={queuePag.totalItems}
+                pageSize={queuePag.pageSize}
+                onPageChange={queuePag.setPage}
+                onPageSizeChange={queuePag.setPageSize}
+                itemLabel="mẫu bệnh phẩm"
+              />
             </div>
           )}
         </div>
@@ -1293,7 +1314,7 @@ const SampleQueuePage = () => {
                 <Col md={6}>
                   <span className="text-muted">Ống / bệnh phẩm:</span>{' '}
                   <strong>
-                    {collectionForm.tubeColor} · {collectionForm.sampleType} · {collectionForm.anticoagulant}
+                    {formatTubeColorVi(collectionForm.tubeColor)} · {formatSampleTypeVi(collectionForm.sampleType)}
                   </strong>
                 </Col>
                 <Col md={6}>
@@ -1445,6 +1466,103 @@ const SampleQueuePage = () => {
                   disabled
                   className="bg-light text-dark fw-semibold"
                 />
+              </Col>
+
+              <Col xs={12}>
+                <div className="p-3 rounded-3 border bg-light">
+                  <div className="d-flex justify-content-between align-items-center mb-1.5">
+                    <span className="small fw-bold text-primary d-flex align-items-center gap-1.5 text-uppercase">
+                      <Package size={14} />
+                      Vật tư y tế sử dụng khi lấy máu ({collectionSupplies.filter((s) => s.checked).length} mục)
+                    </span>
+                  </div>
+                  <div className="text-muted mb-2" style={{ fontSize: '0.75rem' }}>
+                    Đồng bộ từ <strong>Kho Vật Tư Y Tế</strong> theo gói <strong>{collectionTargetSample?.testPackageName || 'xét nghiệm'}</strong> (kim lấy máu, ống nghiệm chân không, bộ sát khuẩn). Hệ thống tự trừ tồn kho khi xác nhận.
+                  </div>
+                  <div className="d-flex flex-column gap-1.5 mb-2">
+                    {collectionSupplies.map((sup, idx) => (
+                      <div key={sup.id} className="d-flex align-items-center justify-content-between gap-2 p-2 rounded bg-white border">
+                        <label className="d-flex align-items-start gap-2 mb-0 flex-grow-1" style={{ cursor: 'pointer', minWidth: 0 }}>
+                          <input
+                            type="checkbox"
+                            className="form-check-input mt-1 flex-shrink-0"
+                            checked={sup.checked}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setCollectionSupplies((prev) =>
+                                prev.map((it, i) => (i === idx ? { ...it, checked } : it))
+                              );
+                            }}
+                          />
+                          <div style={{ minWidth: 0 }}>
+                            <div className="small fw-semibold text-dark">{sup.name}</div>
+                            <div className="text-muted" style={{ fontSize: '0.72rem' }}>
+                              <code className="text-primary me-1">{sup.code}</code>
+                              · Lô: <strong>{sup.lotNumber}</strong>
+                              · Tồn: <strong className="text-success">{sup.stock} {sup.unit}</strong>
+                            </div>
+                          </div>
+                        </label>
+                        <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                          <Form.Control
+                            type="number"
+                            size="sm"
+                            min={1}
+                            max={Math.max(1, sup.stock)}
+                            style={{ width: 60 }}
+                            className="text-center font-monospace"
+                            disabled={!sup.checked}
+                            value={sup.quantity}
+                            onChange={(e) => {
+                              const q = Math.max(1, Math.min(sup.stock || 999, Number(e.target.value) || 1));
+                              setCollectionSupplies((prev) =>
+                                prev.map((it, i) => (i === idx ? { ...it, quantity: q } : it))
+                              );
+                            }}
+                          />
+                          <span className="small text-muted">{sup.unit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {(() => {
+                    const selectedIds = new Set(collectionSupplies.map((s) => s.id));
+                    const extras = inventoryItems.filter(
+                      (it) => !selectedIds.has(it.id) && Number(it.quantity || 0) > 0 && it.expiryStatus !== 'EXPIRED'
+                    );
+                    if (extras.length === 0) return null;
+                    return (
+                      <Form.Select
+                        size="sm"
+                        value=""
+                        onChange={(e) => {
+                          const found = extras.find((x) => x.id === e.target.value);
+                          if (!found) return;
+                          setCollectionSupplies((prev) => [
+                            ...prev,
+                            {
+                              id: found.id,
+                              code: found.code,
+                              name: found.name,
+                              lotNumber: found.lotNumber,
+                              unit: found.unit,
+                              stock: Number(found.quantity || 0),
+                              quantity: 1,
+                              checked: true
+                            }
+                          ]);
+                        }}
+                      >
+                        <option value="">+ Bổ sung vật tư khác từ Kho Vật Tư...</option>
+                        {extras.map((it) => (
+                          <option key={it.id} value={it.id}>
+                            [{it.code}] {it.name} (Lô {it.lotNumber} · Tồn: {it.quantity} {it.unit})
+                          </option>
+                        ))}
+                      </Form.Select>
+                    );
+                  })()}
+                </div>
               </Col>
 
               <Col xs={12}>

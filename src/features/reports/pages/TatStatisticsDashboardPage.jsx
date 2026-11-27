@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Clock, CheckCircle2, AlertTriangle, TrendingUp, BarChart3, Filter as LucideFilter, Download, RefreshCw, FlaskConical, TestTube2, Layers, Zap, Calendar, Search, ArrowUp, ArrowDown, Info, Check } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchTatReport,
     exportTatCsv
@@ -61,6 +62,9 @@ export default function TatStatisticsDashboardPage() {
         trends: [],
         recentViolations: []
     });
+
+    const deptPag = usePagination(Array.isArray(report?.departmentBreakdown) ? report.departmentBreakdown : [], 10);
+    const violPag = usePagination(Array.isArray(report?.recentViolations) ? report.recentViolations : [], 10);
 
     const loadData = useCallback(async () => {
         setIsLoading(true);
@@ -273,7 +277,7 @@ export default function TatStatisticsDashboardPage() {
                 ].map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.key;
-                    return (
+    return (
                         <button
                             key={tab.key}
                             type="button"
@@ -304,7 +308,7 @@ export default function TatStatisticsDashboardPage() {
                             const isUrgent = p.priority.toLowerCase() === "urgent";
                             const themeColor = isStat ? "#dc2626" : isUrgent ? "#B45309" : "#1E60E6";
 
-                            return (
+    return (
                                 <article className="bms-sla-card" key={p.priority}>
                                     <div className="bms-sla-card-head">
                                         <span className="bms-sla-badge" style={{ backgroundColor: `${themeColor}15`, color: themeColor }}>
@@ -345,7 +349,7 @@ export default function TatStatisticsDashboardPage() {
                         <div className="progress" style={{ height: "24px", borderRadius: 12 }}>
                             {(Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : []).map((ph, idx) => {
                                 const colors = ["bg-info", "bg-primary", "bg-success"];
-                                return (
+    return (
                                     <div
                                         key={ph.phaseName}
                                         className={`progress-bar ${colors[idx % colors.length]} fw-semibold text-white small`}
@@ -363,7 +367,7 @@ export default function TatStatisticsDashboardPage() {
                     <div className="row g-3">
                         {((Array.isArray(report.phaseBreakdown) ? report.phaseBreakdown : [])).map((ph, idx) => {
                             const badges = ["Giai đoạn 1", "Giai đoạn 2", "Giai đoạn 3"];
-                            return (
+    return (
                                 <div className="col-12 col-md-4" key={ph.phaseName}>
                                     <div className="p-3 rounded-4 h-100" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
                                         <div className="d-flex justify-content-between align-items-center">
@@ -401,7 +405,7 @@ export default function TatStatisticsDashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {(Array.isArray(report.departmentBreakdown) ? report.departmentBreakdown : []).map(d => (
+                                    {deptPag.paginatedItems.map(d => (
                                         <tr key={d.department}>
                                             <td className="fw-bold text-dark ps-3">
                                                 <FlaskConical className="me-2" style={{ color: '#1E60E6' }}  size="1em"/>
@@ -447,6 +451,15 @@ export default function TatStatisticsDashboardPage() {
                                     ))}
                                 </tbody>
                             </table>
+                            <TablePagination
+                                page={deptPag.page}
+                                totalPages={deptPag.totalPages}
+                                totalItems={deptPag.totalItems}
+                                pageSize={deptPag.pageSize}
+                                onPageChange={deptPag.setPage}
+                                onPageSizeChange={deptPag.setPageSize}
+                                itemLabel="chuyên khoa"
+                            />
                         </div>
                     </div>
                 </div>
@@ -512,7 +525,7 @@ export default function TatStatisticsDashboardPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {(Array.isArray(report.recentViolations) ? report.recentViolations : []).map(v => (
+                                        {violPag.paginatedItems.map(v => (
                                             <tr key={v.sampleId || v.barcode}>
                                                 <td className="font-monospace fw-bold ps-3" style={{ color: '#1E60E6' }}>{v.barcode}</td>
                                                 <td>{v.patientName}</td>
@@ -535,6 +548,15 @@ export default function TatStatisticsDashboardPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                <TablePagination
+                                    page={violPag.page}
+                                    totalPages={violPag.totalPages}
+                                    totalItems={violPag.totalItems}
+                                    pageSize={violPag.pageSize}
+                                    onPageChange={violPag.setPage}
+                                    onPageSizeChange={violPag.setPageSize}
+                                    itemLabel="mẫu vượt ngưỡng"
+                                />
                             </div>
                         )}
                     </div>

@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { TestTube2, TrendingUp, AlertTriangle, CheckCircle2, Plus, Lock, Unlock, RefreshCw, Check, X as LucideX, UserCheck, Search, History, Microscope, Info, ShieldCheck } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchQcLots,
     createQcLot,
@@ -55,6 +56,8 @@ export default function QualityControlManagementPage() {
         lockedAnalyzersCount: 0
     });
     const [flags, setFlags] = useState([]);
+    const lotsPag = usePagination(lots, 10);
+    const qcFlagsPag = usePagination(flags, 10);
     const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'lots' | 'flags'
     const [isLoading, setIsLoading] = useState(false);
 
@@ -616,7 +619,7 @@ export default function QualityControlManagementPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {(Array.isArray(lots) ? lots : []).map(lot => (
+                                    {lotsPag.paginatedItems.map(lot => (
                                         <tr key={lot.id}>
                                             <td>
                                                 <div className="fw-bold text-dark">{lot.lotNumber}</div>
@@ -662,6 +665,15 @@ export default function QualityControlManagementPage() {
                                     ))}
                                 </tbody>
                             </table>
+                            <TablePagination
+                                page={lotsPag.page}
+                                totalPages={lotsPag.totalPages}
+                                totalItems={lotsPag.totalItems}
+                                pageSize={lotsPag.pageSize}
+                                onPageChange={lotsPag.setPage}
+                                onPageSizeChange={lotsPag.setPageSize}
+                                itemLabel="lô kiểm chuẩn"
+                            />
                         </div>
                     </div>
                 </div>
@@ -704,7 +716,7 @@ export default function QualityControlManagementPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {(Array.isArray(flags) ? flags : []).map(flag => (
+                                        {qcFlagsPag.paginatedItems.map(flag => (
                                             <tr key={flag.runId} className={flag.isLocked ? 'table-danger-subtle' : ''}>
                                                 <td>
                                                     <div className="fw-bold font-monospace text-dark">{flag.runId}</div>
@@ -768,6 +780,15 @@ export default function QualityControlManagementPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                                <TablePagination
+                                    page={qcFlagsPag.page}
+                                    totalPages={qcFlagsPag.totalPages}
+                                    totalItems={qcFlagsPag.totalItems}
+                                    pageSize={qcFlagsPag.pageSize}
+                                    onPageChange={qcFlagsPag.setPage}
+                                    onPageSizeChange={qcFlagsPag.setPageSize}
+                                    itemLabel="cảnh báo Westgard"
+                                />
                             </div>
                         )}
                     </div>

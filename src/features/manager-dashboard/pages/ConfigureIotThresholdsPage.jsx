@@ -9,6 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IotNavigationTabs from '../../iot/components/IotNavigationTabs';
 import { Settings, Save, Undo2, Thermometer, Droplets, AlertOctagon, CheckCircle2, Lock as LucideLock } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
 import {
     fetchIotThresholdsSummary,
@@ -114,6 +115,7 @@ export default function ConfigureIotThresholdsPage() {
     };
 
     const safeThresholds = useMemo(() => (Array.isArray(thresholds) ? thresholds : []), [thresholds]);
+    const thresholdsPag = usePagination(safeThresholds, 10);
 
     return (
         <div className="w-100 py-1">
@@ -213,7 +215,7 @@ export default function ConfigureIotThresholdsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {safeThresholds.map((device) => {
+                                {thresholdsPag.paginatedItems.map((device) => {
                                     const isTemp = device.sensorType === 'Temperature';
                                     return (
                                         <tr key={device.deviceId}>
@@ -277,6 +279,15 @@ export default function ConfigureIotThresholdsPage() {
                                 })}
                             </tbody>
                         </table>
+                        <TablePagination
+                            page={thresholdsPag.page}
+                            totalPages={thresholdsPag.totalPages}
+                            totalItems={thresholdsPag.totalItems}
+                            pageSize={thresholdsPag.pageSize}
+                            onPageChange={thresholdsPag.setPage}
+                            onPageSizeChange={thresholdsPag.setPageSize}
+                            itemLabel="cảm biến IoT"
+                        />
                     </div>
                 )}
                 </div>

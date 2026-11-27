@@ -11,6 +11,7 @@ import {
   Table
 } from 'react-bootstrap';
 import { Receipt, Search, X as LucideX, Plus, Printer, CreditCard, Banknote, QrCode, AlertTriangle, CheckCircle2, Hourglass, RefreshCw, Inbox, Circle, IdCard, ClipboardList, Landmark } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import {
   getInvoices,
   createInvoice,
@@ -216,6 +217,8 @@ export default function BillingInvoicesPage() {
       );
     });
   }, [invoices, searchTerm]);
+
+  const invoicesPag = usePagination(filteredInvoices, 10);
 
   const totalPaid = useMemo(() => {
     return invoices
@@ -442,7 +445,7 @@ export default function BillingInvoicesPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredInvoices.map((inv) => {
+                  invoicesPag.paginatedItems.map((inv) => {
                     const isPaid = inv.status === 1 || inv.status === 'Paid';
                     const mainItem = inv.items?.[0]?.itemName || 'Dịch vụ xét nghiệm máu';
                     const moreItemsCount = (inv.items?.length || 1) - 1;
@@ -613,6 +616,15 @@ export default function BillingInvoicesPage() {
                 )}
               </tbody>
             </Table>
+            <TablePagination
+              page={invoicesPag.page}
+              totalPages={invoicesPag.totalPages}
+              totalItems={invoicesPag.totalItems}
+              pageSize={invoicesPag.pageSize}
+              onPageChange={invoicesPag.setPage}
+              onPageSizeChange={invoicesPag.setPageSize}
+              itemLabel="hóa đơn"
+            />
           </div>
         </div>
       </div>

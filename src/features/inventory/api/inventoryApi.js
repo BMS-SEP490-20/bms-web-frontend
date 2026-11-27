@@ -28,6 +28,11 @@ export async function deleteInventory(id, payload) {
   await api.delete(`/inventory/${encodeURIComponent(id)}`, { data: payload });
 }
 
+/** Deducts medical supplies / reagents consumed during blood collection or lab analysis (ISO 15189). */
+export async function consumeInventory(payload) {
+  return (await api.post('/inventory/consume', payload)).data;
+}
+
 export function inventoryError(error) {
   const data = error.response?.data;
   return data?.errors ? Object.values(data.errors).flat().join(' ')

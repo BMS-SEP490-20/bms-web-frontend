@@ -15,6 +15,7 @@ import {
 } from 'react-bootstrap';
 import { UserCog, Key, Lock as LucideLock, Unlock as LucideUnlock, Trash2, Plus, Save as LucideSave, User as LucideUser, Search as LucideSearch, Filter, ShieldCheck, X as LucideX } from 'lucide-react';
 import UnifiedUserInfoModal from '../components/UnifiedUserInfoModal';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { userManagementService } from '../../../services/userManagementService';
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId } from '../../../constants/roles';
 
@@ -172,6 +173,8 @@ export default function UserManagementPage() {
       return matchSearch && matchRole && matchStatus;
     });
   }, [safeUsers, searchTerm, selectedRole, selectedStatus]);
+
+  const usersPag = usePagination(filteredUsers, 10);
 
   // Handle open user details
   const handleOpenUserDetail = async (user) => {
@@ -478,7 +481,7 @@ export default function UserManagementPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(user => (
+                  {usersPag.paginatedItems.map(user => (
                     <tr key={user.id}>
                       <td className="ps-4">
                         <div className="fw-semibold text-dark">{user.fullName || '—'}</div>
@@ -538,6 +541,15 @@ export default function UserManagementPage() {
                   ))}
                 </tbody>
               </table>
+              <TablePagination
+                page={usersPag.page}
+                totalPages={usersPag.totalPages}
+                totalItems={usersPag.totalItems}
+                pageSize={usersPag.pageSize}
+                onPageChange={usersPag.setPage}
+                onPageSizeChange={usersPag.setPageSize}
+                itemLabel="tài khoản"
+              />
             </div>
           )}
         </div>

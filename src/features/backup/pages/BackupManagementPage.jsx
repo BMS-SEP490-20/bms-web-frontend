@@ -8,6 +8,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Database as LucideDatabase, Undo2, Download, CheckCircle2, AlertTriangle, RefreshCw, Search, Plus, Eye, HardDrive, Calendar, History, Trash2, Check, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchBackups,
     fetchBackupStats,
@@ -36,7 +37,7 @@ export default function BackupManagementPage() {
     const [backups, setBackups] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(10);
     const [loading, setLoading] = useState(true);
 
     const [stats, setStats] = useState({
@@ -50,6 +51,7 @@ export default function BackupManagementPage() {
     });
 
     const [restoreHistory, setRestoreHistory] = useState([]);
+    const restorePag = usePagination(restoreHistory, 10);
     const [activeTab, setActiveTab] = useState("ALL");
     const [searchTerm, setSearchTerm] = useState("");
     const [verifyingId, setVerifyingId] = useState(null);
@@ -444,7 +446,7 @@ export default function BackupManagementPage() {
                                             </td>
                                         </tr>
                                     ) : (
-                                        restoreHistory.map((log) => (
+                                        restorePag.paginatedItems.map((log) => (
                                             <tr key={log.id || log.restoreId}>
                                                 <td className="ps-4">
                                                     <span className="font-monospace fw-bold text-primary">
@@ -475,6 +477,15 @@ export default function BackupManagementPage() {
                                     )}
                                 </tbody>
                             </table>
+                            <TablePagination
+                                page={restorePag.page}
+                                totalPages={restorePag.totalPages}
+                                totalItems={restorePag.totalItems}
+                                pageSize={restorePag.pageSize}
+                                onPageChange={restorePag.setPage}
+                                onPageSizeChange={restorePag.setPageSize}
+                                itemLabel="lần khôi phục"
+                            />
                         </div>
                     ) : (
                         <div className="table-responsive">
@@ -615,6 +626,17 @@ export default function BackupManagementPage() {
                                     )}
                                 </tbody>
                             </table>
+                            <TablePagination
+                                page={currentPage}
+                                totalItems={totalCount || filteredBackups.length}
+                                pageSize={pageSize}
+                                onPageChange={(nextPage) => setCurrentPage(nextPage)}
+                                onPageSizeChange={(nextSize) => {
+                                    setPageSize(nextSize);
+                                    setCurrentPage(1);
+                                }}
+                                itemLabel="bản sao lưu"
+                            />
                         </div>
                     )}
                 </div>

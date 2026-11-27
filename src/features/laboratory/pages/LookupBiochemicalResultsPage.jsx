@@ -10,6 +10,8 @@ import {
   Card, Row, Col, Table, Badge, Button, Form, Alert, Spinner
 } from 'react-bootstrap';
 import { Search as LucideSearch, Barcode, User, CheckCircle2, AlertTriangle, Printer, History, Bell, RefreshCw, ShieldCheck, Microscope, X as LucideX, Undo2, FileSignature } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
+import { formatTubeColorVi, formatSampleTypeVi } from '../../../shared/workflow/labConsumables';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { lookupTestResults, getTestResultById } from '../api/biochemicalResultsApi';
 import { ROLES, getStoredUser, hasRole } from '../../../constants/roles';
@@ -266,6 +268,8 @@ export default function LookupBiochemicalResultsPage() {
     });
   }, [recentResults, statusFilter, searchKeyword]);
 
+  const worklistPag = usePagination(filteredWorklist, 10);
+
   const handleApproveResult = async () => {
     if (!currentResult) return;
     const resultId = currentResult.id || currentResult.testResultId;
@@ -281,9 +285,9 @@ export default function LookupBiochemicalResultsPage() {
         approverName: currentUser?.fullName || currentUser?.name || 'Bác sĩ điều trị',
         approverRole: 'Doctor',
         doctorConclusion: conclusionInput.trim(),
-        notes: conclusionInput.trim() || 'Đã thẩm định lâm sàng và ký số phê duyệt kết quả.'
+        notes: conclusionInput.trim() || 'Đã thẩm định lâm sàng và phê duyệt kết quả.'
       });
-      setActionMsg('Đã phê duyệt & ký số SHA-256 thành công. Kết quả đã được mở khóa trên Cổng Bệnh Nhân.');
+      setActionMsg('Đã phê duyệt và gửi kết quả xét nghiệm cho bệnh nhân.');
       const detailRes = await getTestResultById(resultId).catch(() => null);
       if (detailRes?.data) {
         setCurrentResult((prev) => ({ ...prev, ...detailRes.data, status: 'APPROVED', conclusionNotes: conclusionInput.trim() }));
@@ -329,10 +333,10 @@ export default function LookupBiochemicalResultsPage() {
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
-            <h1 className="bms-page-title">Duyệt kết quả xét nghiệm &amp; ký số</h1>
+            <h1 className="bms-page-title">Duyệt kết quả xét nghiệm</h1>
           </div>
           <p className="text-muted small m-0 mt-1">
-            Thẩm định tính hợp lệ của chỉ số xét nghiệm từ Phòng Lab, ghi nhận nhận định cận lâm sàng và ký số SHA-256 phát hành kết quả (chẩn đoán bệnh &amp; kê đơn thực hiện tại Bệnh án EMR).
+            Thẩm định tính hợp lệ của chỉ số xét nghiệm từ Phòng Lab, ghi nhận nhận định cận lâm sàng và phê duyệt phát hành kết quả (chẩn đoán bệnh &amp; kê đơn thực hiện tại Bệnh án EMR).
           </p>
         </div>
         <div className="bms-page-actions">
@@ -410,7 +414,7 @@ export default function LookupBiochemicalResultsPage() {
             { id: 'ALL', label: `Tất cả (${counts.all})` },
             { id: 'PENDING', label: `Chờ duyệt (${counts.pending})` },
             { id: 'ABNORMAL', label: `Bất thường / PANIC (${counts.abnormal})` },
-            { id: 'APPROVED', label: `Đã ký số (${counts.approved})` }
+            { id: 'APPROVED', label: `Đã duyệt (${counts.approved})` }
           ].map((tab) => {
             const active = statusFilter === tab.id;
             return (
@@ -453,7 +457,7 @@ export default function LookupBiochemicalResultsPage() {
               <span className="text-muted">•</span>
               <span className="small fw-semibold text-primary">{currentResult.packageName || 'Xét nghiệm cận lâm sàng'}</span>
               <Badge bg={isResultApproved(currentResult) ? 'success' : 'warning'} text={isResultApproved(currentResult) ? 'white' : 'dark'} className="rounded-pill px-2.5 py-1">
-                {isResultApproved(currentResult) ? '✓ Đã ký duyệt & phát hành' : '● Chờ bác sĩ ký duyệt'}
+                {isResultApproved(currentResult) ? '✓ Đã duyệt & phát hành' : '● Chờ bác sĩ duyệt'}
               </Badge>
             </div>
             <Button
@@ -471,7 +475,7 @@ export default function LookupBiochemicalResultsPage() {
               <Alert variant="danger" className="py-2 px-3 mb-3 rounded-3 border-danger d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div className="small">
                   <AlertTriangle className="me-2" size="1em" />
-                  <strong>CẢNH BÁO CHỈ SỐ NGUY KỊCH (PANIC VALUE):</strong> Phát hiện thông số vượt ngưỡng an toàn sinh mạng. Bác sĩ cần kiểm tra đối chiếu lâm sàng hoặc yêu cầu Lab chạy kiểm tra lại trước khi ký số.
+                  <strong>CẢNH BÁO CHỈ SỐ NGUY KỊCH (PANIC VALUE):</strong> Phát hiện thông số vượt ngưỡng an toàn sinh mạng. Bác sĩ cần kiểm tra đối chiếu lâm sàng hoặc yêu cầu Lab chạy kiểm tra lại trước khi phê duyệt.
                 </div>
               </Alert>
             )}
@@ -498,7 +502,7 @@ export default function LookupBiochemicalResultsPage() {
                     </div>
                     <div className="d-flex justify-content-between">
                       <span className="text-muted">Ống / Máy phân tích:</span>
-                      <span>{currentResult.sampleType || 'Blood'} ({currentResult.tubeColor || 'EDTA/Serum'}) · <code>{currentResult.equipmentCode || 'EQ-BIO-01'}</code></span>
+                      <span>{formatSampleTypeVi(currentResult.sampleType || 'Blood')} ({formatTubeColorVi(currentResult.tubeColor || 'EDTA')}) · <code>{currentResult.equipmentCode || 'EQ-BIO-01'}</code></span>
                     </div>
                   </div>
 
@@ -517,17 +521,6 @@ export default function LookupBiochemicalResultsPage() {
                       placeholder="Nhập nhận định kỹ thuật & bất thường chỉ số xét nghiệm (nếu có)..."
                     />
 
-                    {currentResult.digitalSignature && (
-                      <div className="p-2 rounded-3 bg-white border mb-2 small">
-                        <div className="fw-semibold text-success d-flex align-items-center gap-1">
-                          <ShieldCheck size="1em" /> Chữ ký số SHA-256 (Đã khóa bất biến):
-                        </div>
-                        <code className="text-break text-muted" style={{ fontSize: '0.72rem' }}>
-                          {currentResult.digitalSignature}
-                        </code>
-                      </div>
-                    )}
-
                     {canApprove && !isResultApproved(currentResult) && (
                       <div className="d-flex flex-column gap-2 mt-2">
                         <div className="d-flex gap-2">
@@ -538,7 +531,7 @@ export default function LookupBiochemicalResultsPage() {
                             onClick={handleApproveResult}
                             className="rounded-pill px-3 py-1.5 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-sm"
                           >
-                            <FileSignature size="1em" /> Phê Duyệt &amp; Ký Số SHA-256
+                            <CheckCircle2 size="1em" /> Phê Duyệt Kết Quả
                           </Button>
                           <Button
                             variant="outline-danger"
@@ -659,7 +652,7 @@ export default function LookupBiochemicalResultsPage() {
           <div className="d-flex align-items-center gap-2">
             <History className="text-primary" size="1em" />
             <h6 className="fw-bold text-dark mb-0">Danh Sách Kết Quả Xét Nghiệm Cận Lâm Sàng</h6>
-            <span className="text-muted small">• Bấm vào dòng bất kỳ để mở bảng chỉ số &amp; ký duyệt</span>
+            <span className="text-muted small">• Bấm vào dòng bất kỳ để mở bảng chỉ số &amp; phê duyệt</span>
           </div>
           <Badge bg="light" text="dark" className="border rounded-pill px-3 py-1">
             Hiển thị {filteredWorklist.length} / {recentResults.length} hồ sơ
@@ -681,7 +674,7 @@ export default function LookupBiochemicalResultsPage() {
             </thead>
             <tbody>
               {filteredWorklist.length > 0 ? (
-                filteredWorklist.map((r, idx) => {
+                worklistPag.paginatedItems.map((r, idx) => {
                   const approved = isResultApproved(r);
                   const isSelected = currentResult && (currentResult.id === r.id || currentResult.testResultId === r.id);
                   return (
@@ -709,7 +702,7 @@ export default function LookupBiochemicalResultsPage() {
                       <td>
                         {approved ? (
                           <Badge bg="success-subtle" text="success" className="border border-success-subtle rounded-pill px-2.5 py-1">
-                            ✓ Đã ký duyệt
+                            ✓ Đã duyệt
                           </Badge>
                         ) : (
                           <Badge bg="warning-subtle" text="warning-emphasis" className="border border-warning-subtle rounded-pill px-2.5 py-1">
@@ -749,6 +742,15 @@ export default function LookupBiochemicalResultsPage() {
             </tbody>
           </Table>
         </div>
+        <TablePagination
+          page={worklistPag.page}
+          totalPages={worklistPag.totalPages}
+          totalItems={worklistPag.totalItems}
+          pageSize={worklistPag.pageSize}
+          onPageChange={worklistPag.setPage}
+          onPageSizeChange={worklistPag.setPageSize}
+          itemLabel="hồ sơ kết quả"
+        />
       </Card>
     </div>
   );

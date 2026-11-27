@@ -18,6 +18,7 @@ import {
   InputGroup, Modal, Spinner, ProgressBar, Alert 
 } from 'react-bootstrap';
 import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft, Package } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { useAuth } from '../../../shared/contexts/AuthContext';
 import { ROLES, resolveRoleId } from '../../../constants/roles';
 import { patientFeedbackService } from '../../../services/patientFeedbackService';
@@ -147,6 +148,8 @@ const FeedbackHubPage = () => {
         if (isPatient && user?.id) {
           setMyFeedbacks(list.filter(f => f.patientId === user.id));
         }
+      } else if (feedbacksRes?.message) {
+        setAlertMsg({ type: 'danger', text: feedbacksRes.message });
       }
       if (statsRes?.success) {
         setStatistics(statsRes.data);
@@ -229,6 +232,8 @@ const FeedbackHubPage = () => {
     }
     return feedbacks;
   }, [feedbacks, filterMyOnly, isPatient, user]);
+
+  const feedbackPag = usePagination(displayedFeedbacks, 8);
 
   useEffect(() => {
     fetchFeedbacks();
@@ -645,7 +650,7 @@ const FeedbackHubPage = () => {
         </div>
       ) : displayedFeedbacks.length > 0 ? (
         <div className="d-flex flex-column gap-3">
-          {displayedFeedbacks.map((fb) => {
+          {feedbackPag.paginatedItems.map((fb) => {
             const isOwn = isPatient && user?.id === fb.patientId;
             return (
               <Card key={fb.feedbackId} className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
@@ -801,7 +806,7 @@ const FeedbackHubPage = () => {
                   {/* Review Content */}
                   {fb.status === 'HIDDEN_BY_ADMIN' || fb.hiddenByAdminWithConsent ? (
                     <div className="mt-3 p-3 bg-secondary-subtle border border-secondary-subtle rounded-3 text-secondary d-flex align-items-center gap-2">
-                      <FaTrashAlt className="flex-shrink-0" />
+                      <Trash2 className="flex-shrink-0" size="1em" />
                       <span className="fw-semibold fst-italic">feedback được ẩn bởi admin theo sự đồng ý của patient</span>
                     </div>
                   ) : fb.status === 'DELETED' ? (
@@ -845,6 +850,18 @@ const FeedbackHubPage = () => {
               </Card>
             );
           })}
+          <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <TablePagination
+              page={feedbackPag.page}
+              totalPages={feedbackPag.totalPages}
+              totalItems={feedbackPag.totalItems}
+              pageSize={feedbackPag.pageSize}
+              onPageChange={feedbackPag.setPage}
+              onPageSizeChange={feedbackPag.setPageSize}
+              pageSizeOptions={[8, 15, 30]}
+              itemLabel="phản hồi"
+            />
+          </Card>
         </div>
       ) : (
         <Card className="border-0 shadow-sm rounded-4 text-center py-3 bg-white">
@@ -1149,10 +1166,8 @@ const FeedbackHubPage = () => {
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">
-            <FaTrashAlt />
+            <Trash2 size="1em" />
             {isAdmin ? 'Gửi Yêu Cầu Xóa Đánh Giá (Admin)' : 'Xác Nhận Xóa Đánh Giá'}
-            <Trash2  size="1em"/>
-            Xác Nhận Xóa Đánh Giá (Admin)
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-3">

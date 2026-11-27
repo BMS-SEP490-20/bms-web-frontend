@@ -22,10 +22,10 @@ import {
   ProgressBar
 } from 'react-bootstrap';
 import { Stethoscope, Megaphone, CheckCircle2, XCircle, User, Clock, DoorOpen, Volume2, FileText, RotateCw, Keyboard as LucideKeyboard, TestTube2, FileHeart, Calendar, Barcode as LucideBarcode, Printer as LucidePrinter, Mail, AlertTriangle, ShieldCheck, Undo2, LayoutGrid, HeartPulse, FileSignature } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { receptionApi } from '../../reception/api/receptionApi';
 import api from '../../../config/api';
 import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laboratory/components/BarcodePrinter';
-import WorkflowStepperBar from '../../../shared/components/WorkflowStepperBar';
 
 export default function DoctorConsolePage() {
   const navigate = useNavigate();
@@ -90,6 +90,7 @@ export default function DoctorConsolePage() {
   // Queue state
   const [currentServing, setCurrentServing] = useState(null);
   const [waitingList, setWaitingList] = useState([]);
+  const waitingPag = usePagination(waitingList, 8);
   const [waitingCount, setWaitingCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -726,7 +727,7 @@ export default function DoctorConsolePage() {
       return;
     }
     if ((clinicalConclusion?.trim()?.length || 0) < 10) {
-      setErrorMsg('Kết luận lâm sàng phải tối thiểu 10 ký tự trước khi ký số trả kết quả.');
+      setErrorMsg('Kết luận lâm sàng phải tối thiểu 10 ký tự trước khi phê duyệt trả kết quả.');
       return;
     }
     if (liveTestResults.length === 0) {
@@ -806,7 +807,7 @@ export default function DoctorConsolePage() {
       await Promise.all([fetchQueue(), fetchApprovedResults()]);
     } catch (err) {
       console.error('Lỗi khi ký duyệt và trả kết quả:', err);
-      setErrorMsg(err.response?.data?.message || err.message || 'Lỗi khi ký số trả kết quả.');
+      setErrorMsg(err.response?.data?.message || err.message || 'Lỗi khi phê duyệt trả kết quả.');
     } finally {
       setActionLoading(false);
     }
@@ -877,19 +878,6 @@ export default function DoctorConsolePage() {
         </div>
       </div>
 
-      {/* Quy trình 4 bước cho Bác sĩ */}
-      <WorkflowStepperBar
-        title="Quy trình làm việc của Bác sĩ (4 bước)"
-        hint="Bệnh nhân Lễ tân vừa Check-in sẽ hiện ngay ở Hàng Đợi Chờ Khám bên phải"
-        activeStep={1}
-        steps={[
-          { id: 'doc-1', label: 'Gọi bệnh nhân (F2)', desc: 'Mời người bệnh từ Hàng Đợi Chờ Khám vào bàn khám', path: '/doctor/console' },
-          { id: 'doc-2', label: 'Chỉ định xét nghiệm', desc: 'Khám sinh hiệu, chọn ICD-10 & chuyển đơn xuống Phòng Lab', path: '/doctor/orders/create' },
-          { id: 'doc-3', label: 'Chờ Phòng Lab phân tích', desc: 'KTV lấy mẫu, tiếp nhận ống mẫu & nhập chỉ số xét nghiệm' },
-          { id: 'doc-4', label: 'Thẩm định & Ký số KQ', desc: 'Duyệt kết quả Lab bên dưới hoặc ở màn Duyệt KQ để trả cho BN', path: '/laboratory/biochemical-results' }
-        ]}
-      />
-
       {/* Alerts */}
       {verifiedAlert && (
         <Alert
@@ -903,10 +891,10 @@ export default function DoctorConsolePage() {
             <div className="flex-grow-1">
               <div className="fw-bold text-success d-flex align-items-center gap-2">
                 <span>KẾT QUẢ LAB SẴN SÀNG — CHỜ BÁC SĨ THẨM ĐỊNH</span>
-                <Badge bg="success">Chờ ký duyệt lâm sàng</Badge>
+                <Badge bg="success">Chờ phê duyệt lâm sàng</Badge>
               </div>
               <div className="small text-dark mt-1">
-                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng, ký số và trả kết quả cho bệnh nhân (Chuẩn chuyên môn Y khoa).
+                Mẫu xét nghiệm <strong>{verifiedAlert.specimenId}</strong> (Đơn {verifiedAlert.orderId}) của bệnh nhân <strong>{verifiedAlert.patientName}</strong> đã có kết quả Lab. Bác sĩ mở hồ sơ để kết luận lâm sàng và trả kết quả cho bệnh nhân (Chuẩn chuyên môn Y khoa).
               </div>
             </div>
           </div>
@@ -914,9 +902,9 @@ export default function DoctorConsolePage() {
             variant="success"
             size="sm"
             className="fw-bold px-3 py-1.5 shadow-sm text-white text-nowrap ms-auto"
-            onClick={() => handleOpenConsultationModal(verifiedAlert)}
+            onClick={() => navigate('/laboratory/biochemical-results')}
           >
-            <Stethoscope className="me-1" size="1em" /> Thẩm Định &amp; Tư Vấn Ngay
+            <Stethoscope className="me-1" size="1em" /> Duyệt Kết Quả
           </Button>
         </Alert>
       )}
@@ -1158,7 +1146,7 @@ export default function DoctorConsolePage() {
                       </td>
                     </tr>
                   ) : (
-                    waitingList.map((item) => {
+                    waitingPag.paginatedItems.map((item) => {
                       const arrivalTime = item.createdAt
                         ? new Date(item.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
                         : 'Vừa đến';
@@ -1186,155 +1174,20 @@ export default function DoctorConsolePage() {
                 </tbody>
               </Table>
             </div>
+            <TablePagination
+              page={waitingPag.page}
+              totalPages={waitingPag.totalPages}
+              totalItems={waitingPag.totalItems}
+              pageSize={waitingPag.pageSize}
+              onPageChange={waitingPag.setPage}
+              onPageSizeChange={waitingPag.setPageSize}
+              pageSizeOptions={[8, 15, 30]}
+              itemLabel="bệnh nhân chờ khám"
+              compact
+            />
           </Card>
         </Col>
       </Row>
-
-      {/* DANH SÁCH KẾT QUẢ XÉT NGHIỆM CẬN LÂM SÀNG — BÁC SĨ THẨM ĐỊNH, KÝ SỐ & TƯ VẤN */}
-      <Card className="border-0 shadow-sm rounded-4 bg-white mt-3 overflow-hidden">
-        <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <div>
-            <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
-              <FileHeart className="text-primary" size="1em" />
-              <span>Hàng Đợi Kết Quả Xét Nghiệm — Thẩm Định &amp; Tư Vấn Lâm Sàng</span>
-              <Badge bg="primary" pill>{approvedResultsList.length}</Badge>
-            </h6>
-            <small className="text-muted">
-              Kết quả do Phòng Lab gửi lên để Bác sĩ ({doctorDisplayName}) thẩm định, kết luận chẩn đoán ICD-10 và ký số trả cho người bệnh.
-            </small>
-          </div>
-          <div className="d-flex align-items-center gap-2">
-            <Form.Control
-              size="sm"
-              type="search"
-              placeholder="Tìm mã ống SMP-, mã TRE-, tên BN..."
-              value={approvedSearch}
-              onChange={(e) => setApprovedSearch(e.target.value)}
-              className="rounded-pill px-3"
-              style={{ width: '240px' }}
-            />
-            <Button
-              variant="outline-secondary"
-              size="sm"
-              onClick={fetchApprovedResults}
-              disabled={approvedResultsLoading}
-              className="rounded-pill px-3 d-flex align-items-center gap-1"
-            >
-              <RotateCw className={approvedResultsLoading ? 'fa-spin' : ''} size={11} /> Làm mới
-            </Button>
-          </div>
-        </Card.Header>
-        <div className="table-responsive">
-          <Table hover className="align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
-            <thead className="table-light small text-muted">
-              <tr>
-                <th className="ps-3" style={{ width: '17%' }}>Mã Mẫu &amp; Phiếu KQ</th>
-                <th style={{ width: '15%' }}>Bệnh Nhân</th>
-                <th style={{ width: '21%' }}>Gói &amp; Chỉ Số</th>
-                <th style={{ width: '15%' }}>KTV / Thời Gian</th>
-                <th style={{ width: '13%' }}>Tư Vấn BS</th>
-                <th className="text-end pe-3" style={{ width: '19%' }}>Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {approvedResultsLoading ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-4 text-muted">
-                    <Spinner animation="border" size="sm" className="me-2 text-primary" />
-                    Đang tải danh sách kết quả xét nghiệm...
-                  </td>
-                </tr>
-              ) : (() => {
-                const kw = approvedSearch.trim().toLowerCase();
-                const filtered = approvedResultsList.filter((item) => {
-                  if (!kw) return true;
-                  return (
-                    String(item.displayBarcode || item.specimenId || '').toLowerCase().includes(kw) ||
-                    String(item.testResultId || '').toLowerCase().includes(kw) ||
-                    String(item.patientName || '').toLowerCase().includes(kw) ||
-                    String(item.patientId || '').toLowerCase().includes(kw)
-                  );
-                });
-                if (filtered.length === 0) {
-                  return (
-                    <tr>
-                      <td colSpan={6} className="text-center py-4 text-muted small">
-                        Chưa có kết quả xét nghiệm nào khớp với từ khóa tìm kiếm.
-                      </td>
-                    </tr>
-                  );
-                }
-                return filtered.map((item) => {
-                  const saved = savedConsultations[item.specimenId];
-                  const isSigned = String(item.status || '').toUpperCase() === 'APPROVED' || Boolean(item.finalDiagnosis || item.doctorConclusion);
-                  return (
-                    <tr key={item.specimenId}>
-                      <td className="ps-3">
-                        <div className="fw-bold font-monospace text-primary small">{item.displayBarcode || item.specimenId}</div>
-                        <div className="small text-muted font-monospace">{item.testResultId || item.id}</div>
-                      </td>
-                      <td>
-                        <div className="fw-semibold text-dark small">{item.patientName}</div>
-                        {item.patientId && <div className="small text-muted font-monospace">{item.patientId}</div>}
-                      </td>
-                      <td>
-                        <div className="small fw-medium text-dark text-truncate mb-1" style={{ maxWidth: '230px' }} title={item.packageName}>
-                          {item.packageName}
-                        </div>
-                        <div className="d-flex align-items-center gap-1 flex-wrap">
-                          <Badge bg="light" text="dark" className="border rounded-pill">{item.paramCount} chỉ số</Badge>
-                          {item.isPanic ? (
-                            <Badge bg="danger" className="rounded-pill">PANIC</Badge>
-                          ) : item.abnormalCount > 0 ? (
-                            <Badge bg="warning" text="dark" className="rounded-pill">{item.abnormalCount} bất thường</Badge>
-                          ) : (
-                            <Badge bg="success-subtle" text="success" className="border border-success-subtle rounded-pill">Bình thường</Badge>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="small fw-semibold text-dark">{item.reviewedBy}</div>
-                        <div className="small text-muted">
-                          {item.reviewedAt ? new Date(item.reviewedAt).toLocaleString('vi-VN') : '—'}
-                        </div>
-                      </td>
-                      <td>
-                        {saved || isSigned ? (
-                          <div>
-                            <Badge bg="success-subtle" text="success" className="border border-success-subtle rounded-pill mb-1">
-                              ✓ Đã kết luận · {saved?.icdCode || item.icd10Code || 'Z00.0'}
-                            </Badge>
-                            <div className="small text-muted">BS: {saved?.doctorName || doctorDisplayName}</div>
-                          </div>
-                        ) : (
-                          <Badge bg="warning-subtle" text="warning-emphasis" className="border border-warning-subtle rounded-pill">
-                            ● Chờ bác sĩ tư vấn
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="text-end pe-3">
-                        <Button
-                          size="sm"
-                          variant={saved || isSigned ? 'outline-primary' : 'primary'}
-                          className="fw-semibold rounded-pill px-2.5 text-nowrap"
-                          style={{
-                            fontSize: '0.78rem',
-                            ...(!(saved || isSigned) ? { backgroundColor: '#1E60E6', borderColor: '#1E60E6' } : {}),
-                          }}
-                          onClick={() => handleOpenConsultationModal(item)}
-                        >
-                          <Stethoscope className="me-1" size="1em" />
-                          {saved || isSigned ? 'Xem kết luận' : 'Thẩm Định'}
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                });
-              })()}
-            </tbody>
-          </Table>
-        </div>
-      </Card>
 
       {/* Skip (No-Show / Absent) Modal */}
       <Modal show={showSkipModal} onHide={() => setShowSkipModal(false)} centered>
@@ -1741,7 +1594,7 @@ export default function DoctorConsolePage() {
           <Card className="border-0 shadow-sm rounded-3 bg-white mb-3">
             <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center">
               <span className="fw-bold small text-uppercase text-dark d-flex align-items-center gap-1.5">
-                <Stethoscope style={{ color: "#1E60E6" }} size="1em" /> Tư Vấn Lâm Sàng, Chẩn Đoán &amp; Ký Số Trả Kết Quả Cho Người Bệnh
+                <Stethoscope style={{ color: "#1E60E6" }} size="1em" /> Tư Vấn Lâm Sàng, Chẩn Đoán &amp; Trả Kết Quả Cho Người Bệnh
               </span>
               <Button
                 variant="outline-primary"
@@ -1819,7 +1672,7 @@ export default function DoctorConsolePage() {
                     <div className="d-flex align-items-center gap-2">
                       <CheckCircle2 className="fs-4 text-success flex-shrink-0" size="1em" />
                       <div>
-                        <strong>KẾT QUẢ ĐÃ ĐƯỢC KÝ SỐ &amp; PHÁT HÀNH THÀNH CÔNG:</strong>
+                        <strong>KẾT QUẢ ĐÃ ĐƯỢC PHÊ DUYỆT &amp; PHÁT HÀNH THÀNH CÔNG:</strong>
                         <div className="small text-dark mt-0.5">
                           Đã gửi Email thông báo tới: <strong>{patientEmail}</strong> · Đã đồng bộ lên Cổng Tra Cứu Bệnh Nhân.
                         </div>

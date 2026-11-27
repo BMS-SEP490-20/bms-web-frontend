@@ -11,6 +11,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Badge, Spinner, Modal, Button, Card } from 'react-bootstrap';
 import { Calendar, Clock, CheckCircle2, Stethoscope, DoorOpen, Users, ArrowRight, Plus, CalendarCheck, Hospital, Info as LucideInfo, X as LucideX, UserCheck, FlaskConical, List, Circle, Hourglass, Ban } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import { WeeklyShiftTimetable, getMonday, addDays, toIsoDateStr, getShiftRoleCategory } from '../../schedule/components/WeeklyShiftTimetable';
 import { resolveStaffProfileMOH } from '../../schedule/utils/shiftStaffUtils';
 import { viewShiftApi } from '../api/viewShiftApi';
@@ -187,6 +188,7 @@ export function ViewShiftsPage() {
     if (filter === 'unused') return s.currentPatientsCount === 0;
     return true;
   });
+  const shiftsPag = usePagination(filtered, 10);
 
   return (
     <div className="w-100 py-1">
@@ -440,7 +442,7 @@ export function ViewShiftsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((s, idx) => {
+                  {shiftsPag.paginatedItems.map((s, idx) => {
                     const sid = String(s.shiftId || s.id || `SHF-${idx}`);
                     const shiftCode = formatShiftCode(sid);
                     const shiftTypeVi = formatShiftType(s.shiftType);
@@ -491,6 +493,15 @@ export function ViewShiftsPage() {
                   )}
                 </tbody>
               </table>
+              <TablePagination
+                page={shiftsPag.page}
+                totalPages={shiftsPag.totalPages}
+                totalItems={shiftsPag.totalItems}
+                pageSize={shiftsPag.pageSize}
+                onPageChange={shiftsPag.setPage}
+                onPageSizeChange={shiftsPag.setPageSize}
+                itemLabel="ca trực"
+              />
             </div>
           )}
         </div>

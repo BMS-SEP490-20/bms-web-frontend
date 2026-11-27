@@ -102,7 +102,7 @@ export default function AppointmentListPage() {
   const roleId = useMemo(() => resolveRoleId(user), [user]);
   const isPatient = roleId === ROLES.PATIENT;
   const isReceptionist = useMemo(() => hasRole(user, ROLES.RECEPTIONIST), [user]);
-  const canBookAppointment = isPatient || isReceptionist;
+  const canBookAppointment = isPatient;
   const checkInButtonLabel = isReceptionist ? 'Mã Check-in' : 'Chi tiết lịch hẹn';
 
   // Data & UI states

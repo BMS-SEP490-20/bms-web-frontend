@@ -757,7 +757,7 @@ export default function TrackTestProgressPage() {
 
                                     <div className="bms-stage-flow-card">
                                         <span className="bms-stage-flow-badge">Chặng 6</span>
-                                        <div className="bms-stage-flow-title">Ký Số &amp; Trả Kết Quả</div>
+                                        <div className="bms-stage-flow-title">Phê Duyệt &amp; Trả Kết Quả</div>
                                     </div>
                                 </div>
                             </div>
@@ -887,7 +887,7 @@ export default function TrackTestProgressPage() {
                                                         className="btn btn-success rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold"
                                                         onClick={closeTrackingDetail}
                                                     >
-                                                        <FileHeart size="1em" /> Xem &amp; Tải Phiếu Kết Quả Ký Số (PDF)
+                                                        <FileHeart size="1em" /> Xem &amp; Tải Phiếu Kết Quả (PDF)
                                                     </Link>
                                                 </>
                                             )}

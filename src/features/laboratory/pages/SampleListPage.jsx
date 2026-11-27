@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, TestTube2, CheckCircle2, Printer, Barcode as LucideBarcode, ArrowLeft, Clock, MapPin, AlertCircle, ClipboardList, X as LucideX, UserCheck, Loader2 } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import {
   fetchCheckedInAppointments,
   createCollectionBatch,
@@ -14,7 +15,6 @@ import {
 } from "../api/sampleListApi";
 import Code128Barcode from "../../../shared/components/Code128Barcode";
 import { enrichLabelsWithSvg } from "../../../shared/utils/barcodeSvg";
-import WorkflowStepperBar from "../../../shared/components/WorkflowStepperBar";
 
 /** In HTML qua iframe ẩn — không bị Chrome chặn như window.open popup */
 function printHtmlDocument(html) {
@@ -172,6 +172,8 @@ export default function SampleListPage() {
       return pName.includes(term) || aId.includes(term) || pkg.includes(term);
     });
   }, [safeAppointments, searchTerm]);
+
+  const aptPag = usePagination(filteredAppointments, 10);
 
   // Chọn / Bỏ chọn từng mục
   const handleToggleSelect = (id) => {
@@ -516,19 +518,6 @@ export default function SampleListPage() {
         </div>
       </div>
 
-      {/* Quy trình 4 bước cho KTV Phòng Lab */}
-      <WorkflowStepperBar
-        title="Quy trình xử lý mẫu Phòng Lab (4 bước)"
-        hint="Chọn bệnh nhân đã tiếp đón để tạo đợt gom mẫu & in nhãn Barcode, hoặc xử lý trực tiếp tại Hàng đợi mẫu"
-        activeStep={4}
-        steps={[
-          { id: 'lab-1', label: 'Hàng đợi & Lấy mẫu', desc: 'Chọn mẫu Chờ lấy mẫu → bấm Lấy Mẫu ghi nhận thời điểm', path: '/lab/queue' },
-          { id: 'lab-2', label: 'Tiếp nhận ống mẫu', desc: 'Quét barcode & kiểm chuẩn ống mẫu vào phòng Lab', path: '/laboratory/checkinsample' },
-          { id: 'lab-3', label: 'Chạy phân tích & Nhập KQ', desc: 'Nhập chỉ số xét nghiệm từ máy → Gửi lên Bác sĩ thẩm định', path: '/laboratory/enter-test-results' },
-          { id: 'lab-4', label: 'Gom đợt & In tem Barcode', desc: 'Tạo đợt gom mẫu & in nhãn Barcode Code 128 nếu cần', path: '/laboratory/sample-list' }
-        ]}
-      />
-
       {/* Single-Line Filter Bar extracted above tables */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
@@ -636,7 +625,7 @@ export default function SampleListPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredAppointments.map((apt) => {
+                    aptPag.paginatedItems.map((apt) => {
                       const isSelected = selectedIds.has(apt.appointmentId);
                       return (
                         <tr
@@ -677,6 +666,16 @@ export default function SampleListPage() {
                 </tbody>
               </table>
             </div>
+            <TablePagination
+              page={aptPag.page}
+              totalPages={aptPag.totalPages}
+              totalItems={aptPag.totalItems}
+              pageSize={aptPag.pageSize}
+              onPageChange={aptPag.setPage}
+              onPageSizeChange={aptPag.setPageSize}
+              itemLabel="lịch hẹn"
+              compact
+            />
           </section>
         </div>
 

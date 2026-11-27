@@ -11,6 +11,7 @@ import { Alert } from "react-bootstrap";
 import IotNavigationTabs from "../components/IotNavigationTabs";
 import { ROLES, getStoredUser, resolveRoleId } from "../../../constants/roles";
 import { Bell, AlertTriangle, CheckCircle2, RefreshCw, Filter as LucideFilter, Volume2, VolumeX, Wrench, Search, Thermometer, Droplet, Zap, History, UserCheck, Play as LucidePlay, Info, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
     fetchAlerts,
     fetchAlertSummary,
@@ -123,6 +124,8 @@ export default function AlertThresholdViolationPage() {
             (a.resolutionNotes && a.resolutionNotes.toLowerCase().includes(q))
         );
     }, [alerts, searchQuery]);
+
+    const alertsPag = usePagination(filteredAlerts, 10);
 
     // Handle Acknowledge submit
     const handleAcknowledge = async () => {
@@ -474,7 +477,7 @@ export default function AlertThresholdViolationPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredAlerts.map(alert => {
+                                    {alertsPag.paginatedItems.map(alert => {
                                         const isTemp = alert.sensorType.toLowerCase().includes("temp");
                                         const isAct = alert.status === "Active";
                                         const isAck = alert.status === "Acknowledged";
@@ -581,6 +584,15 @@ export default function AlertThresholdViolationPage() {
                                     })}
                                 </tbody>
                             </table>
+                            <TablePagination
+                                page={alertsPag.page}
+                                totalPages={alertsPag.totalPages}
+                                totalItems={alertsPag.totalItems}
+                                pageSize={alertsPag.pageSize}
+                                onPageChange={alertsPag.setPage}
+                                onPageSizeChange={alertsPag.setPageSize}
+                                itemLabel="cảnh báo IoT"
+                            />
                         </div>
                     )}
                 </div>

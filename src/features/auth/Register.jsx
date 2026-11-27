@@ -339,28 +339,71 @@ export default function Register() {
     return error;
   };
 
-  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [walkInHint, setWalkInHint] = useState(null);
 
-  const checkEmailAvailability = async (rawEmail) => {
-    const emailTrimmed = (rawEmail || '').trim();
-    if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+  const checkRegistrationAvailability = async ({ email, phoneNumber, identityCard } = {}) => {
+    const params = {};
+    const emailTrimmed = (email || '').trim();
+    const phoneTrimmed = (phoneNumber || '').trim();
+    const cccdTrimmed = (identityCard || '').trim();
+
+    if (emailTrimmed && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      params.email = emailTrimmed;
+    }
+    if (phoneTrimmed && /^(03|05|07|08|09)[0-9]{8}$/.test(phoneTrimmed)) {
+      params.phoneNumber = phoneTrimmed;
+    }
+    if (cccdTrimmed && /^[0-9]{12}$/.test(cccdTrimmed)) {
+      params.identityCard = cccdTrimmed;
+    }
+
+    if (Object.keys(params).length === 0) {
       return { available: true };
     }
-    setCheckingEmail(true);
+
+    setCheckingAvailability(true);
     try {
-      const res = await api.get('/auth/check-email', { params: { email: emailTrimmed } });
-      const exists = Boolean(res.data?.exists);
-      if (exists) {
-        const msg = res.data?.message || 'Email này đã được sử dụng trong hệ thống.';
-        setFieldErrors((prev) => ({ ...prev, email: msg }));
-        return { available: false, message: msg };
+      const res = await api.get('/auth/check-availability', { params });
+      const data = res.data || {};
+      const nextErrors = {};
+
+      if (params.email) {
+        nextErrors.email = data.emailTaken
+          ? (data.emailMessage || 'Email này đã được đăng ký trong hệ thống.')
+          : '';
       }
-      return { available: true };
+      if (params.phoneNumber) {
+        nextErrors.phoneNumber = data.phoneTaken
+          ? (data.phoneMessage || 'Số điện thoại này đã được đăng ký bởi tài khoản khác.')
+          : '';
+      }
+      if (params.identityCard) {
+        nextErrors.identityCard = data.identityCardTaken
+          ? (data.identityCardMessage || 'Số CCCD này đã được đăng ký tài khoản trong hệ thống.')
+          : '';
+        if (data.walkInDetected && !data.identityCardTaken) {
+          setWalkInHint({
+            patientCode: data.walkInPatientCode,
+            maskedName: data.walkInMaskedName,
+            message: data.walkInMessage
+          });
+        } else {
+          setWalkInHint(null);
+        }
+      }
+
+      setFieldErrors((prev) => ({ ...prev, ...nextErrors }));
+      return {
+        available: data.available !== false && !data.emailTaken && !data.phoneTaken && !data.identityCardTaken,
+        message: data.message || '',
+        data
+      };
     } catch {
       // Allow server-side RegisterAsync to enforce if availability probe fails
       return { available: true };
     } finally {
-      setCheckingEmail(false);
+      setCheckingAvailability(false);
     }
   };
 
@@ -369,8 +412,10 @@ export default function Register() {
     setTouched((prev) => ({ ...prev, [name]: true }));
     const err = validateSingleField(name, value, formData);
     setFieldErrors((prev) => ({ ...prev, [name]: err }));
-    if (name === 'email' && !err) {
-      void checkEmailAvailability(value);
+    if (!err && (name === 'email' || name === 'phoneNumber' || name === 'identityCard')) {
+      void checkRegistrationAvailability({ [name]: value });
+    } else if (name === 'identityCard' && err) {
+      setWalkInHint(null);
     }
   };
 
@@ -548,10 +593,17 @@ export default function Register() {
     e?.preventDefault();
     setErrorMsg('');
     if (!validateStep1()) return;
-    const emailCheck = await checkEmailAvailability(formData.email);
-    if (!emailCheck.available) {
-      setTouched((prev) => ({ ...prev, email: true }));
-      setErrorMsg(emailCheck.message || 'Email này đã được sử dụng trong hệ thống.');
+    const availCheck = await checkRegistrationAvailability({
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      identityCard: formData.identityCard
+    });
+    if (!availCheck.available) {
+      setTouched((prev) => ({ ...prev, email: true, phoneNumber: true, identityCard: true }));
+      setErrorMsg(
+        availCheck.message ||
+        'Thông tin định danh (CCCD, SĐT hoặc Email) đã được đăng ký trong hệ thống. Vui lòng kiểm tra các ô viền đỏ bên dưới.'
+      );
       return;
     }
     setCurrentStep(2);
@@ -600,7 +652,15 @@ export default function Register() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('[Register] Registration error:', err);
-      const msg = err.response?.data?.message || err.response?.data?.Message || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.';
+      const data = err.response?.data || {};
+      const msg = data.message || data.Message || 'Đăng ký không thành công. Vui lòng kiểm tra lại thông tin.';
+      const conflictField = data.field || data.Field;
+      if (conflictField && ['email', 'phoneNumber', 'identityCard'].includes(conflictField)) {
+        setFieldErrors((prev) => ({ ...prev, [conflictField]: msg }));
+        setTouched((prev) => ({ ...prev, [conflictField]: true }));
+        setCurrentStep(1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setErrorMsg(msg);
     } finally {
       setLoading(false);
@@ -933,6 +993,16 @@ export default function Register() {
                     </Col>
                   </Row>
 
+                  {walkInHint && !fieldErrors.identityCard && (
+                    <Alert variant="info" className="d-flex align-items-start gap-2 mb-3 py-2 small rounded-3">
+                      <CheckCircle2 className="flex-shrink-0 mt-0.5 text-primary" size={16} />
+                      <div>
+                        <strong>Phát hiện hồ sơ khám vãng lai ({walkInHint.patientCode})</strong>
+                        {walkInHint.maskedName ? ` · ${walkInHint.maskedName}` : ''}: {walkInHint.message}
+                      </div>
+                    </Alert>
+                  )}
+
                   <div className="d-flex justify-content-between align-items-center pt-3 border-top">
                     <Link to="/login" className="text-decoration-none small text-muted">
                       &larr; Đã có tài khoản? <strong>Đăng nhập</strong>
@@ -940,10 +1010,20 @@ export default function Register() {
                     <Button
                       variant="primary"
                       className="px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm"
+                      disabled={checkingAvailability}
                       onClick={handleNextToStep2}
                     >
-                      <span>Tiếp Tục: Nhập Địa Chỉ</span>
-                      <ArrowRight size="1em" />
+                      {checkingAvailability ? (
+                        <>
+                          <Spinner animation="border" size="sm" />
+                          <span>Đang đối soát CCCD / SĐT / Email…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Tiếp Tục: Nhập Địa Chỉ</span>
+                          <ArrowRight size="1em" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>

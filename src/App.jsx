@@ -292,7 +292,7 @@ export default function App() {
                   <Route path="/patient/payment-history" element={<PatientPaymentHistoryPage />} />
                 </Route>
 
-                {/* Doctor work: console, notes (UC51), orders (UC32), new assessment (UC50) */}
+                {/* Doctor work: console, notes (UC51), orders (UC32), new assessment (UC50), UC60/UC95 notify test results */}
                 <Route element={<ProtectedRoute allowedRoles={[DOCTOR]} />}>
                   <Route path="/doctor/console" element={<DoctorConsolePage />} />
                   <Route path="/doctor/medical-notes" element={<AddMedicalNotesPage />} />
@@ -300,6 +300,7 @@ export default function App() {
                   <Route path="/doctor/assessments/:id/edit" element={<AddMedicalAssessmentPage />} />
                   <Route path="/medical-assessments/:id/edit" element={<AddMedicalAssessmentPage />} />
                   <Route path="/doctor/orders/create" element={<CreateTestOrderPage />} />
+                  <Route path="/laboratory/notifications" element={<NotifyTestResultsPage />} />
                 </Route>
 
                 {/* UC33/UC50 view EMR + assessments: Doctor; Manager view. Admin denied (decision 10). */}
@@ -318,7 +319,6 @@ export default function App() {
                   <Route path="/lab-user/validate-sample" element={<ValidateSample />} />
                   <Route path="/laboratory/enter-test-results" element={<EnterTestResultsPage />} />
                   <Route path="/laboratory/batches" element={<TestBatchManagementPage />} />
-                  <Route path="/laboratory/notifications" element={<NotifyTestResultsPage />} />
                   <Route path="/laboratory/qc-flags" element={<QcFlagsPage />} />
                   <Route path="/lab-user/qc-flags" element={<QcFlagsPage />} />
                   <Route path="/manager/qc-flags" element={<QcFlagsPage />} />

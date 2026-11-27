@@ -19,6 +19,7 @@ import {
   Modal
 } from 'react-bootstrap';
 import { FlaskConical, CheckCircle2, AlertTriangle, Plus, Play, Square, Trash2, RefreshCw, Microscope, TestTube2, ArrowLeft, Lock, Clock, Info, Search, X as LucideX } from 'lucide-react';
+import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
 import {
   getBatches,
   getPendingSamples,
@@ -253,6 +254,8 @@ export default function TestBatchManagementPage() {
     });
   }, [safeBatches, batchSearch, batchStatusFilter]);
 
+  const batchPag = usePagination(filteredBatches, 10);
+
   const rows = ['A','B','C','D','E','F','G','H'].slice(0, selectedAnalyzer.rows);
   const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
 
@@ -398,7 +401,7 @@ export default function TestBatchManagementPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredBatches.map((b) => {
+                    batchPag.paginatedItems.map((b) => {
                       const totalWells = Array.isArray(b.positions) ? b.positions.length : b.totalPositions || 0;
                       return (
                         <tr key={b.id || b.batchCode}>
@@ -489,6 +492,15 @@ export default function TestBatchManagementPage() {
                   )}
                 </tbody>
               </Table>
+              <TablePagination
+                page={batchPag.page}
+                totalPages={batchPag.totalPages}
+                totalItems={batchPag.totalItems}
+                pageSize={batchPag.pageSize}
+                onPageChange={batchPag.setPage}
+                onPageSizeChange={batchPag.setPageSize}
+                itemLabel="mẻ xét nghiệm"
+              />
             </div>
           </section>
         </>

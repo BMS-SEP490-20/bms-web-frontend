@@ -6,6 +6,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Bell, AlertTriangle, Send, CheckCircle2, RefreshCw, Search, Phone, Mail, Smartphone, Filter as LucideFilter, Eye, RotateCw, Check, User, X } from 'lucide-react';
+import TablePagination from '../../../components/ui/TablePagination';
 import {
     fetchNotifications,
     fetchNotificationById,
@@ -20,21 +21,20 @@ import NotificationDetailModal from "../components/NotificationDetailModal";
 
 const TABS = [
     { key: "ALL", label: "Tất Cả Thông Báo" },
-    { key: "PANIC", label: "Báo Động Nguy Kịch (Critical)", icon: AlertTriangle, badgeClass: "bg-danger" },
     { key: "UNREAD", label: "Chưa Đọc (Unread)" },
     { key: "DELIVERED", label: "Đã Chuyển Giao" }
 ];
 
 export default function NotifyTestResultsPage() {
     const currentUser = getStoredUser();
-    const canDispatch = hasRole(currentUser, ROLES.LAB, ROLES.MANAGER);
+    const canDispatch = hasRole(currentUser, ROLES.DOCTOR, ROLES.MANAGER);
     const canMarkRead = hasRole(currentUser, ROLES.PATIENT);
 
     // States
     const [notifications, setNotifications] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(10);
     const [stats, setStats] = useState({
         totalNotifications: 0,
         deliveredSuccessfully: 0,
@@ -226,7 +226,7 @@ export default function NotifyTestResultsPage() {
                         </h1>
                     </div>
                     <p className="text-muted small m-0 mt-1">
-                        Theo dõi trạng thái gửi kết quả xét nghiệm và cảnh báo giá trị nguy kịch đa kênh.
+                        Gửi thông báo kết quả xét nghiệm đã được Bác sĩ phê duyệt qua Email cho bệnh nhân.
                     </p>
                 </div>
 
@@ -272,9 +272,9 @@ export default function NotifyTestResultsPage() {
                 </div>
             )}
 
-            {/* 4 KPI Quad Cards */}
+            {/* 3 KPI Cards */}
             <div className="row g-3 mb-4">
-                <div className="col-12 col-sm-6 col-xl-3">
+                <div className="col-12 col-md-4">
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-blue">
@@ -286,7 +286,7 @@ export default function NotifyTestResultsPage() {
                     </div>
                 </div>
 
-                <div className="col-12 col-sm-6 col-xl-3">
+                <div className="col-12 col-md-4">
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-green">
@@ -299,19 +299,7 @@ export default function NotifyTestResultsPage() {
                     </div>
                 </div>
 
-                <div className="col-12 col-sm-6 col-xl-3">
-                    <div className="bms-kpi-quad-card">
-                        <div className="bms-kpi-quad-top">
-                            <div className="bms-kpi-icon-badge bms-kpi-icon-rose">
-                                <AlertTriangle size={18} />
-                            </div>
-                        </div>
-                        <div className="bms-kpi-quad-value">{stats.criticalPanicAlerts}</div>
-                        <div className="bms-kpi-quad-title">Báo động giá trị nguy kịch</div>
-                    </div>
-                </div>
-
-                <div className="col-12 col-sm-6 col-xl-3">
+                <div className="col-12 col-md-4">
                     <div className="bms-kpi-quad-card">
                         <div className="bms-kpi-quad-top">
                             <div className="bms-kpi-icon-badge bms-kpi-icon-amber">
@@ -351,7 +339,6 @@ export default function NotifyTestResultsPage() {
                     }}
                 >
                     <option value="ALL">Tất cả thông báo</option>
-                    <option value="PANIC">Báo động nguy kịch ({stats.criticalPanicAlerts})</option>
                     <option value="UNREAD">Chưa đọc</option>
                     <option value="DELIVERED">Đã chuyển giao</option>
                 </select>
@@ -379,7 +366,6 @@ export default function NotifyTestResultsPage() {
                     <option value="Normal">Bình thường</option>
                     <option value="High">Ưu tiên cao</option>
                     <option value="Urgent">Khẩn cấp</option>
-                    <option value="Critical">Nguy kịch</option>
                 </select>
 
                 {(searchTerm || activeTab !== "ALL" || selectedChannel || selectedPriority) && (
@@ -408,7 +394,7 @@ export default function NotifyTestResultsPage() {
                 <div className="bms-table-standalone-header">
                     <div>
                         <h2 className="bms-table-standalone-title">Danh sách thông báo kết quả xét nghiệm</h2>
-                        <p className="bms-table-standalone-subtitle">Lịch sử gửi thông báo đa kênh và cảnh báo chỉ số nguy kịch</p>
+                        <p className="bms-table-standalone-subtitle">Lịch sử gửi thông báo kết quả xét nghiệm đã được Bác sĩ phê duyệt qua Email</p>
                     </div>
                 </div>
 
@@ -509,6 +495,17 @@ export default function NotifyTestResultsPage() {
                             )}
                         </tbody>
                     </table>
+                    <TablePagination
+                        page={currentPage}
+                        totalItems={totalCount || notifications.length}
+                        pageSize={pageSize}
+                        onPageChange={(nextPage) => setCurrentPage(nextPage)}
+                        onPageSizeChange={(nextSize) => {
+                            setPageSize(nextSize);
+                            setCurrentPage(1);
+                        }}
+                        itemLabel="thông báo"
+                    />
                 </div>
             </section>
 

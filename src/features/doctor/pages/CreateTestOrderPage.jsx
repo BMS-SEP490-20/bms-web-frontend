@@ -12,7 +12,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Modal, Button as BsButton, Card, Badge, Spinner, Form, Alert } from "react-bootstrap";
-import { Search, ClipboardList, AlertTriangle, CheckCircle2, Save, TestTube2, User, ArrowLeft, Clock, Stethoscope, X as LucideX, Check as LucideCheck, RefreshCw, FileSignature, HeartPulse, Ban, Layers, Send, Megaphone } from 'lucide-react';
+import { Search, ClipboardList, AlertTriangle, CheckCircle2, Save, User, Stethoscope, X as LucideX, Check as LucideCheck, RefreshCw, HeartPulse, Ban, Send, Megaphone, PackageCheck, Phone, Mail, Calendar, CreditCard, ShieldCheck } from 'lucide-react';
+import TablePagination, { usePagination } from "../../../components/ui/TablePagination";
 import {
   createTestOrder,
   fetchTestOrders,
@@ -23,7 +24,7 @@ import { getPackages, getTestCriteria } from "../../admin/api/packageApi";
 import { receptionApi } from "../../reception/api/receptionApi";
 import { getAppointments } from "../../appointment/api/appointmentApi";
 import { medicalRecordApi } from "../api/medicalRecordApi";
-import WorkflowStepperBar from "../../../shared/components/WorkflowStepperBar";
+import { getPatientById } from "../../../services/patientService";
 
 // Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế
 const CLINICAL_ICD10_LIST = [
@@ -43,51 +44,30 @@ const CLINICAL_ICD10_LIST = [
 
 const ICD10_REGEX = /^[A-Z][0-9]{2}(\.[0-9]{1,2})?$/;
 
-// Phân loại ống máu chuẩn CLSI GP41 (Thứ tự lấy máu: Citrate -> Serum -> EDTA -> Fluoride)
-const resolveTubeSpec = (rawTube, category = "") => {
-  const t = `${rawTube || ""} ${category || ""}`.toUpperCase();
-  if (t.includes("CITRATE") || t.includes("BLUE") || t.includes("ĐÔNG MÁU")) {
-    return {
-      key: "CITRATE",
-      label: "Ống Nắp Xanh Dương (Na-Citrate 3.2%)",
-      shortLabel: "Citrate · Xanh dương",
-      sampleType: "Huyết tương (2.7 mL)",
-      colorHex: "#0284c7",
-      bgHex: "#e0f2fe",
-      drawOrder: 1
-    };
-  }
-  if (t.includes("EDTA") || t.includes("PURPLE") || t.includes("TÍM") || t.includes("HUYẾT HỌC")) {
-    return {
-      key: "EDTA",
-      label: "Ống Nắp Tím (K2-EDTA Chống Đông)",
-      shortLabel: "K2-EDTA · Nắp Tím",
-      sampleType: "Máu toàn phần (2.0 mL)",
-      colorHex: "#7c3aed",
-      bgHex: "#f3e8ff",
-      drawOrder: 3
-    };
-  }
-  if (t.includes("FLUORIDE") || t.includes("NAF") || t.includes("XÁM")) {
-    return {
-      key: "FLUORIDE",
-      label: "Ống Nắp Xám (NaF / Oxalate)",
-      shortLabel: "NaF · Nắp Xám",
-      sampleType: "Huyết tương Glucose (2.0 mL)",
-      colorHex: "#475569",
-      bgHex: "#f1f5f9",
-      drawOrder: 4
-    };
-  }
-  return {
-    key: "SERUM",
-    label: "Ống Nắp Vàng / Đỏ (Serum Gel SST)",
-    shortLabel: "Serum Gel · Vàng/Đỏ",
-    sampleType: "Huyết thanh (4.0 mL)",
-    colorHex: "#d97706",
-    bgHex: "#fef3c7",
-    drawOrder: 2
-  };
+const calculateAgeFromDob = (dob) => {
+  if (!dob) return null;
+  const parsed = new Date(dob);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - parsed.getFullYear();
+  const m = today.getMonth() - parsed.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < parsed.getDate())) age -= 1;
+  return age >= 0 && age <= 130 ? age : null;
+};
+
+const formatDateVn = (value) => {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString("vi-VN");
+};
+
+const formatGenderVn = (gender) => {
+  const g = String(gender || "").trim().toLowerCase();
+  if (g === "female" || g === "nữ" || g === "nu") return "Nữ";
+  if (g === "male" || g === "nam") return "Nam";
+  if (g === "other" || g === "khác") return "Khác";
+  return gender || "—";
 };
 
 const isOrderDispatched = (order) => {
@@ -144,9 +124,8 @@ export default function CreateTestOrderPage() {
 
   // Modal Khám Lâm Sàng & Chỉ Định Xét Nghiệm
   const [activeModalEncounter, setActiveModalEncounter] = useState(null);
-  const [modalSearchTerm, setModalSearchTerm] = useState("");
-  const [modalCategory, setModalCategory] = useState("Tất cả");
-  const [modalTypeFilter, setModalTypeFilter] = useState("ALL"); // 'ALL' | 'PACKAGE' | 'SINGLE'
+  const [modalPatientDetail, setModalPatientDetail] = useState(null);
+  const [loadingPatientDetail, setLoadingPatientDetail] = useState(false);
   const [selectedCodes, setSelectedCodes] = useState(new Set());
   const [lockedCodes, setLockedCodes] = useState(new Set());
   const [editingDraftId, setEditingDraftId] = useState(null);
@@ -474,18 +453,16 @@ export default function CreateTestOrderPage() {
       }
 
       setActiveModalEncounter(enc);
+      setModalPatientDetail(null);
       setModalError("");
       setDispatchedOrderResult(null);
-      setModalSearchTerm("");
-      setModalCategory("Tất cả");
-      setModalTypeFilter("ALL");
       setIcdError("");
       setCustomIcdInput("");
       setPriority("Routine");
       setSpecialInstructions("");
       setFastingConfirmed(true);
 
-      // Nạp gói bệnh nhân đã đặt tại quầy/lịch hẹn và khóa cứng không cho bỏ chọn
+      // Chỉ nạp đúng gói bệnh nhân đã đặt tại quầy/lịch hẹn và khóa cứng không cho chọn thêm gói/dịch vụ khác
       const preSet = new Set();
       const lockSet = new Set();
       const matchedPkg = resolveBookedPackageInCatalog(enc.packageCode, enc.packageName);
@@ -495,15 +472,21 @@ export default function CreateTestOrderPage() {
       } else if (enc.packageCode) {
         preSet.add(String(enc.packageCode).trim().toUpperCase());
         lockSet.add(String(enc.packageCode).trim().toUpperCase());
+      } else if (enc.packageName) {
+        const fallbackCode = String(enc.packageName).trim().toUpperCase();
+        preSet.add(fallbackCode);
+        lockSet.add(fallbackCode);
       }
 
-      // Nếu lịch hẹn đang có Bản nháp (Draft) -> nạp lại toàn bộ lựa chọn từ Bản nháp
+      // Nếu lịch hẹn đang có Bản nháp (Draft) -> chỉ giữ đúng gói đã đặt, nạp lại ICD-10 & chẩn đoán từ bản nháp
       if (isOrderDraft(enc.linkedOrder)) {
         const draft = enc.linkedOrder;
         setEditingDraftId(draft.orderNumber || draft.id);
-        (Array.isArray(draft.items) ? draft.items : []).forEach((it) => {
-          if (it.testCode) preSet.add(String(it.testCode).toUpperCase());
-        });
+        if (preSet.size === 0 && Array.isArray(draft.items) && draft.items.length > 0 && draft.items[0]?.testCode) {
+          const code = String(draft.items[0].testCode).toUpperCase();
+          preSet.add(code);
+          lockSet.add(code);
+        }
         setSelectedIcdCodes(
           Array.isArray(draft.icd10Codes) && draft.icd10Codes.length > 0 ? draft.icd10Codes : ["E11.9"]
         );
@@ -522,10 +505,20 @@ export default function CreateTestOrderPage() {
       setSelectedCodes(preSet);
       setLockedCodes(lockSet);
 
-      // Tự động đồng bộ sinh hiệu & chẩn đoán từ Bệnh án EMR gần nhất của BN (nếu có)
+      // Nạp đồng thời hồ sơ chi tiết bệnh nhân (SĐT, Email, Ngày sinh, CCCD, Nhóm máu, Địa chỉ) & EMR gần nhất
       if (enc.patientId) {
+        setLoadingPatientDetail(true);
         try {
-          const emrRes = await medicalRecordApi.getPatientRecords(enc.patientId).catch(() => null);
+          const [patientRes, emrRes] = await Promise.all([
+            getPatientById(enc.patientId).catch(() => null),
+            medicalRecordApi.getPatientRecords(enc.patientId).catch(() => null)
+          ]);
+
+          const pData = patientRes?.data || patientRes || null;
+          if (pData && (pData.id || pData.patientCode || pData.fullName)) {
+            setModalPatientDetail(pData);
+          }
+
           const rawList = emrRes?.data ?? emrRes?.items ?? emrRes;
           const records = Array.isArray(rawList) ? rawList : (Array.isArray(rawList?.items) ? rawList.items : []);
           if (records.length > 0) {
@@ -544,11 +537,18 @@ export default function CreateTestOrderPage() {
               setSelectedIcdCodes((prev) => (prev.includes(c) ? prev : [c, ...prev]));
             }
             if (!isOrderDraft(enc.linkedOrder) && (latest.diagnosis || latest.chiefComplaint)) {
-              setClinicalIndication(`Theo bệnh án EMR (${latest.recordCode || "mới nhất"}): ${latest.diagnosis || latest.chiefComplaint}`);
+              const rawText = String(latest.diagnosis || latest.chiefComplaint).trim();
+              setClinicalIndication(
+                rawText.startsWith("Theo bệnh án EMR")
+                  ? rawText
+                  : `Theo bệnh án EMR (${latest.recordCode || "mới nhất"}): ${rawText}`
+              );
             }
           }
         } catch {
-          // ignore EMR preload error
+          // ignore preload error
+        } finally {
+          setLoadingPatientDetail(false);
         }
       }
     },
@@ -652,45 +652,25 @@ export default function CreateTestOrderPage() {
     return { required: hasFasting, maxHours: hasFasting ? 8 : 0 };
   }, [selectedTests]);
 
-  const autoTubeGroups = useMemo(() => {
-    const map = new Map();
-    selectedTests.forEach((t) => {
-      const spec = resolveTubeSpec(t.tubeType, t.category);
-      if (!map.has(spec.key)) map.set(spec.key, { ...spec, tests: [] });
-      map.get(spec.key).tests.push(t);
-    });
-    return Array.from(map.values()).sort((a, b) => a.drawOrder - b.drawOrder);
-  }, [selectedTests]);
-
-  // Filter danh mục trong Modal
-  const filteredModalCatalog = useMemo(() => {
-    const kw = modalSearchTerm.trim().toLowerCase();
-    return catalog.filter((item) => {
-      if (modalTypeFilter === "PACKAGE" && !item.isPackage) return false;
-      if (modalTypeFilter === "SINGLE" && item.isPackage) return false;
-
-      const matchKw = !kw || item.name.toLowerCase().includes(kw) || item.code.toLowerCase().includes(kw);
-      const cat = String(item.category || "").toLowerCase();
-      const matchCat =
-        modalCategory === "Tất cả" ||
-        (modalCategory === "Sinh hóa" && (cat.includes("biochem") || cat.includes("sinh hóa") || cat.includes("gan") || cat.includes("thận") || cat.includes("đái tháo"))) ||
-        (modalCategory === "Huyết học" && (cat.includes("hemat") || cat.includes("huyết") || cat.includes("thiếu máu"))) ||
-        (modalCategory === "Miễn dịch" && (cat.includes("immun") || cat.includes("miễn dịch") || cat.includes("giáp")));
-      return matchKw && matchCat;
-    });
-  }, [catalog, modalSearchTerm, modalCategory, modalTypeFilter]);
-
-  const handleToggleCode = (code) => {
-    if (dispatchedOrderResult) return; // Đã chuyển Lab -> khóa cứng không cho sửa
-    const next = new Set(selectedCodes);
-    if (next.has(code)) {
-      if (lockedCodes.has(code)) return; // Không cho bỏ tick gói bệnh nhân đã đặt
-      next.delete(code);
-    } else {
-      next.add(code);
-    }
-    setSelectedCodes(next);
-  };
+  const resolvedModalPatient = useMemo(() => {
+    if (!activeModalEncounter) return null;
+    const p = modalPatientDetail || {};
+    const dob = p.dateOfBirth || p.dob || activeModalEncounter.dateOfBirth || "";
+    const computedAge = calculateAgeFromDob(dob) ?? p.age ?? activeModalEncounter.patientAge;
+    return {
+      fullName: p.fullName || p.fullname || activeModalEncounter.patientName || "Bệnh nhân",
+      patientId: p.patientCode || p.id || activeModalEncounter.patientId || "—",
+      gender: formatGenderVn(p.gender || activeModalEncounter.patientGender),
+      age: computedAge ? `${computedAge} tuổi` : "—",
+      dateOfBirth: dob ? formatDateVn(dob) : "—",
+      phone: p.phoneNumber || p.phone || activeModalEncounter.patientPhone || "—",
+      email: p.email || activeModalEncounter.patientEmail || "—",
+      identityNumber: p.identityNumber || p.cccd || "—",
+      bloodType: p.bloodType || "Chưa xác định",
+      address: p.address || "—",
+      allergies: Array.isArray(p.allergies) ? p.allergies.filter(Boolean).join(", ") : (p.allergies || ""),
+    };
+  }, [activeModalEncounter, modalPatientDetail]);
 
   const handleAddIcd = (code) => {
     const upper = code.trim().toUpperCase();
@@ -873,6 +853,8 @@ export default function CreateTestOrderPage() {
     });
   }, [encounters, statusFilter, searchKeyword]);
 
+  const encounterPag = usePagination(filteredEncounters, 10);
+
   return (
     <div size="1em" className="w-100 py-1">
       {/* Header Card */}
@@ -898,18 +880,6 @@ export default function CreateTestOrderPage() {
         </div>
       </div>
 
-      {/* Quy trình 4 bước cho Bác sĩ */}
-      <WorkflowStepperBar
-        title="Quy trình làm việc của Bác sĩ (4 bước)"
-        hint="Chọn bệnh nhân bên dưới → Khám & chọn mã ICD-10 → Ký & Chuyển xuống Phòng Lab"
-        activeStep={2}
-        steps={[
-          { id: 'doc-1', label: 'Gọi bệnh nhân (F2)', desc: 'Mời người bệnh từ Hàng Đợi Chờ Khám vào bàn khám', path: '/doctor/console' },
-          { id: 'doc-2', label: 'Chỉ định xét nghiệm', desc: 'Khám sinh hiệu, chọn ICD-10 & chuyển đơn xuống Phòng Lab', path: '/doctor/orders/create' },
-          { id: 'doc-3', label: 'Chờ Phòng Lab phân tích', desc: 'KTV lấy mẫu, tiếp nhận ống mẫu & nhập chỉ số xét nghiệm' },
-          { id: 'doc-4', label: 'Thẩm định & Ký số KQ', desc: 'Duyệt kết quả Lab, kết luận lâm sàng & phát hành cho BN', path: '/laboratory/biochemical-results' }
-        ]}
-      />
 
       {/* Thanh Lọc 1 Dòng & Pills Trạng Thái */}
       <div className="bms-filter-bar mb-3 flex-wrap">
@@ -1016,7 +986,7 @@ export default function CreateTestOrderPage() {
                   </td>
                 </tr>
               ) : (
-                filteredEncounters.map((enc) => {
+                encounterPag.paginatedItems.map((enc) => {
                   const ord = enc.linkedOrder;
                   const dispatched = isOrderDispatched(ord);
                   const draft = isOrderDraft(ord);
@@ -1122,6 +1092,15 @@ export default function CreateTestOrderPage() {
             </tbody>
           </table>
         </div>
+        <TablePagination
+          page={encounterPag.page}
+          totalPages={encounterPag.totalPages}
+          totalItems={encounterPag.totalItems}
+          pageSize={encounterPag.pageSize}
+          onPageChange={encounterPag.setPage}
+          onPageSizeChange={encounterPag.setPageSize}
+          itemLabel="lượt khám"
+        />
       </Card>
 
       {/* =========================================================================================
@@ -1190,25 +1169,20 @@ export default function CreateTestOrderPage() {
 
             {activeModalEncounter && (
               <div
-                className="d-flex align-items-center flex-wrap gap-2 mt-1.5"
+                className="d-flex align-items-center flex-wrap gap-2 mt-1"
                 style={{ fontSize: "12.5px", color: "#64748B" }}
               >
-                <strong style={{ color: "#0F172A", fontSize: "13px" }}>{activeModalEncounter.patientName}</strong>
-                <span className="font-monospace" style={{ color: "#475569" }}>{activeModalEncounter.patientId}</span>
-                <span>·</span>
-                <span>{activeModalEncounter.patientGender}, {activeModalEncounter.patientAge} tuổi</span>
-                <span>·</span>
-                <span>SĐT: <strong style={{ color: "#334155" }}>{activeModalEncounter.patientPhone || "—"}</strong></span>
-                <span>·</span>
                 <span>STT: <strong className="font-monospace" style={{ color: "#1E60E6" }}>{activeModalEncounter.queueNumber}</strong></span>
                 <span>·</span>
-                <span>BS: <strong style={{ color: "#334155" }}>{doctorName}</strong></span>
+                <span>Phòng khám: <strong style={{ color: "#334155" }}>{activeModalEncounter.roomId || "ROOM-101"}</strong></span>
+                <span>·</span>
+                <span>Bác sĩ phụ trách: <strong style={{ color: "#334155" }}>{doctorName}</strong></span>
               </div>
             )}
           </div>
         </Modal.Header>
 
-        <Modal.Body style={{ backgroundColor: "#F8FAFC", padding: "24px 28px", maxHeight: "80vh", overflowY: "auto" }}>
+        <Modal.Body style={{ backgroundColor: "#F8FAFC", padding: "22px 28px", maxHeight: "80vh", overflowY: "auto" }}>
           {modalError && (
             <Alert variant="danger" dismissible onClose={() => setModalError("")} className="py-2 px-3 mb-3 rounded-3 small">
               <AlertTriangle className="me-2" size="1em" />
@@ -1234,33 +1208,149 @@ export default function CreateTestOrderPage() {
             </div>
           )}
 
-          {activeModalEncounter && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))",
-                gap: "22px",
-                alignItems: "start",
-              }}
-            >
-              {/* CỘT TRÁI: 1. KHÁM LÂM SÀNG & CHẨN ĐOÁN */}
+          {activeModalEncounter && resolvedModalPatient && (
+            <>
+              {/* SECTION 1: THÔNG TIN BỆNH NHÂN */}
               <div
+                className="mb-3"
                 style={{
                   backgroundColor: "#FFFFFF",
                   border: "1px solid #E2E8F0",
                   borderRadius: "16px",
-                  padding: "20px 22px",
-                  minWidth: 0,
+                  padding: "16px 20px",
                 }}
               >
                 <div
-                  className="d-flex justify-content-between align-items-center pb-2.5 mb-3"
+                  className="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-2 mb-3"
                   style={{ borderBottom: "1px solid #F1F5F9" }}
                 >
                   <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
-                    <HeartPulse size={15} style={{ color: "#EF4444" }} />
-                    1. Khám Lâm Sàng &amp; Chẩn Đoán
+                    <User size={15} style={{ color: "#1E60E6" }} />
+                    1. Thông Tin Bệnh Nhân
                   </span>
+                  <div className="d-flex align-items-center gap-2">
+                    {loadingPatientDetail && (
+                      <span className="text-muted" style={{ fontSize: "11.5px" }}>
+                        <Spinner animation="border" size="sm" className="me-1 text-primary" />
+                        Đang đồng bộ hồ sơ...
+                      </span>
+                    )}
+                    <span
+                      className="font-monospace"
+                      style={{
+                        fontSize: "11.5px",
+                        fontWeight: 700,
+                        color: "#1E60E6",
+                        backgroundColor: "#EFF6FF",
+                        border: "1px solid #BFDBFE",
+                        padding: "2px 10px",
+                        borderRadius: "999px",
+                      }}
+                    >
+                      {resolvedModalPatient.patientId}
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(185px, 1fr))",
+                    gap: "12px 18px",
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      Họ và tên
+                    </div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#0F172A", marginTop: "2px" }}>
+                      {resolvedModalPatient.fullName}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      Giới tính · Tuổi (Ngày sinh)
+                    </div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                      <Calendar size={13} style={{ color: "#64748B" }} />
+                      {resolvedModalPatient.gender} · {resolvedModalPatient.age}
+                      {resolvedModalPatient.dateOfBirth !== "—" ? ` (${resolvedModalPatient.dateOfBirth})` : ""}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      Số điện thoại
+                    </div>
+                    <div className="font-monospace" style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                      <Phone size={13} style={{ color: "#64748B" }} />
+                      {resolvedModalPatient.phone}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      Email nhận kết quả
+                    </div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "5px", wordBreak: "break-all" }}>
+                      <Mail size={13} style={{ color: "#64748B", flexShrink: 0 }} />
+                      {resolvedModalPatient.email}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      CCCD / CMND
+                    </div>
+                    <div className="font-monospace" style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", marginTop: "2px", display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                      <CreditCard size={13} style={{ color: "#64748B" }} />
+                      {resolvedModalPatient.identityNumber}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                      Nhóm máu
+                    </div>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", marginTop: "2px" }}>
+                      {resolvedModalPatient.bloodType}
+                    </div>
+                  </div>
+                </div>
+
+                {resolvedModalPatient.allergies && (
+                  <div
+                    className="mt-2.5 px-3 py-1.5 rounded-3 d-inline-flex align-items-center gap-1.5"
+                    style={{ backgroundColor: "#FEF2F2", border: "1px solid #FECACA", color: "#991B1B", fontSize: "12px", fontWeight: 600 }}
+                  >
+                    <AlertTriangle size={13} />
+                    <span>Tiền sử dị ứng: {resolvedModalPatient.allergies}</span>
+                  </div>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))",
+                  gap: "22px",
+                  alignItems: "start",
+                }}
+              >
+                {/* CỘT TRÁI: 2. KHÁM LÂM SÀNG & CHẨN ĐOÁN */}
+                <div
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E2E8F0",
+                    borderRadius: "16px",
+                    padding: "20px 22px",
+                    minWidth: 0,
+                  }}
+                >
+                  <div
+                    className="d-flex justify-content-between align-items-center pb-2.5 mb-3"
+                    style={{ borderBottom: "1px solid #F1F5F9" }}
+                  >
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
+                      <HeartPulse size={15} style={{ color: "#EF4444" }} />
+                      2. Khám Lâm Sàng &amp; Chẩn Đoán
+                    </span>
                   <Form.Check
                     type="switch"
                     id="save-emr-switch"
@@ -1530,170 +1620,121 @@ export default function CreateTestOrderPage() {
                 </div>
               </div>
 
-              {/* CỘT PHẢI: 2. CHỌN GÓI / CHỈ SỐ + 3. ỐNG MẪU & TỔNG CHI PHÍ */}
+              {/* CỘT PHẢI: 3. GÓI DỊCH VỤ BỆNH NHÂN ĐÃ ĐẶT (KHÓA CỨNG THEO LỊCH HẸN, KHÔNG CHỌN THÊM GÓI KHÁC) */}
               <div style={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
-                {/* Card 2: Gói Đã Đặt & Chỉ Định Bổ Sung */}
                 <div
                   style={{
                     backgroundColor: "#FFFFFF",
                     border: "1px solid #E2E8F0",
-                    borderRadius: "14px",
+                    borderRadius: "16px",
                     overflow: "hidden",
                   }}
                 >
                   <div
                     className="d-flex justify-content-between align-items-center flex-wrap gap-2"
-                    style={{ padding: "12px 16px", borderBottom: "1px solid #F1F5F9" }}
+                    style={{ padding: "14px 18px", borderBottom: "1px solid #F1F5F9" }}
                   >
-                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A" }}>
-                      2. Gói Đã Đặt &amp; Chỉ Định Bổ Sung
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
+                      <PackageCheck size={15} style={{ color: "#059669" }} />
+                      3. Gói Dịch Vụ Bệnh Nhân Đã Đặt
                     </span>
-                    <div className="d-flex gap-1">
-                      {[
-                        { id: "ALL", label: "Tất cả" },
-                        { id: "PACKAGE", label: "Gói" },
-                        { id: "SINGLE", label: "Chỉ số lẻ" }
-                      ].map((t) => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => setModalTypeFilter(t.id)}
-                          style={{
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            padding: "4px 10px",
-                            borderRadius: "999px",
-                            backgroundColor: modalTypeFilter === t.id ? "#1E60E6" : "#F1F5F9",
-                            color: modalTypeFilter === t.id ? "#FFFFFF" : "#475569",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Thanh tìm kiếm sạch 1 viền duy nhất */}
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      padding: "10px 14px",
-                      backgroundColor: "#F8FAFC",
-                      borderBottom: "1px solid #F1F5F9",
-                    }}
-                  >
-                    <div
+                    <span
                       style={{
-                        display: "flex",
+                        fontSize: "11.5px",
+                        fontWeight: 600,
+                        color: "#047857",
+                        backgroundColor: "#ECFDF5",
+                        border: "1px solid #A7F3D0",
+                        padding: "2px 10px",
+                        borderRadius: "999px",
+                        display: "inline-flex",
                         alignItems: "center",
-                        gap: "8px",
-                        flex: 1,
-                        minWidth: 0,
-                        height: "36px",
-                        padding: "0 12px",
-                        backgroundColor: "#FFFFFF",
-                        border: "1px solid #DDE3EA",
-                        borderRadius: "10px",
+                        gap: "5px",
                       }}
                     >
-                      <Search size={14} style={{ color: "#94A3B8", flexShrink: 0 }} />
-                      <input
-                        type="text"
-                        style={{
-                          width: "100%",
-                          minWidth: 0,
-                          height: "100%",
-                          border: "none",
-                          outline: "none",
-                          background: "transparent",
-                          fontSize: "13px",
-                          color: "#0F172A",
-                          padding: 0,
-                        }}
-                        placeholder="Tìm gói hoặc chỉ số (CBC, GLU, HBsAg...)"
-                        value={modalSearchTerm}
-                        onChange={(e) => setModalSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <select
-                      className="form-select"
-                      style={{ width: "152px", flexShrink: 0, height: "36px", fontSize: "12.5px", backgroundColor: "#FFFFFF" }}
-                      value={modalCategory}
-                      onChange={(e) => setModalCategory(e.target.value)}
-                    >
-                      <option value="Tất cả">Tất cả chuyên khoa</option>
-                      <option value="Huyết học">Huyết học</option>
-                      <option value="Sinh hóa">Sinh hóa</option>
-                      <option value="Miễn dịch">Miễn dịch</option>
-                    </select>
+                      <ShieldCheck size={12} />
+                      Cố định theo lịch hẹn
+                    </span>
                   </div>
 
-                  {/* Danh sách gói / chỉ số thoáng mắt, gói đã đặt luôn lên trên */}
-                  <div style={{ maxHeight: "225px", overflowY: "auto" }}>
-                    {[...filteredModalCatalog]
-                      .sort((a, b) => Number(lockedCodes.has(b.code)) - Number(lockedCodes.has(a.code)))
-                      .map((item) => {
-                        const isSel = selectedCodes.has(item.code);
-                        const isLocked = lockedCodes.has(item.code);
-                        const tubeSpec = resolveTubeSpec(item.tubeType, item.category);
-                        return (
+                  <div style={{ padding: "16px 18px" }}>
+                    {selectedTests.length === 0 ? (
+                      <div
+                        style={{
+                          padding: "16px",
+                          borderRadius: "12px",
+                          backgroundColor: "#F8FAFC",
+                          border: "1px dashed #CBD5E1",
+                          textAlign: "center",
+                          fontSize: "13px",
+                          color: "#64748B",
+                        }}
+                      >
+                        Lịch hẹn này chưa gắn gói dịch vụ xét nghiệm cụ thể.
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {selectedTests.map((item) => (
                           <div
                             key={item.code}
-                            onClick={() => handleToggleCode(item.code)}
                             style={{
                               display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "10px 14px",
-                              borderBottom: "1px solid #F1F5F9",
-                              cursor: isLocked || dispatchedOrderResult ? "default" : "pointer",
-                              backgroundColor: isSel ? "#F0F7FF" : "#FFFFFF",
-                              transition: "background-color 0.12s ease",
+                              alignItems: "flex-start",
+                              justifyContent: "space-between",
+                              gap: "12px",
+                              padding: "14px 16px",
+                              borderRadius: "12px",
+                              backgroundColor: "#F0F7FF",
+                              border: "1px solid #BFDBFE",
                             }}
                           >
-                            <input
-                              type="checkbox"
-                              className="form-check-input m-0 flex-shrink-0"
-                              checked={isSel}
-                              disabled={isLocked || Boolean(dispatchedOrderResult)}
-                              onClick={(e) => e.stopPropagation()}
-                              onChange={() => handleToggleCode(item.code)}
-                            />
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                                <span style={{ fontSize: "13px", fontWeight: 600, color: "#0F172A", lineHeight: 1.3 }}>
+                              <div className="d-flex align-items-center gap-2 flex-wrap">
+                                <span style={{ fontSize: "14px", fontWeight: 700, color: "#0F172A", lineHeight: 1.35 }}>
                                   {item.name}
                                 </span>
-                                {isLocked && (
-                                  <span
-                                    style={{
-                                      fontSize: "11px",
-                                      fontWeight: 600,
-                                      color: "#047857",
-                                      backgroundColor: "#ECFDF5",
-                                      padding: "1px 8px",
-                                      borderRadius: "999px",
-                                      whiteSpace: "nowrap",
-                                    }}
-                                  >
-                                    Đã đặt
-                                  </span>
+                                <span
+                                  style={{
+                                    fontSize: "11px",
+                                    fontWeight: 700,
+                                    color: "#047857",
+                                    backgroundColor: "#ECFDF5",
+                                    border: "1px solid #A7F3D0",
+                                    padding: "1px 8px",
+                                    borderRadius: "999px",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  Đã đặt
+                                </span>
+                              </div>
+                              <div className="d-flex align-items-center flex-wrap gap-2 mt-1.5" style={{ fontSize: "12px", color: "#475569" }}>
+                                <code style={{ color: "#1E60E6", fontWeight: 700 }}>{item.code}</code>
+                                {item.category && (
+                                  <>
+                                    <span>·</span>
+                                    <span>{item.category}</span>
+                                  </>
+                                )}
+                                {item.turnaroundTime && (
+                                  <>
+                                    <span>·</span>
+                                    <span>Thời gian trả KQ dự kiến: <strong>{item.turnaroundTime}</strong></span>
+                                  </>
                                 )}
                               </div>
-                              <div style={{ fontSize: "11.5px", color: "#64748B", marginTop: "2px" }}>
-                                <code style={{ color: "#1E60E6", marginRight: "8px" }}>{item.code}</code>
-                                <span style={{ color: tubeSpec.colorHex }}>{tubeSpec.shortLabel}</span>
-                              </div>
+                              {item.preparationNotes && (
+                                <div style={{ fontSize: "12px", color: "#64748B", marginTop: "6px" }}>
+                                  Lưu ý chuẩn bị: {item.preparationNotes}
+                                </div>
+                              )}
                             </div>
                             <div
                               className="font-monospace"
                               style={{
-                                fontSize: "13px",
-                                fontWeight: 700,
-                                color: "#0F172A",
+                                fontSize: "15px",
+                                fontWeight: 800,
+                                color: "#1E60E6",
                                 whiteSpace: "nowrap",
                                 flexShrink: 0,
                               }}
@@ -1701,144 +1742,69 @@ export default function CreateTestOrderPage() {
                               {Number(item.price || 0).toLocaleString("vi-VN")} đ
                             </div>
                           </div>
-                        );
-                      })}
-                  </div>
-                </div>
+                        ))}
+                      </div>
+                    )}
 
-                {/* Card 3: Ống Mẫu Sinh Tự Động & Tổng Chi Phí */}
-                <div
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #E2E8F0",
-                    borderRadius: "14px",
-                    padding: "14px 16px",
-                  }}
-                >
-                  <div className="d-flex justify-content-between align-items-center mb-2.5">
-                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "7px" }}>
-                      <Layers size={15} style={{ color: "#1E60E6" }} />
-                      3. Ống Bệnh Phẩm Tự Sinh Cho Lab
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "11.5px",
-                        fontWeight: 700,
-                        color: "#1E60E6",
-                        backgroundColor: "#EFF6FF",
-                        padding: "2px 10px",
-                        borderRadius: "999px",
-                      }}
-                    >
-                      {autoTubeGroups.length} ống mẫu
-                    </span>
-                  </div>
-
-                  {autoTubeGroups.length === 0 ? (
                     <div
+                      className="mt-3"
                       style={{
-                        padding: "12px",
-                        borderRadius: "10px",
-                        backgroundColor: "#F8FAFC",
-                        textAlign: "center",
-                        fontSize: "12.5px",
+                        fontSize: "12px",
                         color: "#64748B",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      Chưa có xét nghiệm nào được chọn.
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "14px" }}>
-                      {autoTubeGroups.map((g, idx) => (
-                        <div
-                          key={g.key}
-                          style={{
-                            padding: "12px 14px",
-                            borderRadius: "12px",
-                            backgroundColor: "#F8FAFC",
-                            border: "1px solid #E2E8F0",
-                          }}
-                        >
-                          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <span style={{ fontSize: "13px", fontWeight: 700, color: "#0F172A", display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                              <span
-                                style={{
-                                  width: "8px",
-                                  height: "8px",
-                                  borderRadius: "999px",
-                                  backgroundColor: g.colorHex,
-                                  flexShrink: 0,
-                                }}
-                              />
-                              Ống #{idx + 1}: {g.label}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: "11.5px",
-                                fontWeight: 600,
-                                color: "#475569",
-                                backgroundColor: "#FFFFFF",
-                                border: "1px solid #E2E8F0",
-                                padding: "2px 10px",
-                                borderRadius: "999px",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {g.sampleType}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: "12.5px", color: "#475569", marginTop: "5px", paddingLeft: "16px", lineHeight: 1.45 }}>
-                            {g.tests.map((t) => t.name).join(" · ")}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {fastingInfo.required && priority !== "STAT" && !dispatchedOrderResult && (
-                    <div
-                      style={{
-                        padding: "10px 12px",
+                        backgroundColor: "#F8FAFC",
+                        border: "1px solid #E2E8F0",
                         borderRadius: "10px",
-                        backgroundColor: "#FFFBEB",
-                        border: "1px solid #FDE68A",
-                        marginBottom: "12px",
+                        padding: "9px 12px",
                       }}
                     >
-                      <Form.Check
-                        type="checkbox"
-                        id="modal-fasting-check"
-                        checked={fastingConfirmed}
-                        onChange={(e) => setFastingConfirmed(e.target.checked)}
-                        className="mb-0"
-                        label={
-                          <span style={{ fontSize: "12.5px", fontWeight: 600, color: "#92400E" }}>
-                            Xác nhận bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h trước khi lấy mẫu
-                          </span>
-                        }
-                      />
+                      Hệ thống tự động nạp đúng gói dịch vụ bệnh nhân đã đăng ký theo lịch hẹn (không chọn thêm gói hoặc dịch vụ ngoài). Việc phân loại và sinh ống bệnh phẩm sẽ do Phòng Lab thực hiện khi tiếp nhận lấy mẫu.
                     </div>
-                  )}
 
-                  <div
-                    className="d-flex justify-content-between align-items-center pt-2.5"
-                    style={{ borderTop: "1px solid #F1F5F9" }}
-                  >
-                    <div>
-                      <div style={{ fontSize: "13px", fontWeight: 700, color: "#0F172A" }}>Tổng chi phí chỉ định</div>
-                      <div style={{ fontSize: "11.5px", color: "#64748B" }}>{selectedTests.length} mục xét nghiệm</div>
-                    </div>
+                    {fastingInfo.required && priority !== "STAT" && !dispatchedOrderResult && (
+                      <div
+                        className="mt-3"
+                        style={{
+                          padding: "10px 12px",
+                          borderRadius: "10px",
+                          backgroundColor: "#FFFBEB",
+                          border: "1px solid #FDE68A",
+                        }}
+                      >
+                        <Form.Check
+                          type="checkbox"
+                          id="modal-fasting-check"
+                          checked={fastingConfirmed}
+                          onChange={(e) => setFastingConfirmed(e.target.checked)}
+                          className="mb-0"
+                          label={
+                            <span style={{ fontSize: "12.5px", fontWeight: 600, color: "#92400E" }}>
+                              Xác nhận bệnh nhân đã nhịn ăn đủ {fastingInfo.maxHours}h trước khi lấy mẫu
+                            </span>
+                          }
+                        />
+                      </div>
+                    )}
+
                     <div
-                      className="font-monospace"
-                      style={{ fontSize: "20px", fontWeight: 800, color: "#1E60E6", letterSpacing: "-0.02em" }}
+                      className="d-flex justify-content-between align-items-center pt-3 mt-3"
+                      style={{ borderTop: "1px solid #F1F5F9" }}
                     >
-                      {totalAmount.toLocaleString("vi-VN")} đ
+                      <div>
+                        <div style={{ fontSize: "13px", fontWeight: 700, color: "#0F172A" }}>Tổng chi phí gói dịch vụ</div>
+                        <div style={{ fontSize: "11.5px", color: "#64748B" }}>{selectedTests.length} gói xét nghiệm đã đặt</div>
+                      </div>
+                      <div
+                        className="font-monospace"
+                        style={{ fontSize: "20px", fontWeight: 800, color: "#1E60E6", letterSpacing: "-0.02em" }}
+                      >
+                        {totalAmount.toLocaleString("vi-VN")} đ
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            </>
           )}
         </Modal.Body>
 

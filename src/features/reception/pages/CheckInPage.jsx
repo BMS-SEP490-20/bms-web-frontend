@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ROLES, hasRole, getStoredUser } from '../../../constants/roles';
 import {
   Card, Row, Col, Table, Badge, Button, Form, InputGroup,
@@ -65,6 +66,7 @@ function formatGenderLabel(g) {
 }
 
 export default function CheckInPage() {
+  const navigate = useNavigate();
   // List & filter state
   const [patients, setPatients] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -360,7 +362,7 @@ export default function CheckInPage() {
             <Button
               size="sm"
               className="fw-semibold text-white rounded-pill px-3 py-2 d-flex align-items-center gap-2 shadow-sm"
-              onClick={handleOpenCreateGuestModal}
+              onClick={() => navigate('/receptionist/create-patient')}
               id="btn-create-guest-profile"
               style={{
                 backgroundColor: '#1E60E6',

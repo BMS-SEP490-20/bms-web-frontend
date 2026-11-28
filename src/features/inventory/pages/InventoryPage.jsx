@@ -56,7 +56,7 @@ export default function InventoryPage() {
   const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [success, setSuccess] = useState('');
-  // Admin performs inventory CRUD; Manager views read-only.
+
   const canManage = hasRole(getStoredUser(), ROLES.ADMIN);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(defaults);
@@ -69,7 +69,7 @@ export default function InventoryPage() {
   const [detailError, setDetailError] = useState('');
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailRefresh, setDetailRefresh] = useState(0);
-  const [detailTab, setDetailTab] = useState('changes'); // 'changes' | 'transactions'
+  const [detailTab, setDetailTab] = useState('changes');
   const invalidDates = filters.expiryFrom && filters.expiryTo && filters.expiryFrom > filters.expiryTo;
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function InventoryPage() {
     setDetail(null); setDetailError('');
     if (!selectedId) return () => controller.abort();
     setDetailLoading(true);
-    // A closed or replaced detail view must not receive an earlier lot's response.
+
     getInventoryDetail(selectedId, controller.signal).then((result) => {
       if (!controller.signal.aborted) setDetail(result);
     }).catch((err) => { if (!controller.signal.aborted) setDetailError(inventoryError(err)); })
@@ -246,7 +246,7 @@ export default function InventoryPage() {
           </Alert>
         ) : item && (
           <div className="d-flex flex-column gap-3">
-            {/* Compact Flat Header Card */}
+
             <div className="p-3 rounded-4 border" style={{ background: '#F8FAFC', borderColor: '#E2E8F0' }}>
               <div className="d-flex align-items-start justify-content-between gap-2 flex-wrap mb-3">
                 <div>
@@ -287,7 +287,6 @@ export default function InventoryPage() {
               </Alert>
             )}
 
-            {/* Clean Segmented Tabs for History */}
             <div>
               <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                 <div className="d-inline-flex p-1 rounded-pill" style={{ background: '#F1F5F9', gap: '4px' }}>

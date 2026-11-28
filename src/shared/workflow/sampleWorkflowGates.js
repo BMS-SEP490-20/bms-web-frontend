@@ -12,7 +12,7 @@ export const SAMPLE_STATUS_ORDER = [
   'Processing',
   'Testing',
   'Completed',
-  'WaitingReview', // FE alias after enter-results
+  'WaitingReview',
   'RerunRequested',
   'Rejected'
 ];

@@ -34,7 +34,6 @@ export default function TraceSampleOriginPage() {
     const [exporting, setExporting] = useState(false);
     const [alertMessage, setAlertMessage] = useState(null);
 
-    // Load trace details
     const loadTrace = useCallback(async (specimenId) => {
         if (!specimenId) {
             setTraceData(null);
@@ -58,7 +57,6 @@ export default function TraceSampleOriginPage() {
         }
     }, []);
 
-    // Load recent specimens
     useEffect(() => {
         const loadRecent = async () => {
             const list = await fetchRecentTraceableSpecimens();
@@ -140,7 +138,7 @@ export default function TraceSampleOriginPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -171,7 +169,6 @@ export default function TraceSampleOriginPage() {
                 </div>
             </div>
 
-            {/* Single-Line Search Filter Bar */}
             <form onSubmit={handleSearchSubmit} className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
                     <Barcode className="bms-search-icon"  size="1em"/>
@@ -229,7 +226,6 @@ export default function TraceSampleOriginPage() {
                 </span>
             </form>
 
-            {/* Alert Notification */}
             {alertMessage && (
                 <div className={`alert alert-${alertMessage.type} alert-dismissible fade show d-flex align-items-center gap-2 mb-4 rounded-3 shadow-sm`} role="alert">
                     {alertMessage.type === "success" ? <CheckCircle2  size="1em"/> : <AlertTriangle  size="1em"/>}
@@ -238,7 +234,6 @@ export default function TraceSampleOriginPage() {
                 </div>
             )}
 
-            {/* Main Content */}
             {loading ? (
                 <div className="card shadow-sm rounded-4 p-5 text-center" style={{ border: "1px solid #E2E8F0" }}>
                     <div className="spinner-border spinner-border-sm text-primary mx-auto mb-2" role="status"></div>
@@ -254,7 +249,7 @@ export default function TraceSampleOriginPage() {
                 </div>
             ) : (
                 <div className="row g-4">
-                    {/* Left Column: Visual Flow Graph */}
+
                     <div className="col-lg-8">
                         <div className="card shadow-sm h-100 rounded-4" style={{ border: "1px solid #E2E8F0" }}>
                             <div className="card-header py-3 px-4 border-bottom d-flex align-items-center justify-content-between" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
@@ -270,7 +265,7 @@ export default function TraceSampleOriginPage() {
                             </div>
 
                             <div className="card-body p-4">
-                                {/* First Row of Nodes */}
+
                                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
                                     {firstRowNodes.map((node, index) => {
                                         const style = getNodeStyle(node.badgeType);
@@ -346,7 +341,6 @@ export default function TraceSampleOriginPage() {
                         </div>
                     </div>
 
-                    {/* Right Column: Chain of Custody */}
                     <div className="col-lg-4">
                         <div className="card shadow-sm h-100 rounded-4" style={{ border: "1px solid #E2E8F0" }}>
                             <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>

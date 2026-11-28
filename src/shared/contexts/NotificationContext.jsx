@@ -48,11 +48,10 @@ export function NotificationProvider({ children }) {
     const text = typeof message === "string" ? message : String(message ?? "");
     let newId = null;
     setToasts((prev) => {
-      // Deduplicate: do not show identical message multiple times
       if (prev.some((t) => t.message === text && t.variant === variant)) {
         return prev;
       }
-      // Cap max concurrent toasts to 3
+
       const trimmed = prev.length >= 3 ? prev.slice(prev.length - 2) : prev;
       const id = nextId.current++;
       newId = id;

@@ -5,7 +5,6 @@
  * Conforms to: ISO 15189:2022 & Medical Telehealth UI Specification.
  */
 
-// 1. Negative Coagulation Strings (Exact Clinical Matching)
 export const NO_COAGULATION_STRINGS = Object.freeze([
   'không có',
   'không có tiền sử đông máu',
@@ -25,7 +24,6 @@ export function isNoCoagulation(val) {
   return NO_COAGULATION_STRINGS.includes(normalized);
 }
 
-// 2. Canonical NKDA Strings (No Known Drug Allergies)
 export const NO_ALLERGY_STRINGS = Object.freeze([
   'không có',
   'không có dị ứng',
@@ -67,7 +65,6 @@ export function isEntireListNkda(allergies) {
   return nonEmpties.every(a => isCanonicalNkda(a));
 }
 
-// 3. Allergy Mapping with Token Boundary & Backward Compatibility
 const ALLERGY_CANONICAL_ALIASES = Object.freeze({
   'Penicillin / Amox': [
     'penicillin / amox',
@@ -208,12 +205,10 @@ export function isAllergyMatch(targetAllergy, candidateItemOrText) {
   const aliases = ALLERGY_CANONICAL_ALIASES[targetAllergy] || [targetAllergy.toLowerCase().trim()];
   const tokens = splitAllergyTokens(candidateItemOrText).map(t => t.toLowerCase());
 
-  // Check if any of the candidate tokens matches any known alias for the target
   return tokens.some(tok => {
     return aliases.some(alias => {
-      // 1. Exact match
       if (tok === alias) return true;
-      // 2. Phrase contains alias as a distinct phrase (boundary-checked)
+
       if (tok.includes(alias)) {
         if (alias.length >= 4) return true;
         const re = new RegExp(`(^|[^a-z0-9à-ỹ])${alias}([^a-z0-9à-ỹ]|$)`, 'i');
@@ -223,4 +218,3 @@ export function isAllergyMatch(targetAllergy, candidateItemOrText) {
     });
   });
 }
-

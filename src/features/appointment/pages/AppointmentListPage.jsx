@@ -90,7 +90,6 @@ const formatCountdown = (totalSeconds) => {
 };
 
 export default function AppointmentListPage() {
-  // Query parameters state — default empty date filter so ALL appointments (newest first) show immediately
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [status, setStatus] = useState('');
@@ -106,7 +105,6 @@ export default function AppointmentListPage() {
   const canBookAppointment = isPatient;
   const checkInButtonLabel = isReceptionist ? 'Mã Check-in' : 'Chi tiết lịch hẹn';
 
-  // Data & UI states
   const [appointments, setAppointments] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -114,13 +112,11 @@ export default function AppointmentListPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [dateValidationWarning, setDateValidationWarning] = useState(null);
 
-  // Detail Modal state
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showPosSlipModal, setShowPosSlipModal] = useState(false);
 
-  // Live timer for reservation hold countdown (ticks every 1 second)
   const [now, setNow] = useState(Date.now());
   const autoCancelledIdsRef = React.useRef(new Set());
 
@@ -131,7 +127,6 @@ export default function AppointmentListPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // When hold timer hits 0 for any pending appointment, automatically cancel hold & return slot
   useEffect(() => {
     appointments.forEach((apt) => {
       const aptId = apt.appointmentId || apt.id;
@@ -165,7 +160,6 @@ export default function AppointmentListPage() {
     });
   }, [appointments, now]);
 
-  // Debounce keyword input (350ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedKeyword(keyword.trim());
@@ -174,7 +168,6 @@ export default function AppointmentListPage() {
     return () => clearTimeout(timer);
   }, [keyword]);
 
-  // Validate date range invariant: fromDate <= toDate & <= 90 days
   const isDateRangeValid = useMemo(() => {
     if (!fromDate || !toDate) {
       setDateValidationWarning(null);
@@ -195,7 +188,6 @@ export default function AppointmentListPage() {
     return true;
   }, [fromDate, toDate]);
 
-  // Fetch appointments from API
   const fetchAppointments = useCallback(async () => {
     if (!isDateRangeValid) return;
 
@@ -234,7 +226,6 @@ export default function AppointmentListPage() {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  // Open detail modal
   const handleViewDetail = async (id) => {
     setDetailLoading(true);
     setShowDetailModal(true);
@@ -243,7 +234,7 @@ export default function AppointmentListPage() {
       setSelectedAppointment(res);
     } catch (err) {
       console.error('Failed to get appointment detail:', err);
-      // Fallback to item in table list
+
       const fallback = appointments.find((a) => a.appointmentId === id || a.id === id);
       setSelectedAppointment(fallback || null);
     } finally {
@@ -259,7 +250,6 @@ export default function AppointmentListPage() {
     setPage(1);
   };
 
-  // Badge mapping for AppointmentStatus enum
   const renderStatusBadge = (rawStatus) => {
     const s = String(rawStatus || '').toUpperCase();
     switch (s) {
@@ -322,7 +312,7 @@ export default function AppointmentListPage() {
 
   return (
     <div className="bms-appt-list">
-      {/* Header title */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">
@@ -352,7 +342,6 @@ export default function AppointmentListPage() {
         </div>
       </div>
 
-      {/* Date Validation Alert */}
       {dateValidationWarning && (
         <Alert variant="warning" className="d-flex align-items-center gap-2 py-2 mb-3 border-0 rounded-3">
           <AlertTriangle  size="1em"/>
@@ -360,14 +349,12 @@ export default function AppointmentListPage() {
         </Alert>
       )}
 
-      {/* Error Alert */}
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="py-2 mb-3 border-0 rounded-3">
           {errorMsg}
         </Alert>
       )}
 
-      {/* Unified Single-Row Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '220px' }}>
           <Search className="text-muted" size={13} />
@@ -635,7 +622,7 @@ export default function AppointmentListPage() {
             <Pagination size="sm" className="mb-0">
               <Pagination.First onClick={() => setPage(1)} disabled={page === 1} />
               <Pagination.Prev onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} />
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
                 let pNum = page - 2 + idx;
                 if (page < 3) pNum = idx + 1;
@@ -658,7 +645,6 @@ export default function AppointmentListPage() {
           </div>
         )}
 
-      {/* Appointment Detail Modal */}
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
@@ -770,7 +756,6 @@ export default function AppointmentListPage() {
                 </div>
               )}
 
-              {/* Check-in Slip & QR Code Section */}
               {isPaidOrConfirmed(selectedAppointment.status) ? (
                 <div className="p-3 bg-light rounded-4 text-center mt-3">
                   <div className="d-flex align-items-center justify-content-center gap-2 mb-2">
@@ -794,7 +779,6 @@ export default function AppointmentListPage() {
                     />
                   </div>
 
-                  {/* Prominent Manual Check-in Code */}
                   <div className="mx-auto" style={{ maxWidth: '420px' }}>
                     <div className="small text-muted fw-semibold mb-1">Mã lịch hẹn (xuất trình khi đến quầy):</div>
                     <div className="h4 fw-bold font-monospace text-primary bg-white p-2 rounded-3 mb-1 tracking-wider">
@@ -814,7 +798,6 @@ export default function AppointmentListPage() {
                     Theo quy định an toàn xét nghiệm, <strong>Mã QR tiếp đón và Mã check-in tự động tại phòng Lab sẽ chỉ được hiển thị sau khi đơn xét nghiệm hoàn tất thanh toán</strong>.
                   </p>
 
-                  {/* Reservation countdown box */}
                   {(() => {
                     const remaining = getRemainingSeconds(selectedAppointment.createdAt, now);
                     const isExpired = remaining <= 0;
@@ -892,7 +875,6 @@ export default function AppointmentListPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Unified POS K80 Appointment Slip Modal */}
       {selectedAppointment && (
         <PosThermalModal
           show={showPosSlipModal}

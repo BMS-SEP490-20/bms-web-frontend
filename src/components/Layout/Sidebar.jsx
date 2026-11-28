@@ -18,7 +18,7 @@ const { ADMIN, MANAGER, LAB, DOCTOR, RECEPTIONIST, PATIENT } = ROLES;
  * Internal developer codes (UCxx) have been removed in favor of clean consumer-grade labeling.
  */
 const MENU_SECTIONS = [
-  // ================= ADMIN SECTIONS (FULL GOVERNANCE, CATALOG, INVENTORY & MONITORING) =================
+
   {
     category: 'Quản Trị Hệ Thống & Bảo Mật',
     roles: [ADMIN],
@@ -55,7 +55,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= MANAGER SECTIONS (ĐIỀU HÀNH CHUYÊN MÔN LAB — TRA CỨU CHỈ XEM DANH MỤC MASTER) =================
   {
     category: 'Điều Hành Chuyên Môn Lab',
     roles: [MANAGER],
@@ -93,7 +92,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= LAB TECHNICIAN SECTIONS (PHÂN TẦNG THEO MỨC ĐỘ ƯU TIÊN & LUỒNG CHÍNH) =================
   {
     category: 'Luồng Chính · Xử Lý Mẫu',
     roles: [LAB],
@@ -125,7 +123,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= DOCTOR SECTIONS (BÁC SĨ LÂM SÀNG — LUỒNG KHÁM DEMO) =================
   {
     category: 'Khám Bệnh & Xử Lý Kết Quả',
     roles: [DOCTOR],
@@ -148,7 +145,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= RECEPTIONIST SECTIONS =================
   {
     category: 'Tiếp Đón & Điều Phối Bệnh Nhân',
     roles: [RECEPTIONIST],
@@ -168,7 +164,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= PATIENT SECTION =================
   {
     category: 'Cổng Bệnh Nhân',
     roles: [PATIENT],
@@ -181,7 +176,6 @@ const MENU_SECTIONS = [
     ]
   },
 
-  // ================= COMMON ACCOUNT SECTION =================
   {
     category: 'Tài Khoản',
     roles: ALL_ROLES,
@@ -206,7 +200,6 @@ export default function Sidebar({
   const toggleSidebar = onToggle || onToggleCollapse;
   const closeSidebar = onCloseMobile || onClose;
 
-  // Safe user & role resolution
   const user = useMemo(() => {
     if (auth?.user) return auth.user;
     try {
@@ -241,7 +234,6 @@ export default function Sidebar({
     navigate('/login');
   };
 
-  // Filter sections strictly by current roleId
   const filteredSections = useMemo(() => {
     return MENU_SECTIONS
       .filter(sec => roleId !== null && sec.roles.includes(roleId))
@@ -255,7 +247,7 @@ export default function Sidebar({
   const isActive = (path) => {
     const current = location.pathname;
     if (path === '/dashboard') return current === '/dashboard';
-    // Exact hoặc con path ( /qc/xxx ). Không để /laboratory/qc khớp nhầm /laboratory/qc-flags
+
     if (current === path) return true;
     return current.startsWith(`${path}/`);
   };
@@ -280,7 +272,7 @@ export default function Sidebar({
         borderRight: 'none'
       }}
     >
-      {/* Brand Header with Crisp BMS Logo */}
+
       <div
         style={{
           padding: isCollapsed ? '16px 8px' : '18px 20px',
@@ -355,7 +347,6 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Navigation Sections */}
       <div
         style={{
           flex: 1,
@@ -479,11 +470,10 @@ export default function Sidebar({
         ))}
       </div>
 
-      {/* User Profile & Session Footer */}
       {!isCollapsed ? (
         <div className="bms-sidebar-footer">
           <div className="d-flex align-items-center justify-content-between gap-2">
-            {/* User Avatar + Name + Role */}
+
             <div className="d-flex align-items-center gap-2 overflow-hidden flex-grow-1">
               <div className="bms-sidebar-avatar-circle" title={displayName}>
                 {initials}
@@ -521,7 +511,6 @@ export default function Sidebar({
               </div>
             </div>
 
-            {/* Quick Actions: Logout & Collapse */}
             <div className="d-flex align-items-center gap-1 flex-shrink-0">
               <button
                 onClick={handleLogout}

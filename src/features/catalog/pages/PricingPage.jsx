@@ -51,7 +51,6 @@ export default function PricingPage() {
     return () => { isMounted = false; };
   }, []);
 
-  // One row per real service package returned by the API (no derived or invented prices)
   const pricingItems = useMemo(
     () =>
       packages.map((pkg) => ({
@@ -69,7 +68,6 @@ export default function PricingPage() {
     [packages]
   );
 
-  // Unique categories
   const categories = useMemo(() => {
     const set = new Set();
     pricingItems.forEach(item => {
@@ -78,7 +76,6 @@ export default function PricingPage() {
     return ['ALL', ...Array.from(set)];
   }, [pricingItems]);
 
-  // Filtered items
   const filteredItems = useMemo(() => {
     return pricingItems.filter(item => {
       const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
@@ -100,7 +97,7 @@ export default function PricingPage() {
       </div>
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Top Executive Spotlight Header (Pure 2D Flat Card Container) */}
+
       <section className="pt-4 pb-3 mb-5">
         <div className="container" style={{ maxWidth: '1400px' }}>
           <div
@@ -125,7 +122,6 @@ export default function PricingPage() {
                   Toàn bộ đơn giá được công khai minh bạch theo quy chuẩn của Bộ Y Tế. Đã bao gồm trọn gói vật tư lấy mẫu vô trùng, tự động giảm trừ chi phí BHYT, hỗ trợ xuất hóa đơn điện tử VAT và Bác sĩ chuyên khoa tư vấn kết quả.
                 </p>
 
-                {/* 3 Gold Commitments Badges */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div style={{ background: '#EFF6FF', borderRadius: '8px', padding: '5px 12px', fontSize: '11.5px', color: '#1E60E6', fontWeight: 650 }}>
                     Không phụ phí ẩn &amp; Miễn phí vật tư lấy mẫu
@@ -139,7 +135,6 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              {/* Pricing Hero SVG Illustration */}
               <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
                 <img
                   src="/assets/bms/svg/hero/pricing/pricing-hero.svg"
@@ -188,11 +183,9 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 2. Filter & Search Toolbar Section */}
       <section className="d-print-none py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
-          
-          {/* Unified Toolbar Card - Pure 2D Flat, Zero Border */}
+
           <div
             style={{
               backgroundColor: '#FFFFFF',
@@ -203,8 +196,7 @@ export default function PricingPage() {
             }}
           >
             <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-              
-              {/* Search Input - Clean High-Contrast Input with No Collision */}
+
               <div className="position-relative" style={{ maxWidth: '460px', width: '100%' }}>
                 <FaSearch
                   style={{
@@ -259,7 +251,6 @@ export default function PricingPage() {
                 )}
               </div>
 
-              {/* Category Pills & Count */}
               <div className="d-flex flex-wrap align-items-center gap-2">
                 {categories.map((cat) => {
                   const isActive = selectedCategory === cat;
@@ -296,7 +287,6 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 2.5 V3.1 3-Card Trust Row (Above Table) */}
       <section className="py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="bms-pricing-trust-row">
@@ -345,7 +335,6 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 3. Slim Elegant Service List (No Table, No Thead) */}
       <section className="bms-pricing-list-section py-2 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           {loading ? (
@@ -378,7 +367,7 @@ export default function PricingPage() {
                     key={item.id}
                     className="bms-pricing-row"
                   >
-                    {/* Left: Code + Name + Details Meta */}
+
                     <div className="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
                       <span
                         style={{
@@ -448,7 +437,6 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    {/* Right: Price + Book CTA */}
                     <div className="d-flex align-items-center justify-content-between justify-content-md-end gap-3 flex-shrink-0 pt-2 pt-md-0 border-top border-md-0" style={{ minWidth: '240px' }}>
                       <div className="text-md-end">
                         <div className="fw-bold font-monospace" style={{ fontSize: '16.5px', color: '#0F172A', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
@@ -503,7 +491,6 @@ export default function PricingPage() {
         </Container>
       </section>
 
-      {/* 4. Compliance & Policy Footer Card (Pure 2D Flat, Zero Border) */}
       <section className="py-3 pb-5 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div
@@ -553,4 +540,3 @@ export default function PricingPage() {
     </div>
   );
 }
-

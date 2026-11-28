@@ -1,9 +1,3 @@
-/* ==========================================================================
-   BMS Foundation - loaded last. One calm flat system over Bootstrap:
-   Geist type scale, one accent blue, no shadows, no borders, no uppercase,
-   status as text + dot, icons removed from decorative contexts.
-   ========================================================================== */
-
 :root {
   --bs-primary: #1E60E6;
   --bs-primary-rgb: 30, 96, 230;
@@ -13,7 +7,6 @@
   --bs-font-monospace: var(--font-mono);
   --bs-border-color: transparent;
 
-  /* Type scale */
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-md: 14px;
@@ -22,7 +15,6 @@
   --fs-2xl: 28px;
   --fs-3xl: 36px;
 
-  /* Radius scale */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 20px;
@@ -33,7 +25,6 @@ code, kbd, pre, samp, .font-monospace, .adm-code {
   font-size: 0.92em;
 }
 
-/* ---- Type hierarchy ---- */
 h1, .h1 { font-size: var(--fs-2xl) !important; font-weight: 700 !important; letter-spacing: -0.03em !important; line-height: 1.2 !important; }
 h2, .h2 { font-size: var(--fs-xl) !important; font-weight: 650 !important; letter-spacing: -0.02em !important; line-height: 1.3 !important; }
 h3, .h3 { font-size: var(--fs-lg) !important; font-weight: 650 !important; letter-spacing: -0.015em !important; }
@@ -48,10 +39,8 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
 .small, small { font-size: var(--fs-xs) !important; }
 .text-muted, .text-secondary { color: #64748B !important; }
 
-/* ---- No uppercase micro-labels anywhere ---- */
 .text-uppercase, thead th, th, .card-header, .badge, label, .form-label { text-transform: none !important; }
 
-/* ---- No shadows ---- */
 .shadow, .shadow-sm, .shadow-lg, .shadow-xs, .modal-content, .dropdown-menu, .toast, .popover {
   box-shadow: none !important;
 }
@@ -59,7 +48,6 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
 .modal-content { background: #FFFFFF; }
 .modal-backdrop.show { opacity: 0.35; }
 
-/* ---- Pure Flat 2D Surfaces: No Borders, Uniform Clean Cards ---- */
 .card, .bms-soft-card, .bms-step-card-box, .bms-section,
 .bms-metric-soft-card, .bms-step-soft-card, .bms-package-soft-card, .bms-trust-soft-card,
 .bms-hero-tracker-card, .bms-pricing-table-section, .bms-search-pill-capsule,
@@ -83,12 +71,10 @@ h4, .h4, h5, .h5, h6, .h6 { font-size: var(--fs-md) !important; font-weight: 650
 .card-body { padding: 12px 14px !important; }
 hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 
-/* Dashboard tables are styled only in bms-workbench.css. */
 .table {
   margin-bottom: 0;
 }
 
-/* ---- Status: unified soft pastel pills across all components ---- */
 .badge[class*="bg-"]:not([style*="background"]),
 .badge[class*="text-bg-"]:not([style*="background"]) {
   background: #F1F5F9 !important;
@@ -118,7 +104,6 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 .badge.bg-info:not([style*="background"]), .badge.text-bg-info, .badge.bg-info-subtle { background: #F0F9FF !important; color: #0369A1 !important; }
 .badge.bg-secondary:not([style*="background"]), .badge.bg-light:not([style*="background"]), .badge.bg-dark:not([style*="background"]), .badge.bg-secondary-subtle { background: #F1F5F9 !important; color: #475569 !important; }
 
-/* ---- Alerts: calm inline note ---- */
 .alert {
   border: none !important;
   border-radius: var(--r-md) !important;
@@ -132,7 +117,6 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 .alert-success { background: #ECFDF5; color: #065F46; }
 .alert-info, .alert-primary { background: #EEF4FD; color: #1E40AF; }
 
-/* ---- Forms and buttons: flat, crisp medical SaaS styling ---- */
 .bms-app-layout input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout select,
 .form-control, .form-select {
@@ -151,7 +135,6 @@ hr { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; opacity: 1; }
 }
 textarea.form-control { height: auto !important; }
 
-/* Universal Standalone Search Pill & Search Input Wrapper (Works Everywhere in System) */
 .bms-app-layout .bms-search-input-pill,
 .bms-app-layout .bms-search-input-wrapper {
   display: flex !important;
@@ -174,7 +157,6 @@ textarea.form-control { height: auto !important; }
   background: #FFFFFF !important;
 }
 
-/* Universal InputGroup Container (Prevent transparent frame or lost border) */
 .bms-app-layout .input-group {
   display: flex !important;
   flex-wrap: nowrap !important;
@@ -191,7 +173,6 @@ textarea.form-control { height: auto !important; }
   box-shadow: 0 0 0 3px rgba(30, 96, 230, 0.15) !important;
 }
 
-/* One frame only. An input inside a search group must not draw a second rounded border. */
 .bms-app-layout .input-group > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-search-input-wrapper > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
 .bms-app-layout .bms-search-input-pill > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]) {
@@ -227,7 +208,6 @@ textarea.form-control { height: auto !important; }
 }
 .form-label { font-size: var(--fs-xs); font-weight: 600; color: #475569; margin-bottom: 6px; }
 
-/* ---- Universal Fix for Bootstrap InputGroup: Prevent split border and rounded corner collision ---- */
 .input-group > .form-control:not(:first-child),
 .input-group > .form-select:not(:first-child) {
   border-top-left-radius: 0 !important;
@@ -263,7 +243,7 @@ textarea.form-control { height: auto !important; }
   margin-right: 4px !important;
   padding: 0 4px 0 8px !important;
 }
-/* ---- Buttons: 100% Pure 2D Flat, Zero Hover Glow, Zero Blurry Shadows ---- */
+
 .btn, button, .bms-search-submit-btn, .bms-btn-mint-cta, .btn-primary, .btn-secondary, .btn-success {
   box-shadow: none !important;
   transform: none !important;
@@ -293,7 +273,6 @@ textarea.form-control { height: auto !important; }
 .page-item.active .page-link { background: #1E60E6 !important; color: #FFF !important; }
 .progress { box-shadow: none !important; background: #F1F5F9 !important; }
 
-/* ---- Shared page primitives (used by PageHeader, StatRow, Field) ---- */
 .bms-page { max-width: 1400px; margin: 0 auto; padding: 24px 24px 56px; }
 
 .bms-statrow { display: flex; flex-wrap: wrap; gap: 12px 56px; padding: 4px 0 28px; }
@@ -336,5 +315,3 @@ textarea.form-control { height: auto !important; }
 .fa-spin {
   animation: bms-spin 1s linear infinite;
 }
-
-

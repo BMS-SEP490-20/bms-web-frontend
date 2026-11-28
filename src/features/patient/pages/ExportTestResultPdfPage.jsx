@@ -36,7 +36,6 @@ export default function ExportTestResultPdfPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // 1. Load patient profile
   useEffect(() => {
     let isMounted = true;
     async function loadProfile() {
@@ -53,7 +52,6 @@ export default function ExportTestResultPdfPage() {
     return () => { isMounted = false; };
   }, [storedUser]);
 
-  // Determine active patient identifier
   const activePatientId = useMemo(() => {
     return (
       patientProfile?.patientCode ||
@@ -66,7 +64,6 @@ export default function ExportTestResultPdfPage() {
     );
   }, [patientProfile, storedUser]);
 
-  // 2. Dynamically determine the latest signed order ID if not passed via URL
   useEffect(() => {
     let isMounted = true;
 
@@ -79,10 +76,8 @@ export default function ExportTestResultPdfPage() {
       if (!activePatientId) return;
 
       try {
-        // Try fetching patient results list
         const resultsList = await fetchPatientResultsList(activePatientId);
         if (isMounted && Array.isArray(resultsList) && resultsList.length > 0) {
-          // Find first signed or released report
           const latestSigned = resultsList.find(r => r.VerificationHash || r.digitalSignature || r.OverallStatus === 'Released' || r.status === 'Approved') || resultsList[0];
           const resolvedId = latestSigned.OrderId || latestSigned.orderId || latestSigned.OrderCode || latestSigned.id;
           if (resolvedId) {
@@ -91,7 +86,6 @@ export default function ExportTestResultPdfPage() {
           }
         }
 
-        // Fallback: try test-history endpoint
         const historyData = await getTestHistory({ patientId: activePatientId, page: 1, pageSize: 5 });
         if (isMounted && historyData?.items && Array.isArray(historyData.items) && historyData.items.length > 0) {
           const latestAvailable = historyData.items.find(item => item.available) || historyData.items[0];
@@ -114,7 +108,6 @@ export default function ExportTestResultPdfPage() {
     return () => { isMounted = false; };
   }, [paramOrderId, queryOrderId, activePatientId]);
 
-  // 3. Load detailed test result for active order
   const loadResult = useCallback(async (id) => {
     if (!id) {
       setLoading(false);
@@ -124,7 +117,7 @@ export default function ExportTestResultPdfPage() {
     setErrorMessage('');
     try {
       let data = await fetchPatientResult(id);
-      // Barcode / sample id often 404 on /order/{id} — resolve TRE via test-history
+
       if (!data && activePatientId) {
         try {
           const historyData = await getTestHistory({ patientId: activePatientId, page: 1, pageSize: 50 });
@@ -161,7 +154,6 @@ export default function ExportTestResultPdfPage() {
     }
   }, [activeOrderId, loadResult]);
 
-  // Export PDF (A4 Medical Standard)
   const handleExportPdf = async () => {
     if (!result) return;
     setExporting(true);
@@ -199,7 +191,6 @@ export default function ExportTestResultPdfPage() {
     }
   };
 
-  // Secure Doctor Share Link
   const handleShare = async () => {
     if (!result) return;
     setSharing(true);
@@ -237,7 +228,6 @@ export default function ExportTestResultPdfPage() {
     });
   };
 
-  // Format helper for Vietnamese date/time & gender
   const formatVnTime = (raw) => {
     if (!raw) return '—';
     const d = new Date(raw);
@@ -249,7 +239,6 @@ export default function ExportTestResultPdfPage() {
     .replace(/\bFemale\b/gi, 'Nữ')
     .replace(/\bOther\b/gi, 'Khác');
 
-  // Normalized display fields supporting both camelCase (ASP.NET Core default) and PascalCase
   const orderCodeDisplay = result?.orderCode || result?.OrderCode || result?.orderId || result?.OrderId || activeOrderId || '—';
   const appointmentCodeDisplay = result?.appointmentCode || result?.AppointmentCode || orderCodeDisplay;
   const patientNameDisplay = result?.patientName || result?.PatientName || patientProfile?.fullName || storedUser?.fullName || 'Bệnh nhân BMS';
@@ -281,9 +270,9 @@ export default function ExportTestResultPdfPage() {
 
   return (
     <div className="bms-patient-portal-page" style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px' }}>
-      {/* Main Content Area */}
+
       <div style={{ maxWidth: '1020px', margin: '12px auto 24px', padding: '0 16px' }}>
-        {/* Notification Alerts */}
+
         {errorMessage && (
           <div className="alert alert-danger d-flex align-items-center no-print" role="alert" style={{ borderRadius: '8px', fontSize: '13.5px' }}>
             <AlertTriangle className="me-2 flex-shrink-0" size="1em" />
@@ -308,7 +297,7 @@ export default function ExportTestResultPdfPage() {
           </div>
         ) : result ? (
           <>
-            {/* Page Header / Action Toolbar */}
+
             <div className="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2 no-print">
               <div>
                 <div style={{ fontSize: '12.5px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
@@ -349,9 +338,8 @@ export default function ExportTestResultPdfPage() {
               </div>
             </div>
 
-            {/* Official Printable Diagnostic Report Sheet */}
             <div className="card shadow-sm border-0 mb-4" id="printable-diagnostic-report" style={{ borderRadius: '10px', overflow: 'hidden', background: '#ffffff' }}>
-              {/* Report Header: Clinic Branding & ISO 15189 Notice */}
+
               <div className="p-2 border-bottom" style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)' }}>
                 <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
                   <div>
@@ -388,7 +376,6 @@ export default function ExportTestResultPdfPage() {
                 </div>
               </div>
 
-              {/* 1. CLINICAL METADATA CARD (Mã bệnh nhân, Barcode, Bác sĩ chỉ định, Người thực hiện, v.v.) */}
               <div className="p-3 bg-white border-bottom" style={{ fontSize: '13px' }}>
                 <div className="row g-2">
                   <div className="col-md-6">
@@ -433,7 +420,6 @@ export default function ExportTestResultPdfPage() {
                 </div>
               </div>
 
-              {/* 2. PARAMETERS TABLE WITH H/L WARNING FLAGS */}
               <div className="p-3">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
@@ -477,7 +463,6 @@ export default function ExportTestResultPdfPage() {
                           const isLow = flagRaw === 'L' || flagRaw === 'LL';
                           const isAbnormal = param.isAbnormal || param.IsAbnormal || isHigh || isLow;
 
-                          // Flag badge styles
                           let flagBg = '#e2e8f0';
                           let flagColor = '#475569';
                           let flagLabel = 'N';
@@ -547,7 +532,6 @@ export default function ExportTestResultPdfPage() {
                 </div>
               </div>
 
-              {/* 3. DOCTOR'S CLINICAL ASSESSMENT & FINAL DIAGNOSIS */}
               <div className="p-3 border-top bg-light">
                 <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                   <div className="d-flex align-items-center gap-2">
@@ -598,7 +582,6 @@ export default function ExportTestResultPdfPage() {
                 </div>
               </div>
 
-              {/* 4. DIGITAL SIGNATURE BLOCK (TRƯỞNG KHOA KÝ SỐ SHA-256) */}
               <div className="p-3 border-top">
                 <div className="row text-center">
                   <div className="col-6">
@@ -653,7 +636,6 @@ export default function ExportTestResultPdfPage() {
         )}
       </div>
 
-      {/* Doctor Share Modal */}
       {showShareModal && shareData && (
         <div className="modal show d-block no-print" tabIndex="-1" style={{ background: 'rgba(15, 23, 42, 0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">

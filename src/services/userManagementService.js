@@ -9,9 +9,6 @@
 import api from '../config/api';
 import { ROLES, ROLE_LABELS, resolveRoleId } from '../constants/roles';
 
-// WHY: role IDs and labels come from src/constants/roles.js (1 Admin, 2 Manager, 3 Lab, 4 Doctor,
-// 5 Receptionist, 6 Patient). The old table here said 2 = doctor, 3 = lab, 4 = receptionist, 5 = patient,
-// so accounts were shown (and created) with the wrong role. Keys match the backend's lower-case role names.
 export const ROLE_MAPPING = Object.freeze({
   [ROLES.ADMIN]: 'admin',
   [ROLES.MANAGER]: 'manager',
@@ -29,7 +26,6 @@ export const ROLE_NAMES = Object.freeze(
 export const normalizeUser = (item = {}) => {
   if (!item) return null;
 
-  // Unknown or missing role stays unknown (null) instead of silently becoming a patient.
   const roleId = resolveRoleId(item);
   const finalRole = roleId ? ROLE_MAPPING[roleId] : 'unknown';
 
@@ -128,7 +124,7 @@ export const userManagementService = {
       email: userData.email,
       phoneNumber: userData.phone || userData.phoneNumber,
       fullName: userData.fullName,
-      // No default: the backend rejects a missing/out-of-range RoleId with 400 (must be 1–6).
+
       roleId: Number(userData.roleId),
       isActive: Boolean(userData.isActive),
       employeeCode: userData.employeeCode || '',
@@ -276,7 +272,6 @@ export const userManagementService = {
         return res.data.data;
       }
     } catch {
-      // Handled silently
     }
     return [];
   },

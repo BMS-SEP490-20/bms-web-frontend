@@ -20,7 +20,6 @@ export const fetchPatientResult = async (orderId) => {
             return data;
         }
     } catch {
-        // Try fallback report endpoint
     }
 
     try {
@@ -44,7 +43,6 @@ export const exportResultPdf = async (orderId) => {
         const data = response.data?.data || response.data;
         if (data && data.printableHtml) return data;
     } catch {
-        // Try fallback PDF report endpoint
     }
 
     try {
@@ -84,7 +82,6 @@ export const fetchPatientResultsList = async (patientId) => {
         const data = response.data?.data || response.data;
         if (Array.isArray(data) && data.length > 0) return data;
     } catch {
-        // Try fallback
     }
 
     try {
@@ -92,7 +89,6 @@ export const fetchPatientResultsList = async (patientId) => {
         const data = response.data?.data || response.data;
         if (Array.isArray(data)) return data;
     } catch {
-        // ignore
     }
 
     return [];

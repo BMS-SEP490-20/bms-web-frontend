@@ -35,7 +35,6 @@ function printHtmlDocument(html) {
     try {
       if (iframe.parentNode) document.body.removeChild(iframe);
     } catch {
-      /* ignore */
     }
   };
   const trigger = () => {
@@ -46,7 +45,7 @@ function printHtmlDocument(html) {
       setTimeout(cleanup, 1500);
     }
   };
-  // Đợi ảnh/SVG render trong iframe
+
   if (doc.readyState === "complete") {
     setTimeout(trigger, 250);
   } else {
@@ -58,7 +57,6 @@ function printHtmlDocument(html) {
 export default function SampleListPage() {
   const navigate = useNavigate();
 
-  // Danh sách lịch hẹn đã tiếp đón
   const [appointments, setAppointments] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
@@ -69,7 +67,6 @@ export default function SampleListPage() {
     return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   };
 
-  // Kỹ thuật viên / Điều dưỡng lấy mẫu đang đăng nhập
   const currentUser = useMemo(() => {
     try {
       const raw =
@@ -85,7 +82,6 @@ export default function SampleListPage() {
   const collectorId = currentUser?.id || currentUser?._id || currentUser?.username || "LAB-001";
   const collectorName = currentUser?.fullName || currentUser?.name || currentUser?.username || "KTV đang đăng nhập";
 
-  // Thiết lập đợt gom mẫu (tự động gắn theo ca trực hiện tại & giờ hệ thống, không cho chọn tay)
   const [location, setLocation] = useState(
     currentUser?.roomName || currentUser?.department || "Phòng Lấy Mẫu Lab (Theo ca trực)"
   );
@@ -94,17 +90,14 @@ export default function SampleListPage() {
   const [batchConfirmed, setBatchConfirmed] = useState(false);
   const [confirmedTubeRows, setConfirmedTubeRows] = useState([]);
 
-  // Thông báo phản hồi
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Modal in mã vạch Barcode
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [barcodeData, setBarcodeData] = useState(null);
   const [loadingBarcodes, setLoadingBarcodes] = useState(false);
 
-  // Tải danh sách bệnh nhân đã tiếp đón & đồng bộ phòng Lab theo ca trực của KTV đang đăng nhập
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -126,7 +119,6 @@ export default function SampleListPage() {
     };
     loadData();
 
-    // Tự động lấy phòng Lab được Quản lý phân công trong ca trực hôm nay
     (async () => {
       try {
         const today = new Date();
@@ -154,12 +146,10 @@ export default function SampleListPage() {
           if (roomLabel) setLocation(roomLabel);
         }
       } catch {
-        // non-fatal
       }
     })();
   }, [collectorId, collectorName]);
 
-  // Danh sách lọc với phòng thủ mảng nghiêm ngặt
   const safeAppointments = Array.isArray(appointments) ? appointments : [];
   const getRowKey = (apt) => apt?.orderId || apt?.orderNumber || apt?.appointmentId || "";
 
@@ -177,7 +167,6 @@ export default function SampleListPage() {
 
   const aptPag = usePagination(filteredAppointments, 10);
 
-  // Chọn / Bỏ chọn từng mục
   const handleToggleSelect = (id) => {
     if (batchConfirmed) {
       setBatchConfirmed(false);
@@ -194,7 +183,6 @@ export default function SampleListPage() {
     setSelectedIds(next);
   };
 
-  // Chọn / Bỏ chọn tất cả
   const handleToggleSelectAll = () => {
     if (batchConfirmed) {
       setBatchConfirmed(false);
@@ -209,7 +197,6 @@ export default function SampleListPage() {
     }
   };
 
-  // Danh sách các chỉ định đã chọn
   const selectedAppointments = useMemo(() => {
     return safeAppointments.filter((apt) => selectedIds.has(getRowKey(apt)));
   }, [safeAppointments, selectedIds]);
@@ -228,14 +215,13 @@ export default function SampleListPage() {
       if (u && !ordered.some((x) => x.toUpperCase() === u)) ordered.push(String(t).toUpperCase() === "SERUM" ? "SST" : t);
     };
 
-    // API đã trả tubes theo y lệnh/gói → dùng đúng
     if (fromApi.length > 0) {
       fromApi.forEach(push);
       return ordered;
     }
 
     const pkg = `${apt?.packageName || ""} ${apt?.testPackageName || ""}`.toUpperCase();
-    // Có thể nhiều gói trên cùng lịch → gom đủ loại ống cần
+
     if (/CBC|HUYẾT ĐỒ|HUYET DO|TẾ BÀO|TE BAO|24 THÔNG|HEMAT|CÔNG THỨC MÁU/.test(pkg)) push("EDTA");
     if (/ĐÔNG|DONG MÁU|COAG|\bPT\b|APTT|FIBRINOGEN|INR|D-DIMER/.test(pkg)) push("CITRATE");
     if (/NaF|FLUOR|ĐƯỜNG HUYẾT|GLUCOSE|OGTT/.test(pkg)) push("NaF");
@@ -243,7 +229,6 @@ export default function SampleListPage() {
       push("SST");
     }
 
-    // Không khớp gì → 1 ống SST (serum mặc định), không bịa đủ 3
     if (ordered.length === 0) push("SST");
     return ordered;
   };
@@ -281,7 +266,6 @@ export default function SampleListPage() {
     return labels;
   };
 
-  // Xác nhận tạo đợt → ẩn nút → mở modal in nhãn (mỗi ống gắn đúng BN, không trùng)
   const handleConfirmList = async () => {
     if (selectedAppointments.length === 0) {
       setErrorMessage("Vui lòng chọn ít nhất một bệnh nhân để đưa vào đợt lấy mẫu xét nghiệm.");
@@ -359,7 +343,6 @@ export default function SampleListPage() {
       setSubmitting(false);
     }
 
-    // Ưu tiên nhãn API (đúng ống theo y lệnh); thiếu thì sinh local theo gói — không ép 3 ống ảo
     const localLabels = buildLocalLabelsForSelected();
     const labels = labelsFromApi.length > 0 ? labelsFromApi : localLabels;
     setConfirmedTubeRows(labels);
@@ -370,13 +353,11 @@ export default function SampleListPage() {
     setShowBarcodeModal(true);
     setLoadingBarcodes(false);
 
-    // Làm mới danh sách chỉ định chờ tiếp nhận (đơn vừa tiếp nhận sẽ rời Bước 1 và sang Bước 2)
     try {
       const refreshed = await fetchCheckedInAppointments();
       setAppointments(Array.isArray(refreshed) ? refreshed : []);
       setSelectedIds(new Set());
     } catch {
-      /* non-fatal */
     }
   };
 
@@ -468,7 +449,6 @@ export default function SampleListPage() {
     }
   };
 
-  // In mã vạch nhãn ống mẫu — luôn gắn SVG Code 128 (JsBarcode)
   const handlePrintBarcodes = async () => {
     if (!batchCode) {
       setErrorMessage("Vui lòng xác nhận đợt lấy mẫu trước khi in nhãn mã vạch.");
@@ -559,7 +539,7 @@ export default function SampleListPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -580,7 +560,6 @@ export default function SampleListPage() {
         </div>
       </div>
 
-      {/* Single-Line Filter Bar extracted above tables */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <Search className="bms-search-icon"  size="1em"/>
@@ -605,7 +584,6 @@ export default function SampleListPage() {
         </span>
       </div>
 
-      {/* Thông báo Alert */}
       {successMessage && (
         <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 mb-4 rounded-3">
           <div className="d-flex align-items-center gap-2">
@@ -636,9 +614,8 @@ export default function SampleListPage() {
         </div>
       )}
 
-      {/* Bố cục 2 cột chuẩn y khoa */}
       <div className="row g-4">
-        {/* Cột trái: Bệnh nhân đã tiếp đón */}
+
         <div className="col-lg-5">
           <section className="bms-table-standalone-section m-0 h-100 d-flex flex-column">
             <div className="bms-table-standalone-header">
@@ -750,9 +727,8 @@ export default function SampleListPage() {
           </section>
         </div>
 
-        {/* Cột phải: Danh sách ống mẫu & Thiết lập đợt lấy */}
         <div className="col-lg-7">
-          {/* Standalone Table 1: Bảng danh sách ống mẫu được chọn */}
+
           <section className="bms-table-standalone-section mb-4">
             <div className="bms-table-standalone-header">
               <div>
@@ -788,7 +764,6 @@ export default function SampleListPage() {
                     </tr>
                   ) : (
                     (() => {
-                      // 1 hàng / ống — chỉ hiển thị Barcode thật SAU KHI KTV xác nhận tiếp nhận ở Bước 1
                       const rows =
                         confirmedTubeRows.length > 0
                           ? confirmedTubeRows.map((lbl, i) => ({
@@ -864,7 +839,6 @@ export default function SampleListPage() {
             </div>
           </section>
 
-          {/* Card 2: Thiết lập thông tin đợt lấy mẫu */}
           <div className="card shadow-sm rounded-4 bg-white" style={{ border: "1px solid #E2E8F0" }}>
             <div className="card-header py-3 px-4 border-bottom" style={{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" }}>
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
@@ -899,7 +873,6 @@ export default function SampleListPage() {
                 </div>
               </div>
 
-              {/* Nút hành động */}
               <div className="d-flex gap-2 flex-wrap">
                 {!batchConfirmed ? (
                   <button
@@ -940,7 +913,6 @@ export default function SampleListPage() {
         </div>
       </div>
 
-      {/* Modal: nhãn dán ống nghiệm (1 nhãn = 1 ống), không phải bảng kê */}
       {showBarcodeModal && (
         <div
           className="modal show d-block"
@@ -996,7 +968,7 @@ export default function SampleListPage() {
                               className="tube-sticker border border-dark bg-white p-2 rounded-2"
                               style={{ maxWidth: 320, margin: "0 auto" }}
                             >
-                              {/* Hàng 1: Họ tên IN ĐẬM + Năm sinh/Giới tính + Loại ống */}
+
                               <div className="d-flex justify-content-between align-items-start gap-1">
                                 <div className="text-start lh-sm">
                                   <div className="fw-bold text-dark text-uppercase" style={{ fontSize: "0.78rem" }}>
@@ -1014,7 +986,6 @@ export default function SampleListPage() {
                                 </span>
                               </div>
 
-                              {/* Hàng 2: Mã BN (PID) + Mã Y lệnh & Thứ tự ống (1/3) */}
                               <div
                                 className="d-flex justify-content-between align-items-center border-bottom pb-1 mb-1 mt-1 font-monospace"
                                 style={{ fontSize: "0.64rem", color: "#334155" }}
@@ -1026,12 +997,10 @@ export default function SampleListPage() {
                                 </span>
                               </div>
 
-                              {/* Hàng 3: Mã vạch CODE128 thật + Tube ID chung gốc */}
                               <div className="d-flex justify-content-center bg-white py-1">
                                 <Code128Barcode value={code} height={38} width={1.25} showText />
                               </div>
 
-                              {/* Hàng 4: Mã xét nghiệm + Giờ in tem */}
                               <div
                                 className="d-flex justify-content-between align-items-center border-top pt-1 mt-1"
                                 style={{ fontSize: "0.63rem", color: "#475569" }}

@@ -15,6 +15,5 @@ export default function usePageTransition() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
 
-  // Return static class — animation is purely CSS, runs once on mount
   return 'bms-page-enter';
 }

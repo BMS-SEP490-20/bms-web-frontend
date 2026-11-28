@@ -17,18 +17,15 @@ import TablePagination, { usePagination } from '../../../components/ui/TablePagi
 import { auditLogService } from '../../../services/auditLogService';
 
 const AuditLogPage = () => {
-  // Immutable audit events retrieved from MongoDB collection 'audit_logs'.
   const [logs, setLogs] = useState([]);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Search and categorization filters forwarded to backend query
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  // Detail Modal view (Read-only)
   const [selectedLog, setSelectedLog] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -73,11 +70,9 @@ const AuditLogPage = () => {
     fetchLogs();
   }, [fetchLogs]);
 
-  // Safe logs array guard
   const safeLogs = useMemo(() => (Array.isArray(logs) ? logs : []), [logs]);
   const logsPag = usePagination(safeLogs, 10);
 
-  // Export to CSV
   const handleExportCSV = () => {
     if (safeLogs.length === 0) return;
     const headers = [
@@ -150,7 +145,7 @@ const AuditLogPage = () => {
 
   return (
     <div className="w-100 py-2">
-      {/* Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -188,7 +183,6 @@ const AuditLogPage = () => {
         </div>
       </div>
 
-      {/* KPI Quad Cards */}
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
@@ -242,7 +236,6 @@ const AuditLogPage = () => {
         </Row>
       )}
 
-      {/* Single-Line Flat Filter Bar */}
       <section className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <LucideSearch className="bms-search-icon"  size="1em"/>
@@ -314,7 +307,6 @@ const AuditLogPage = () => {
         </span>
       </section>
 
-      {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-body">
           {loading && safeLogs.length === 0 ? (
@@ -423,7 +415,6 @@ const AuditLogPage = () => {
         </div>
       </div>
 
-      {/* Detail Modal (Read-only) */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0 bg-light">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2 fs-5">

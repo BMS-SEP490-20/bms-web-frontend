@@ -108,7 +108,6 @@ export function resolveShiftSlot(shift) {
   return 1;
 }
 
-
 /**
  * Resolves a shift to one of the 3 staff categories: 'doctor', 'lab', 'receptionist'.
  */
@@ -144,7 +143,6 @@ export function WeeklyShiftTimetable({
 }) {
   const todayStr = useMemo(() => toIsoDateStr(new Date()), []);
 
-  // Compute the 7 days of the week starting from currentWeekMonday
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
       const date = addDays(currentWeekMonday, i);
@@ -166,7 +164,6 @@ export function WeeklyShiftTimetable({
   const weekNumber = useMemo(() => getWeekNumber(currentWeekMonday), [currentWeekMonday]);
   const sundayDate = useMemo(() => addDays(currentWeekMonday, 6), [currentWeekMonday]);
 
-  // Group shifts into a map: `dateStr_slotId` -> array of shifts
   const shiftMatrix = useMemo(() => {
     const map = new Map();
     for (const shift of shifts) {
@@ -208,7 +205,6 @@ export function WeeklyShiftTimetable({
     }
   };
 
-  // Helper to render shift status
   const renderShiftStatus = (shift) => {
     const st = String(shift.status || 'Approved').toLowerCase();
     if (st === 'cancelled' || st === 'đã hủy' || st === 'rejected' || st === 'từ chối') {
@@ -243,7 +239,6 @@ export function WeeklyShiftTimetable({
     );
   };
 
-  // Helper to format code & title
   const getShiftTitle = (shift) => {
     const raw = shift.shiftId || shift.id;
     const code = raw ? (String(raw).startsWith('CA-') ? String(raw) : `CA-${String(raw).slice(-6).toUpperCase()}`) : 'CA-01';
@@ -257,7 +252,7 @@ export function WeeklyShiftTimetable({
 
   return (
     <div className="timetable-container">
-      {/* 1. Week Navigation & Quick Actions Toolbar */}
+
       <div className="timetable-toolbar">
         <div className="timetable-week-nav">
           <button
@@ -308,7 +303,6 @@ export function WeeklyShiftTimetable({
         </div>
       </div>
 
-      {/* 2. Main Timetable Matrix Table */}
       <div className="timetable-scroll-wrapper">
         <table className="timetable-grid">
           <thead>
@@ -331,13 +325,12 @@ export function WeeklyShiftTimetable({
           <tbody>
             {slots.map((slot) => (
               <tr key={slot.id}>
-                {/* Slot index cell */}
+
                 <td className="timetable-slot-cell">
                   <span className="timetable-slot-num">{slot.name}</span>
                   <span className="timetable-slot-time">{slot.timeWindow}</span>
                 </td>
 
-                {/* 7 Days cells */}
                 {weekDays.map((day) => {
                   const key = `${day.dateStr}_${slot.id}`;
                   const slotShifts = shiftMatrix.get(key) || [];
@@ -364,15 +357,12 @@ export function WeeklyShiftTimetable({
                               onClick={() => onSelectShift && onSelectShift(shift)}
                               title="Nhấn để xem chi tiết ca trực"
                             >
-                              {/* Line 1: Title */}
+
                               <div className="timetable-card-title text-truncate">
                                 <BookOpen className="card-icon"  size="1em"/>
                                 <span className="text-truncate">{getShiftTitle(shift)}</span>
                               </div>
 
-                              
-
-                              {/* Line 3: Time & Mode */}
                               <div className="timetable-card-time">
                                 <Clock size={11} className="flex-shrink-0" />
                                 <span>{timeStr}</span>
@@ -381,13 +371,11 @@ export function WeeklyShiftTimetable({
                                 </span>
                               </div>
 
-                              {/* Line 4: Location */}
                               <div className="timetable-card-room text-truncate">
                                 <MapPin size={11} className="flex-shrink-0 text-muted" />
                                 <span className="text-truncate">{roomStr}</span>
                               </div>
 
-                              {/* Line 5: Staff */}
                               <div className="timetable-card-staff text-truncate">
                                 <User size={10} className="flex-shrink-0 text-muted" />
                                 <span className="text-truncate">{staffStr}</span>
@@ -425,7 +413,6 @@ export function WeeklyShiftTimetable({
         </table>
       </div>
 
-      {/* 3. Small Legend Footer */}
       <div className="d-flex flex-wrap align-items-center justify-content-between mt-3 text-muted small px-1">
         <div className="d-flex align-items-center gap-3">
           <span className="d-flex align-items-center gap-1 text-primary fw-semibold">

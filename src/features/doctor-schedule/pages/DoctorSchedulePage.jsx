@@ -41,8 +41,6 @@ const SHIFT_STATUS_META = {
   Rejected: { label: 'Từ Chối', badge: 'bg-danger-subtle text-danger border border-danger-subtle' }
 };
 
-
-
 function toDateInputStr(val) {
   if (!val) return '';
   const d = new Date(val);
@@ -86,7 +84,6 @@ const EMPTY_FORM = {
   notes: ''
 };
 
-
 export function getShiftRoleCategory(shift) {
   if (!shift) return 'doctor';
   const role = String(shift.employeeRole || '').toLowerCase();
@@ -108,9 +105,8 @@ export function getShiftRoleCategory(shift) {
 }
 
 export default function DoctorSchedulePage() {
-  // Filter & pagination states
-  const [activeRoleTab, setActiveRoleTab] = useState('doctor'); // 'doctor' | 'lab' | 'receptionist'
-  const [viewMode, setViewMode] = useState('timetable'); // 'timetable' | 'table'
+  const [activeRoleTab, setActiveRoleTab] = useState('doctor');
+  const [viewMode, setViewMode] = useState('timetable');
   const [currentWeekMonday, setCurrentWeekMonday] = useState(() => getMonday(new Date()));
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
@@ -122,13 +118,10 @@ export default function DoctorSchedulePage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
 
-  // Rooms & Staff from DB
   const [rooms, setRooms] = useState([]);
   const [staffList, setStaffList] = useState([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
 
-  // WHY: UC35 Create/Update/Delete Shifts are restricted to Manager role per ROLE-PERMISSION-MATRIX §1.
-  // Admin views all clinic schedules read-only; System Admin accounts are strictly excluded from shift rostering.
   const storedUser = React.useMemo(() => getStoredUser(), []);
   const canViewAllShifts = React.useMemo(() => hasRole(storedUser, ROLES.ADMIN, ROLES.MANAGER), [storedUser]);
   const canManageShifts = React.useMemo(() => hasRole(storedUser, ROLES.MANAGER), [storedUser]);
@@ -155,7 +148,6 @@ export default function DoctorSchedulePage() {
         return null;
       })
       .catch(() => {
-        // Handled silently; error banner shown on shift load if API unreachable
       })
       .finally(() => setLoadingStaff(false));
   }, []);
@@ -165,11 +157,9 @@ export default function DoctorSchedulePage() {
         if (Array.isArray(data)) setRooms(data);
       })
       .catch(() => {
-        // Handled silently; error banner shown on shift load if API unreachable
       });
   }, []);
 
-  // Data states
   const [shifts, setShifts] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -177,19 +167,16 @@ export default function DoctorSchedulePage() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Create / Update Modal states
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingShift, setEditingShift] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // View Detail Modal states
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailShift, setDetailShift] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Delete Confirmation Modal states
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingShift, setDeletingShift] = useState(null);
   const [deleteError, setDeleteError] = useState('');
@@ -234,8 +221,6 @@ export default function DoctorSchedulePage() {
     loadShifts();
   }, [loadShifts]);
 
-  // Summary KPIs
-  // Role categories for tabs
   const doctorShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'doctor'), [shifts]);
   const labShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'lab'), [shifts]);
   const receptionistShifts = React.useMemo(() => shifts.filter(s => getShiftRoleCategory(s) === 'receptionist'), [shifts]);
@@ -247,8 +232,6 @@ export default function DoctorSchedulePage() {
     return shifts;
   }, [activeRoleTab, doctorShifts, labShifts, receptionistShifts, shifts]);
 
-  // Strict personal shift scoping:
-  // Non-manager/non-admin staff (e.g. Lab tech Hưng) only see shifts assigned to them!
   const myRoleShifts = React.useMemo(() => {
     if (canViewAllShifts) {
       return currentRoleShifts;
@@ -269,7 +252,6 @@ export default function DoctorSchedulePage() {
     });
   }, [canViewAllShifts, currentRoleShifts, shifts, currentUserId, currentUserName]);
 
-  // Filter staff list based on active tab
   const displayStaffList = React.useMemo(() => {
     const list = staffList || [];
     if (activeRoleTab === 'doctor') {
@@ -291,10 +273,6 @@ export default function DoctorSchedulePage() {
     return list;
   }, [staffList, activeRoleTab]);
 
-  // Role-specific room filtering:
-  // - Lab: only Lab rooms
-  // - Doctor: only Doctor / Clinic exam rooms
-  // - Receptionist: front desk counters (QUAY-01..03) so multiple receptionists can share a shift without room collision
   const availableRoomsForRole = React.useMemo(() => {
     if (activeRoleTab === 'receptionist') {
       return [
@@ -316,7 +294,7 @@ export default function DoctorSchedulePage() {
         { id: 'LAB-02', name: 'Phòng Xét Nghiệm Miễn Dịch - Vi Sinh', department: 'Khoa Xét Nghiệm', floor: '2' }
       ];
     }
-    // Doctor / Clinic examination rooms
+
     const docRooms = rooms.filter(r => {
       const type = String(r.type || '').toLowerCase();
       const dept = String(r.department || '').toLowerCase();
@@ -337,7 +315,6 @@ export default function DoctorSchedulePage() {
   const totalCapacity = shifts.reduce((acc, s) => acc + (s.maxPatients || 0), 0);
   const uniqueRooms = new Set(shifts.map(s => s.roomId).filter(Boolean)).size;
 
-  // Open Create Modal
   const handleOpenCreate = (prefill) => {
     setEditingShift(null);
     let shiftType = 'Morning';
@@ -351,7 +328,6 @@ export default function DoctorSchedulePage() {
       shiftType = 'Evening';
       shiftStart = '17:30';
       shiftEnd = '20:30';
-
     }
 
     let defaultRole = 'Doctor';
@@ -378,7 +354,6 @@ export default function DoctorSchedulePage() {
     setShowFormModal(true);
   };
 
-  // Open Edit Modal
   const handleOpenEdit = (shift) => {
     setEditingShift(shift);
     setFormData({
@@ -399,7 +374,6 @@ export default function DoctorSchedulePage() {
     setShowFormModal(true);
   };
 
-  // Open View Detail Modal
   const handleOpenDetail = async (shift) => {
     setDetailShift(shift);
     setShowDetailModal(true);
@@ -408,20 +382,17 @@ export default function DoctorSchedulePage() {
       const fresh = await fetchShiftById(shift.id);
       if (fresh) setDetailShift(fresh);
     } catch {
-      // Keep row snapshot if detail call fails
     } finally {
       setDetailLoading(false);
     }
   };
 
-  // Open Delete Confirmation Modal
   const handleOpenDelete = (shift) => {
     setDeletingShift(shift);
     setDeleteError('');
     setShowDeleteModal(true);
   };
 
-  // Handle ShiftType change -> auto-set default start/end times
   const handleShiftTypeChange = (newType) => {
     const meta = SHIFT_TYPE_META[newType];
     setFormData(prev => ({
@@ -432,8 +403,6 @@ export default function DoctorSchedulePage() {
     }));
   };
 
-  
-  // Submit Create or Update Shift
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -498,7 +467,6 @@ export default function DoctorSchedulePage() {
     }
   };
 
-  // Confirm Delete Shift
   const handleConfirmDelete = async () => {
     if (!deletingShift) return;
     setDeleting(true);
@@ -535,7 +503,7 @@ export default function DoctorSchedulePage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -594,7 +562,6 @@ export default function DoctorSchedulePage() {
         </Alert>
       )}
 
-      {/* 2. KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
@@ -646,7 +613,6 @@ export default function DoctorSchedulePage() {
         </Col>
       </Row>
 
-      {/* Role Tabs Bar: Bác Sĩ (Doctor) / Xét Nghiệm (Lab) / Lễ Tân (Receptionist) */}
       {canViewAllShifts && (
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
         <div className="d-flex align-items-center gap-2 p-1 bg-white border rounded-pill shadow-sm">
@@ -697,7 +663,6 @@ export default function DoctorSchedulePage() {
 
       )}
 
-      {/* Single-Line Filter Bar (Extracted OUT above Standalone Table) */}
       {viewMode === 'table' && (
         <div className="bms-filter-bar mb-3">
           <div className="bms-search-input-pill">
@@ -779,14 +744,13 @@ export default function DoctorSchedulePage() {
         </div>
       )}
 
-      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <div className="bms-table-standalone-section">
-        {/* Header Toolbar */}
+
         <div className="bms-table-standalone-header">
           <div className="mb-2 mb-lg-0">
             <h5 className="bms-table-standalone-title">
               <Calendar style={{ color: '#1E60E6' }}  size="1em"/>
-              {viewMode === 'timetable' 
+              {viewMode === 'timetable'
                 ? (activeRoleTab === 'doctor' ? 'Thời Khóa Biểu Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Thời Khóa Biểu Ca Trực KTV Xét Nghiệm' : 'Thời Khóa Biểu Ca Trực Lễ Tân Tiếp Đón')
                 : (activeRoleTab === 'doctor' ? 'Danh Sách Ca Trực Bác Sĩ' : activeRoleTab === 'lab' ? 'Danh Sách Ca Trực Xét Nghiệm' : 'Danh Sách Ca Trực Lễ Tân')}
             </h5>
@@ -827,7 +791,6 @@ export default function DoctorSchedulePage() {
           </div>
         </div>
 
-        {/* Content Body */}
         {viewMode === 'timetable' ? (
           <div className="p-3 bg-white">
             <WeeklyShiftTimetable
@@ -847,7 +810,7 @@ export default function DoctorSchedulePage() {
           </div>
         ) : (
           <>
-            {/* Data Table */}
+
             <div className="bms-table-standalone-body">
               <div className="table-responsive">
                 <Table hover className="align-middle mb-0">
@@ -1009,7 +972,6 @@ export default function DoctorSchedulePage() {
               </div>
             </div>
 
-            {/* Pagination Footer */}
             <div className="bg-white border-top py-3 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
               <div className="text-muted small">
                 Tổng cộng <strong>{totalItems}</strong> ca làm việc • Trang <strong>{page}</strong> / <strong>{totalPages}</strong>
@@ -1039,9 +1001,6 @@ export default function DoctorSchedulePage() {
         )}
       </div>
 
-      {/* =====================================================================
-          MODAL 1: CREATE / UPDATE SHIFT POPUP
-         ===================================================================== */}
       <Modal
         show={showFormModal}
         onHide={() => !submitting && setShowFormModal(false)}
@@ -1065,7 +1024,6 @@ export default function DoctorSchedulePage() {
               </Alert>
             )}
 
-            {/* Select staff from User Management database */}
             <div className="p-3 rounded-3 bg-light border mb-3">
               <div className="d-flex justify-content-between align-items-center mb-1">
                 <Form.Label className="small fw-bold text-dark mb-0 d-flex align-items-center gap-2">
@@ -1145,7 +1103,6 @@ export default function DoctorSchedulePage() {
               )}
             </div>
 
-            {/* Read-only locked employee details card */}
             <div className="p-3 rounded-3 bg-white border mb-3">
               <Row className="g-3">
                 <Col md={4}>
@@ -1196,7 +1153,6 @@ export default function DoctorSchedulePage() {
               </Row>
             </div>
 
-              
             <Row className="g-3">
               <Col md={6}>
                 <div>
@@ -1356,9 +1312,6 @@ export default function DoctorSchedulePage() {
         </Form>
       </Modal>
 
-      {/* =====================================================================
-          MODAL 2: VIEW SHIFT DETAIL POPUP
-         ===================================================================== */}
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
@@ -1385,7 +1338,7 @@ export default function DoctorSchedulePage() {
 
             return (
               <div className="d-flex flex-column gap-3">
-                {/* Header Banner */}
+
                 <div className="d-flex flex-wrap justify-content-between align-items-center p-3 rounded-3 bg-primary-subtle border border-primary-subtle gap-2">
                   <div className="d-flex align-items-center gap-2">
                     <span className="badge bg-primary px-3 py-2 fs-6 font-monospace shadow-sm">
@@ -1409,7 +1362,7 @@ export default function DoctorSchedulePage() {
                 </div>
 
                 <Row className="g-3">
-                  {/* Left Column: MOH Personnel Credentials */}
+
                   <Col md={7}>
                     <div className="p-3 border rounded-3 h-100 bg-white">
                       <div className="small fw-semibold text-muted text-uppercase mb-2 d-flex align-items-center justify-content-between">
@@ -1454,7 +1407,6 @@ export default function DoctorSchedulePage() {
                     </div>
                   </Col>
 
-                  {/* Right Column: Time & Room Info */}
                   <Col md={5}>
                     <div className="p-3 border rounded-3 h-100 bg-white d-flex flex-column justify-content-between">
                       <div>
@@ -1493,7 +1445,6 @@ export default function DoctorSchedulePage() {
                     </div>
                   </Col>
 
-                  {/* Note Section */}
                   <Col xs={12}>
                     <div className="p-3 border rounded-3 bg-light small">
                       <div className="text-muted fw-semibold mb-1">Ghi chú phân ca:</div>
@@ -1523,9 +1474,6 @@ export default function DoctorSchedulePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* =====================================================================
-          MODAL 3: DELETE SHIFT CONFIRMATION POPUP
-         ===================================================================== */}
       <Modal
         show={showDeleteModal}
         onHide={() => !deleting && setShowDeleteModal(false)}

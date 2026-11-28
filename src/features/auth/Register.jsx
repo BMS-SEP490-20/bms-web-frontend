@@ -16,7 +16,6 @@ import api from '../../config/api';
 import OtpInputGroup from '../../components/common/OtpInputGroup';
 import './styles/RegisterWizard.css';
 
-// 63 Tỉnh / Thành phố trực thuộc Trung ương của Việt Nam
 const FALLBACK_PROVINCES = [
   { code: '92', name: 'Thành phố Cần Thơ' },
   { code: '48', name: 'Thành phố Đà Nẵng' },
@@ -93,13 +92,12 @@ const WIZARD_STEPS = [
 export default function Register() {
   const navigate = useNavigate();
 
-  // Active step (1 to 4)
   const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    identityCard: '', // CCCD 12 số
+    identityCard: '',
     phoneNumber: '',
     password: '',
     confirmPassword: '',
@@ -111,10 +109,9 @@ export default function Register() {
     districtName: '',
     wardCode: '',
     wardName: '',
-    streetAddress: '' // Số nhà, tên đường (Bắt buộc)
+    streetAddress: ''
   });
 
-  // Administrative units state loaded dynamically from MongoDB
   const [provinces, setProvinces] = useState(FALLBACK_PROVINCES);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
@@ -131,14 +128,12 @@ export default function Register() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // OTP Verification State
   const [otpValue, setOtpValue] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState('');
   const [countdown, setCountdown] = useState(60);
   const [otpAttempts, setOtpAttempts] = useState(0);
 
-  // 1. Fetch Provinces from MongoDB backend API on mount
   useEffect(() => {
     let isMounted = true;
     async function fetchProvinces() {
@@ -158,7 +153,6 @@ export default function Register() {
     return () => { isMounted = false; };
   }, []);
 
-  // 2. Fetch Districts when Province changes
   useEffect(() => {
     if (!formData.provinceCode) {
       setDistricts([]);
@@ -185,7 +179,6 @@ export default function Register() {
     return () => { isMounted = false; };
   }, [formData.provinceCode]);
 
-  // 3. Fetch Wards when District changes
   useEffect(() => {
     if (!formData.districtCode) {
       setWards([]);
@@ -211,7 +204,6 @@ export default function Register() {
     return () => { isMounted = false; };
   }, [formData.districtCode]);
 
-  // Countdown timer for resend OTP
   useEffect(() => {
     let timer;
     if (currentStep === 4 && countdown > 0) {
@@ -222,7 +214,6 @@ export default function Register() {
     return () => clearInterval(timer);
   }, [currentStep, countdown]);
 
-  // Single-field validator for real-time per-field feedback
   const validateSingleField = (name, value, allData = formData) => {
     let error = '';
     const valStr = typeof value === 'string' ? value.trim() : (value || '');
@@ -400,7 +391,6 @@ export default function Register() {
         data
       };
     } catch {
-      // Allow server-side RegisterAsync to enforce if availability probe fails
       return { available: true };
     } finally {
       setCheckingAvailability(false);
@@ -506,7 +496,6 @@ export default function Register() {
     return parts.join(', ');
   }, [formData.streetAddress, formData.wardName, formData.districtName, formData.provinceName]);
 
-  // Real-time password rules evaluation
   const passwordRules = useMemo(() => {
     const pwd = formData.password || '';
     return {
@@ -519,7 +508,6 @@ export default function Register() {
     };
   }, [formData.password, formData.confirmPassword]);
 
-  // Step 1 Validation (All fields checked at once, individual feedback populated)
   const validateStep1 = () => {
     const fields = ['fullName', 'identityCard', 'phoneNumber', 'email', 'dateOfBirth', 'gender'];
     const newErrors = {};
@@ -542,7 +530,6 @@ export default function Register() {
     return true;
   };
 
-  // Step 2 Validation (All fields checked at once, individual feedback populated)
   const validateStep2 = () => {
     const fields = ['provinceCode', 'districtCode', 'wardCode', 'streetAddress'];
     const newErrors = {};
@@ -565,7 +552,6 @@ export default function Register() {
     return true;
   };
 
-  // Step 3 Validation (All fields checked at once, individual feedback populated)
   const validateStep3 = () => {
     const fields = ['password', 'confirmPassword'];
     const newErrors = {};
@@ -588,7 +574,6 @@ export default function Register() {
     return true;
   };
 
-  // Step navigation handlers
   const handleNextToStep2 = async (e) => {
     e?.preventDefault();
     setErrorMsg('');
@@ -619,7 +604,6 @@ export default function Register() {
     }
   };
 
-  // Submits registration and advances to Step 4 (OTP)
   const handleRegisterAndSendOtp = async (e) => {
     e?.preventDefault();
     setErrorMsg('');
@@ -667,7 +651,6 @@ export default function Register() {
     }
   };
 
-  // Step 4: Verify OTP
   const handleVerifyOtp = async (e) => {
     e?.preventDefault();
     if (!otpValue || otpValue.trim().length !== 6) {
@@ -748,7 +731,7 @@ export default function Register() {
       <Row className="justify-content-center">
         <Col md={10} lg={9}>
           <Card className="shadow-sm border-0 rounded-4 overflow-hidden">
-            {/* Header */}
+
             <Card.Header
               className="py-4 px-4 border-bottom text-center"
               style={{ backgroundColor: '#F8FAFC', borderColor: '#EAEEF4' }}
@@ -762,7 +745,7 @@ export default function Register() {
             </Card.Header>
 
             <Card.Body className="p-4 p-md-5">
-              {/* Stepper Wizard Progress Bar */}
+
               <div className="bms-stepper-container">
                 <div className="bms-stepper-track">
                   <div
@@ -797,7 +780,6 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Alert Notifications */}
               {errorMsg && (
                 <Alert
                   variant="danger"
@@ -817,9 +799,6 @@ export default function Register() {
                 </Alert>
               )}
 
-              {/* ============================================================ */}
-              {/* STEP 1: THÔNG TIN ĐỊNH DANH BỆNH NHÂN                        */}
-              {/* ============================================================ */}
               {currentStep === 1 && (
                 <div className="bms-wizard-content">
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
@@ -837,7 +816,7 @@ export default function Register() {
                   </div>
 
                   <Row className="g-3 mb-4">
-                    {/* Full Name */}
+
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -860,7 +839,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* CCCD (12 số) */}
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -889,7 +867,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Phone */}
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -918,7 +895,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Email */}
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -946,7 +922,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Date of Birth & Gender */}
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1029,9 +1004,6 @@ export default function Register() {
                 </div>
               )}
 
-              {/* ============================================================ */}
-              {/* STEP 2: ĐỊA CHỈ THƯỜNG TRÚ (PHÂN CẤP HÀNH CHÍNH VIỆT NAM)    */}
-              {/* ============================================================ */}
               {currentStep === 2 && (
                 <div className="bms-wizard-content">
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
@@ -1049,7 +1021,7 @@ export default function Register() {
                   </div>
 
                   <Row className="g-3 mb-4">
-                    {/* Tỉnh / Thành phố Dropdown */}
+
                     <Col md={4}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1079,7 +1051,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Quận / Huyện Dropdown */}
                     <Col md={4}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1111,7 +1082,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Phường / Xã Dropdown */}
                     <Col md={4}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1143,7 +1113,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Số nhà, tên đường (BẮT BUỘC NHẬP) */}
                     <Col md={12}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small d-flex align-items-center justify-content-between">
@@ -1171,7 +1140,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Live Address Preview Card */}
                     {fullAddressPreview && (
                       <Col md={12}>
                         <div className="p-3 bg-light rounded-3 border d-flex align-items-center gap-2">
@@ -1209,9 +1177,6 @@ export default function Register() {
                 </div>
               )}
 
-              {/* ============================================================ */}
-              {/* STEP 3: THIẾT LẬP MẬT KHẨU & ĐỐI SOÁT HỒ SƠ LÂM SÀNG        */}
-              {/* ============================================================ */}
               {currentStep === 3 && (
                 <div className="bms-wizard-content">
                   <div className="d-flex align-items-center justify-content-between pb-2 mb-3 border-bottom">
@@ -1229,7 +1194,7 @@ export default function Register() {
                   </div>
 
                   <Row className="g-3 mb-4">
-                    {/* Password */}
+
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1262,7 +1227,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Confirm Password */}
                     <Col md={6}>
                       <Form.Group>
                         <Form.Label className="fw-semibold small">
@@ -1295,7 +1259,6 @@ export default function Register() {
                       </Form.Group>
                     </Col>
 
-                    {/* Password Checklist indicator */}
                     <Col md={12}>
                       <div className="p-3 bg-light rounded-3 border small">
                         <div className="fw-semibold text-muted mb-2">Quy chuẩn mật khẩu an toàn:</div>
@@ -1329,7 +1292,6 @@ export default function Register() {
                       </div>
                     </Col>
 
-                    {/* Summary Review Card */}
                     <Col md={12}>
                       <div className="bms-review-card mt-2">
                         <div className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
@@ -1395,9 +1357,6 @@ export default function Register() {
                 </div>
               )}
 
-              {/* ============================================================ */}
-              {/* STEP 4: XÁC THỰC MÃ OTP (KÍCH HOẠT HỒ SƠ)                     */}
-              {/* ============================================================ */}
               {currentStep === 4 && (
                 <div className="bms-wizard-content">
                   <div className="bms-otp-container py-3">

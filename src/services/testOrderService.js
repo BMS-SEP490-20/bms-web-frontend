@@ -6,7 +6,6 @@
 import api from '../config/api';
 
 const testOrderService = {
-  // Internal: safely extract array from various API shapes
   _toArray(data) {
     if (!data) return [];
     if (Array.isArray(data)) return data;
@@ -16,8 +15,7 @@ const testOrderService = {
     if (Array.isArray(data?.result)) return data.result;
     return [];
   },
-  // Get test parameters for a given service/package id
-  // Tries GET /gateway/testorder/testparameter/{id}
+
   getTestParameters: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -29,8 +27,6 @@ const testOrderService = {
     }
   },
 
-  // Get a test package by id
-  // GET /gateway/testorder/testpackage/{id}
   getTestPackage: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -44,12 +40,10 @@ const testOrderService = {
     }
   },
 
-  // Get list of test packages (paginated envelope)
-  // GET /gateway/testorder/testpackage
   getTestPackages: async () => {
     try {
       const resp = await api.get('/gateway/testorder/testpackage');
-      // Expected shape: { message, page, pageSize, total, data: [...] }
+
       const data = Array.isArray(resp.data)
         ? resp.data
         : (Array.isArray(resp.data?.data) ? resp.data.data : []);
@@ -61,38 +55,27 @@ const testOrderService = {
     }
   },
 
-  // Compatibility wrapper: return all test packages (same shape expected by callers)
-  // options: { fetchAll: boolean, params: object }
   getAllTestPackages: async (options = {}) => {
     try {
-      // If fetchAll is true: fetch up to 1000 records in one call
-      // Otherwise: use default pagination
       const pageSize = options.fetchAll ? 1000 : 20;
 
-      // Execute single API request
       const resp = await api.get('/gateway/testorder/testpackage', {
         params: { page: 1, pageSize: pageSize }
       });
 
-      // Normalize API response format (array or object)
       const data = Array.isArray(resp.data) ? resp.data : (resp.data?.data || []);
 
       return { success: true, data: data, raw: resp };
-
     } catch (e) {
       return { success: false, message: 'Lỗi lấy danh sách gói xét nghiệm', data: [] };
     }
   },
 
-  // Get all testpackagecriterion entries
-  // GET /gateway/testorder/testpackagecriterion
-  // options: { fetchAll: boolean, params: object }
   getAllTestPackageCriteria: async (options = {}) => {
     try {
       const resp = await api.get('/gateway/testorder/testpackagecriterion', { params: options.params || {} });
       let data = testOrderService._toArray(resp.data);
 
-      // If caller requests all items, iterate page-by-page (don't rely on changing pageSize)
       if (options.fetchAll) {
         try {
           const collected = [];
@@ -105,7 +88,7 @@ const testOrderService = {
             for (const it of pageData) collected.push(it);
             if (pageData.length < respPageSize) break;
             page += 1;
-            if (page > 200) break; // safety cap
+            if (page > 200) break;
           }
           return { success: true, data: collected, raw: resp.data };
         } catch (e) {
@@ -115,7 +98,7 @@ const testOrderService = {
       if (!data || data.length === 0) {
         data = testOrderService._toArray(resp.data?.data);
       }
-      // Helpful debug: surface raw response keys and a sample record for troubleshooting
+
       try {
       } catch (e) { }
       return { success: true, data, raw: resp.data };
@@ -124,9 +107,6 @@ const testOrderService = {
     }
   },
 
-  // Get testpackagecriterion filtered by package id (preferred if backend supports query params)
-  // Supports options.fetchAll to iterate through paginated responses
-  // GET /gateway/testorder/testpackagecriterion?test_package_id={id}
   getTestPackageCriteria: async (packageId, options = {}) => {
     try {
       if (!packageId) return { success: false, message: 'Missing packageId' };
@@ -135,7 +115,7 @@ const testOrderService = {
         try {
           if (options.fetchAll) {
             const collected = [];
-            // initial probe to determine pageSize
+
             const probeResp = await api.get('/gateway/testorder/testpackagecriterion', { params: { [paramName]: packageId, page: 1 } });
             let probeData = testOrderService._toArray(probeResp.data);
             if ((!probeData || probeData.length === 0) && Array.isArray(probeResp.data?.data)) probeData = probeResp.data.data;
@@ -159,25 +139,24 @@ const testOrderService = {
           const resp = await api.get('/gateway/testorder/testpackagecriterion', { params });
           let data = testOrderService._toArray(resp.data);
           if (!data || data.length === 0) data = testOrderService._toArray(resp.data?.data);
-          // If backend responded with some data (even empty array is valid), return it but annotate param used
+
           try {
           } catch (e) { }
           return { success: true, data, raw: resp.data, source: 'filtered', paramName };
         } catch (err) {
-          // try next param name
         }
       }
-      // If param-based filtering failed or backend expects path-based filter, try path variants
+
       const pathCandidates = [
         `/gateway/testorder/testpackagecriterion/${packageId}/criteria`,
         `/gateway/testorder/testpackage/${packageId}/criteria`,
-        `/gateway/testorder/testpackagecriterion/${packageId}` // fallback: existing id path
+        `/gateway/testorder/testpackagecriterion/${packageId}`
       ];
       for (const path of pathCandidates) {
         try {
           if (options.fetchAll) {
             const collected = [];
-            // probe initial to infer pageSize
+
             const probeResp = await api.get(path, { params: { page: 1 } });
             let probeData = testOrderService._toArray(probeResp.data);
             if ((!probeData || probeData.length === 0) && Array.isArray(probeResp.data?.data)) probeData = probeResp.data.data;
@@ -203,14 +182,13 @@ const testOrderService = {
         } catch (err) {
         }
       }
-      // If all attempts failed
+
       return { success: false, message: 'Filtered package-criteria not available (all param attempts failed)', source: 'filtered-failed' };
     } catch (error) {
       return { success: false, message: 'Filtered package-criteria not available', source: 'filtered-error' };
     }
   },
 
-  // New: Get package criteria via explicit path endpoint if backend exposes /testpackage/{id}/criteria
   getPackageCriteriaById: async (packageId) => {
     try {
       if (!packageId) return { success: false, message: 'Missing packageId' };
@@ -223,8 +201,6 @@ const testOrderService = {
     }
   },
 
-  // Get a single test criterion by id
-  // GET /gateway/testorder/testcriterion/{id}
   getTestCriterion: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -238,37 +214,32 @@ const testOrderService = {
     }
   },
 
-  // Get all test criteria (convenience helper)
-  // GET /gateway/testorder/testcriterion
-  // options: { fetchAll: boolean, params: object }
   getAllTestCriteria: async (options = {}) => {
     try {
       const resp = await api.get('/gateway/testorder/testcriterion', { params: options.params || {} });
       let data = testOrderService._toArray(resp.data);
 
-      // If caller requests all items, iterate page-by-page (don't rely on changing pageSize)
       if (options.fetchAll) {
         try {
           const collected = [];
           let page = 1;
-          // try to infer per-page size from initial response, otherwise default to 50
+
           const respPageSize = Number(resp.data?.pageSize || resp.data?.page_size || resp.data?.pageSize || 0) || (Array.isArray(data) ? data.length : 0) || 50;
           while (true) {
             const pagedResp = await api.get('/gateway/testorder/testcriterion', { params: { page, pageSize: respPageSize } });
             const pageData = testOrderService._toArray(pagedResp.data);
             if (!pageData || pageData.length === 0) break;
             for (const it of pageData) collected.push(it);
-            // if returned less than requested per page, probably last page
+
             if (pageData.length < respPageSize) break;
             page += 1;
-            if (page > 200) break; // safety cap
+            if (page > 200) break;
           }
           return { success: true, data: collected, raw: resp.data };
         } catch (e) {
         }
       }
 
-      // Normalize fallback to data.data
       if ((!data || data.length === 0) && Array.isArray(resp.data?.data)) {
         return { success: true, data: resp.data.data, raw: resp.data };
       }
@@ -278,26 +249,24 @@ const testOrderService = {
     }
   },
 
-  // Convenience: get criteria objects for a packageId by reading packagecriterion and fetching criterion entries
   getCriteriaForPackage: async (packageId) => {
     try {
       if (!packageId) return { success: false, message: 'Missing packageId' };
-      // Prefer a filtered query for package->criterion links (backend should support this)
+
       let triedFiltered = false;
       let pkRes = { success: false };
       try {
         triedFiltered = true;
-        // Request filtered links and fetch all pages when available to avoid missing links on page >1
+
         pkRes = await testOrderService.getTestPackageCriteria(packageId, { fetchAll: true }).catch(() => ({ success: false }));
       } catch (e) {
         pkRes = { success: false };
       }
       let sourceUsed = 'none';
-      // If filtered call not available or returned empty, fallback to full list
+
       if (pkRes && pkRes.success && Array.isArray(pkRes.data) && pkRes.data.length > 0) {
         sourceUsed = pkRes.source || 'filtered';
       } else {
-        // Request all pages when falling back so we don't miss links across pages
         pkRes = await testOrderService.getAllTestPackageCriteria({ fetchAll: true }).catch(() => ({ success: false }));
         sourceUsed = 'all';
       }
@@ -307,7 +276,7 @@ const testOrderService = {
       const links = pkRes.data || [];
       try {
       } catch (e) { }
-      // If links are empty, expose the raw payload so we can see what's returned by the gateway
+
       if ((!links || links.length === 0) && pkRes.raw) {
         try {
         } catch (e) { }
@@ -320,7 +289,6 @@ const testOrderService = {
       const normalizeForCompare = v => (v === undefined || v === null) ? '' : String(v).replace(/[^a-z0-9]/gi, '').toUpperCase();
       const digitsOnly = (v) => (String(v || '').match(/\d+/) || [''])[0];
 
-      // Build a set of candidate normalized package ids to match against link records
       const candidates = new Set();
       candidates.add(normalizeForCompare(packageId));
       candidates.add(pkgIdNorm);
@@ -355,10 +323,8 @@ const testOrderService = {
         return '';
       };
 
-      // Primary matching by normalized package id (strict)
       let related = links.filter(l => extractPkgId(l) === pkgIdNorm);
 
-      // If none matched strictly, try matching against various normalized candidates
       if (related.length === 0) {
         try {
           const candArr = Array.from(candidates).filter(Boolean);
@@ -372,12 +338,10 @@ const testOrderService = {
         } catch (e) { }
       }
 
-      // Debug: log initial match attempt
       try {
         const critIds = related.map(extractCritId).filter(Boolean);
       } catch (e) { }
 
-      // Fallback 1: if none matched, try to resolve package by code/name from package list then re-match
       if (related.length === 0) {
         try {
           const pkListRes = await testOrderService.getTestPackages();
@@ -391,7 +355,7 @@ const testOrderService = {
             if (found) {
               const foundId = normUpper(found.packageId || found.id || found.package_id || found.code || found.packageCode || found.name);
               related = links.filter(l => extractPkgId(l) === foundId);
-              // also try matching against normalized foundId and candidates
+
               try {
                 const foundNorm = normalizeForCompare(foundId);
                 candidates.add(foundNorm);
@@ -403,11 +367,9 @@ const testOrderService = {
             }
           }
         } catch (e) {
-          // ignore
         }
       }
 
-      // Fallback 2: try loose matching on link fields directly (case-insensitive string compare)
       if (related.length === 0) {
         const targetLower = String(packageId || '').toLowerCase();
         related = links.filter(l => {
@@ -423,7 +385,6 @@ const testOrderService = {
         });
       }
 
-      // Fallback 3: try matching by package name - get package object and compare names against link fields
       if (related.length === 0) {
         try {
           const pkgResp = await testOrderService.getTestPackage(packageId).catch(() => null);
@@ -446,10 +407,8 @@ const testOrderService = {
 
       if (related.length === 0) return { success: true, data: [] };
 
-      // Fetch each criterion (unique IDs)
       const critIds = Array.from(new Set(related.map(extractCritId).filter(Boolean)));
 
-      // Helper: try multiple id formats when fetching a criterion because backends differ
       const fetchCriterionVariants = async (rawId) => {
         if (!rawId) return null;
         const asStr = String(rawId || '').trim();
@@ -466,7 +425,6 @@ const testOrderService = {
               return res.data;
             }
           } catch (e) {
-            // ignore and try next variant
           }
         }
         return null;
@@ -483,7 +441,6 @@ const testOrderService = {
     }
   },
 
-  // Get test results by appointment
   getResultsByAppointment: async (appointmentId) => {
     try {
       if (!appointmentId) return { success: false, message: 'Missing appointmentId' };
@@ -492,7 +449,7 @@ const testOrderService = {
       return { success: true, data: Array.isArray(data) ? data : [data] };
     } catch (error) {
       const status = error?.response?.status;
-      // If backend returns 404 -> no results for this appointment (not necessarily an error)
+
       if (status === 404) {
         return { success: true, data: [] };
       }
@@ -500,9 +457,6 @@ const testOrderService = {
     }
   },
 
-  // Compatibility wrapper: get all test results
-  // GET /gateway/testorder/testresult
-  // options: { fetchAll: boolean, params: object }
   getAllTestResults: async (options = {}) => {
     try {
       const resp = await api.get('/gateway/testorder/testresult', { params: options.params || {} });
@@ -533,7 +487,6 @@ const testOrderService = {
     }
   },
 
-  // Create test result using the TestOrder contract
   createTestResult: async (payload) => {
     try {
       const response = await api.post('/gateway/testorder/testresult', payload);
@@ -542,31 +495,26 @@ const testOrderService = {
     } catch (error) {
       const status = error?.response?.status;
       const raw = error?.response?.data;
-      // Propagate raw error body and status so callers can map field-level validation errors
+
       return { success: false, message: raw?.message || 'Lỗi tạo kết quả xét nghiệm', status, raw };
     }
   },
 
-  // Update test result using the TestOrder contract
-  // PUT /gateway/testorder/testresult/{id}
   updateTestResult: async (id, payload) => {
     try {
       if (!id) return { success: false, message: 'Missing test result id' };
 
-      // 1. Fetch current result first (to ensure we have the full object for PUT)
       const currentRes = await testOrderService.getTestResult(id);
       const currentData = currentRes.success ? (currentRes.data || {}) : {};
 
-      // 2. Merge payload
       const updatedData = {
         ...currentData,
         ...payload,
-        // Ensure ID is present
+
         id: id,
         testResultId: id
       };
 
-      // 3. Send PUT request
       const response = await api.put(`/gateway/testorder/testresult/${id}`, updatedData);
       const data = response.data?.data || response.data;
       return { success: true, data };
@@ -575,8 +523,6 @@ const testOrderService = {
     }
   },
 
-  // Delete test result
-  // DELETE /gateway/testorder/testresult/{id}
   deleteTestResult: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing test result id' };
@@ -587,8 +533,6 @@ const testOrderService = {
     }
   },
 
-  // Get test result by id
-  // GET /gateway/testorder/testresult/{id}
   getTestResult: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing test result id' };
@@ -600,9 +544,6 @@ const testOrderService = {
     }
   },
 
-  // Compatibility wrapper: get all test parameters
-  // GET /gateway/testorder/testparameter
-  // options: { fetchAll: boolean, params: object }
   getAllTestParameters: async (options = {}) => {
     try {
       const resp = await api.get('/gateway/testorder/testparameter', { params: options.params || {} });
@@ -633,14 +574,10 @@ const testOrderService = {
     }
   },
 
-  // Get test parameters by test result ID
-  // Strategy: Fetch TestResult and extract parameters from it
   getTestParametersByResultId: async (testResultId) => {
     try {
       if (!testResultId) return { success: false, message: 'Missing testResultId' };
 
-      // 1. Prefer the explicit parameters endpoint exposed by the gateway
-      //    GET /gateway/testorder/testparameter/by-testresult/{testResultId}
       try {
         const resp = await api.get(`/gateway/testorder/testparameter/by-testresult/${testResultId}`);
         const data = testOrderService._toArray(resp.data);
@@ -648,15 +585,13 @@ const testOrderService = {
           return { success: true, data, raw: resp.data, source: 'by-testresult' };
         }
       } catch (err) {
-        // not fatal; we'll fallback
       }
 
-      // 2. Fallback: Fetch the TestResult object and try to extract parameters from common fields
       try {
         const res = await testOrderService.getTestResult(testResultId);
         if (res.success && res.data) {
           const resultData = res.data;
-          // Check common fields where parameters might be stored
+
           const params = resultData.testParameters || resultData.parameters || resultData.details || resultData.results || [];
           if (Array.isArray(params) && params.length > 0) {
             return { success: true, data: params, source: 'from-testresult' };
@@ -665,27 +600,25 @@ const testOrderService = {
       } catch (e) {
       }
 
-      // Nothing found
       return { success: true, data: [], message: 'No parameters found' };
     } catch (error) {
       return { success: false, message: 'Lỗi lấy thông số xét nghiệm theo result ID', data: [] };
     }
   },
 
-  // Get reagents from warehouse (to allow selection in UI)
   getReagents: async () => {
     try {
       const resp = await api.get('/reagents', { params: { pageSize: 100 } });
-      // Robustly extract arrays from different envelope shapes
+
       let raw = testOrderService._toArray(resp.data);
       if (!raw || raw.length === 0) raw = testOrderService._toArray(resp.data?.data);
       if (!raw || raw.length === 0) raw = testOrderService._toArray(resp.data?.items);
-      // Normalize reagent items to a consistent shape used by the UI
+
       const data = (raw || []).map(item => ({
         id: item.id || item.reagentId || item.reagent_id || item.code || item.itemId || item.productId || '',
         code: item.code || item.reagentCode || item.reagent_code || item.barcode || item.sku || '',
         name: item.name || item.reagentName || item.reagent_name || item.displayName || item.productName || item.description || '',
-        raw: item // keep raw for debugging if needed
+        raw: item
       }));
       return { success: true, data };
     } catch (error) {
@@ -693,7 +626,6 @@ const testOrderService = {
     }
   },
 
-  // Get devices/equipment from warehouse
   getDevices: async () => {
     try {
       const resp = await api.get('/gateway/warehouse/equipment');
@@ -702,9 +634,9 @@ const testOrderService = {
       if (!raw || raw.length === 0) raw = testOrderService._toArray(resp.data?.items);
       const data = (raw || []).map(item => ({
         id: item.id || item.equipmentId || item.equipment_id || item.code || item.deviceId || item.productId || '',
-        // Backend may return manufacturer-specific code under various keys (codeManufacturer, code_manufacturer)
+
         code: item.code || item.equipmentCode || item.equipment_code || item.codeManufacturer || item.code_manufacturer || item.barcode || item.sku || '',
-        // Prefer equipmentName when present
+
         name: item.name || item.equipmentName || item.equipment_name || item.displayName || item.productName || item.description || '',
         manufacturer: item.manufacturer || item.manufacturerName || item.mfg || null,
         raw: item
@@ -715,25 +647,16 @@ const testOrderService = {
     }
   },
 
-  // ============ NOTE ============
-  // Blood sample operations migrated to sampleService.js
-  // Appointment operations migrated to appointmentService.js
-  // Doctor operations migrated to doctorService.js
-  // Doctor shift operations migrated to shiftService.js
-  // Lab Room and Doctor Room operations are kept here for TestOrder service direct management
-
-  // ============ LAB ROOM OPERATIONS ============
-
   /**
    * Retrieves all laboratory rooms from the backend.
    * Feature Task: View Lab Rooms (Web).
-   * 
+   *
    * @description Fetches all configured lab rooms, supporting optional pagination and full fetch across pages.
    * @param {Object} [options={}] - Options for querying.
    * @param {boolean} [options.fetchAll=false] - Whether to fetch all pages sequentially.
    * @param {Object} [options.params={}] - Additional query parameters.
    * @returns {Promise<{success: boolean, data: Array, raw?: Object, message?: string}>} List of lab room objects.
-   * 
+   *
    * @example
    * const res = await testOrderService.getAllLabRooms({ fetchAll: true });
    */
@@ -776,10 +699,10 @@ const testOrderService = {
   /**
    * Retrieves single laboratory room details by ID.
    * Feature Task: View Lab Rooms (Web).
-   * 
+   *
    * @param {string} id - The unique identifier of the lab room.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Lab room details object.
-   * 
+   *
    * @example
    * const res = await testOrderService.getLabRoomById('LR001');
    */
@@ -794,8 +717,6 @@ const testOrderService = {
     }
   },
 
-  // New: hyphenated gateway endpoints (added to ocelot.json)
-  // These prefer the upstream hyphenated paths and exist alongside older endpoints for compatibility.
   getAllLabRoomsGateway: async () => {
     try {
       const resp = await api.get('/gateway/testorder/lab-rooms');
@@ -820,7 +741,7 @@ const testOrderService = {
   /**
    * Creates a new laboratory room in the system.
    * Feature Task: Create Lab Rooms (Web).
-   * 
+   *
    * @description Sends a POST request to create a new laboratory room with capacity, room number, and department.
    * @param {Object} data - Lab room creation payload.
    * @param {string} data.RoomName - The name of the room.
@@ -828,7 +749,7 @@ const testOrderService = {
    * @param {string} [data.Department] - Department name.
    * @param {number} [data.MaxCapacity] - Maximum room capacity.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Response payload.
-   * 
+   *
    * @example
    * const res = await testOrderService.createLabRoom({ RoomName: 'Biochemistry Lab', RoomNumber: 'P201' });
    */
@@ -844,12 +765,12 @@ const testOrderService = {
   /**
    * Updates an existing laboratory room's attributes.
    * Feature Task: Update Lab Rooms (Web).
-   * 
+   *
    * @description Sends a PUT request to modify lab room properties (e.g. status, capacity, room name).
    * @param {string} id - The unique ID of the lab room to update.
    * @param {Object} data - The updated room fields.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Response payload.
-   * 
+   *
    * @example
    * const res = await testOrderService.updateLabRoom('LR001', { Status: 'Active', MaxCapacity: 15 });
    */
@@ -865,11 +786,11 @@ const testOrderService = {
   /**
    * Deletes a laboratory room from the system.
    * Feature Task: Delete Lab Rooms (Web).
-   * 
+   *
    * @description Sends a DELETE request to remove a laboratory room by ID.
    * @param {string} id - The unique ID of the room to delete.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Response payload.
-   * 
+   *
    * @example
    * const res = await testOrderService.deleteLabRoom('LR001');
    */
@@ -882,8 +803,6 @@ const testOrderService = {
     }
   },
 
-  // ============ DOCTOR ROOM OPERATIONS ============
-  // GET /gateway/testorder/doctorroom
   getAllDoctorRooms: async () => {
     try {
       const resp = await api.get('/gateway/testorder/doctorroom');
@@ -894,7 +813,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/doctorroom/{id}
   getDoctorRoomById: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -906,7 +824,6 @@ const testOrderService = {
     }
   },
 
-  // Hyphenated gateway variants
   getAllDoctorRoomsGateway: async (options = {}) => {
     try {
       const resp = await api.get('/gateway/testorder/doctor-rooms', { params: options.params || {} });
@@ -948,28 +865,23 @@ const testOrderService = {
     }
   },
 
-  // ============ LAB ASSIGNMENT OPERATIONS (gateway hyphenated) ============
   getAllLabAssignmentsGateway: async (options = { fetchAll: true }) => {
     try {
       const resp = await api.get('/gateway/testorder/lab-assignments', { params: options.params || {} });
       let data = testOrderService._toArray(resp.data);
 
-      // If caller requests all items (or default), iterate page-by-page
       if (options.fetchAll) {
         try {
           const collected = [];
           const respPageSize = Number(resp.data?.pageSize || resp.data?.page_size || 0) || (Array.isArray(data) ? data.length : 0) || 50;
           const total = Number(resp.data?.total || resp.data?.Total || 0) || (Array.isArray(data) ? data.length : 0);
-          
-          // Calculate max page to avoid 404 errors
+
           const maxPage = total > 0 && respPageSize > 0 ? Math.ceil(total / respPageSize) : 1;
-          
-          // Start with page 1 data if available
+
           if (data && data.length > 0) {
             for (const it of data) collected.push(it);
           }
-          
-          // Fetch remaining pages if any
+
           if (maxPage > 1) {
             for (let page = 2; page <= maxPage; page++) {
               try {
@@ -979,29 +891,26 @@ const testOrderService = {
                 for (const it of pageData) collected.push(it);
                 if (pageData.length < respPageSize) break;
               } catch (pageError) {
-                // 404 is expected when no more pages exist, silently break
                 if (pageError.response?.status === 404) {
                   break;
                 }
-                // For other errors, break
+
                 if (pageError.response?.status >= 400) {
                   break;
                 }
                 throw pageError;
               }
-              // Safety cap
+
               if (page > 200) break;
             }
           }
           return { success: true, data: collected, raw: resp.data };
         } catch (e) {
-          // Silently fail, use initial data
         }
       }
 
       return { success: true, data, raw: resp.data };
     } catch (error) {
-      // Handle 404 gracefully - endpoint might not exist or no data available
       if (error.response?.status === 404) {
         return { success: true, data: [], message: 'Không có dữ liệu phân công lab' };
       }
@@ -1061,13 +970,11 @@ const testOrderService = {
     }
   },
 
-  // ============ LAB USER PROFILE OPERATIONS ============
-  // GET /gateway/testorder/labuserprofile  (legacy)
   getAllLabUserProfiles: async () => {
     const endpoints = [
-      '/gateway/testorder/lab-user-profiles', // new hyphenated
-      '/gateway/testorder/labuserprofile',    // legacy
-      '/gateway/testorder/labuserprofiles'    // possible plural variant
+      '/gateway/testorder/lab-user-profiles',
+      '/gateway/testorder/labuserprofile',
+      '/gateway/testorder/labuserprofiles'
     ];
 
     for (const ep of endpoints) {
@@ -1080,19 +987,17 @@ const testOrderService = {
         if (data && data.length > 0) {
           return { success: true, data, raw: resp.data, endpoint: ep };
         }
-        // If API returned an empty array explicitly, treat as success
+
         if (Array.isArray(resp.data) && resp.data.length === 0) {
           return { success: true, data: [], raw: resp.data, endpoint: ep };
         }
       } catch (error) {
-        // try next endpoint
       }
     }
 
     return { success: false, message: 'Lỗi lấy danh sách lab user', data: [] };
   },
 
-  // GET /gateway/testorder/lab-user-profiles  (new gateway hyphenated)
   getAllLabUserProfilesGateway: async () => {
     try {
       const resp = await api.get('/gateway/testorder/lab-user-profiles');
@@ -1103,7 +1008,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/labuserprofile/{id} (legacy)
   getLabUserProfileById: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1115,7 +1019,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/lab-user-profiles/{id} (hyphenated)
   getLabUserProfileByIdGateway: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1127,7 +1030,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/lab-user-profiles/email/{email}
   getLabUserProfileByEmailGateway: async (email) => {
     try {
       if (!email) return { success: false, message: 'Missing email' };
@@ -1139,12 +1041,10 @@ const testOrderService = {
     }
   },
 
-  // NEW: Update Lab User Profile
-  // PUT /gateway/testorder/lab-user-profiles/{id}
   updateLabUserProfile: async (id, payload) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
-      // Use hyphenated gateway endpoint format
+
       const resp = await api.put(`/gateway/testorder/lab-user-profiles/${id}`, payload);
       const data = resp.data?.data || resp.data;
       return { success: true, data, raw: resp.data };
@@ -1153,7 +1053,6 @@ const testOrderService = {
     }
   },
 
-  // NEW: Update Lab User Profile by Email
   updateLabUserProfileByEmail: async (email, payload) => {
     try {
       if (!email) return { success: false, message: 'Missing email' };
@@ -1165,8 +1064,6 @@ const testOrderService = {
     }
   },
 
-  // ============ TEST ORDER COMMENT OPERATIONS ============
-  // GET /gateway/testorder/testordercomment
   getAllTestOrderComments: async () => {
     try {
       const resp = await api.get('/gateway/testorder/testordercomment');
@@ -1177,7 +1074,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/testordercomment/{id}
   getTestOrderCommentById: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1189,7 +1085,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/testordercomment/appointment/{appointmentId}
   getTestOrderCommentsByAppointment: async (appointmentId) => {
     try {
       if (!appointmentId) return { success: false, message: 'Missing appointmentId' };
@@ -1201,7 +1096,6 @@ const testOrderService = {
     }
   },
 
-  // POST /gateway/testorder/testordercomment
   createTestOrderComment: async (payload) => {
     try {
       const resp = await api.post('/gateway/testorder/testordercomment', payload);
@@ -1212,7 +1106,6 @@ const testOrderService = {
     }
   },
 
-  // PUT /gateway/testorder/testordercomment/{id}
   updateTestOrderComment: async (id, payload) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1224,7 +1117,6 @@ const testOrderService = {
     }
   },
 
-  // DELETE /gateway/testorder/testordercomment/{id}
   deleteTestOrderComment: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1235,8 +1127,6 @@ const testOrderService = {
     }
   },
 
-  // ============ FLAGGING CONFIGURATION OPERATIONS ============
-  // GET /gateway/testorder/flaggingconfiguration
   getAllFlaggingConfigurations: async () => {
     try {
       const resp = await api.get('/gateway/testorder/flaggingconfiguration');
@@ -1247,7 +1137,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/flaggingconfiguration/{id}
   getFlaggingConfigurationById: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };
@@ -1259,8 +1148,6 @@ const testOrderService = {
     }
   },
 
-  // ============ FLAGGING CONFIG LOG OPERATIONS ============
-  // GET /gateway/testorder/flaggingconfiglog
   getAllFlaggingConfigLogs: async () => {
     try {
       const resp = await api.get('/gateway/testorder/flaggingconfiglog');
@@ -1271,7 +1158,6 @@ const testOrderService = {
     }
   },
 
-  // GET /gateway/testorder/flaggingconfiglog/{id}
   getFlaggingConfigLogById: async (id) => {
     try {
       if (!id) return { success: false, message: 'Missing id' };

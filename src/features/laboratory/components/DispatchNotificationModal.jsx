@@ -17,12 +17,10 @@ const CHANNELS = [
 ];
 
 export default function DispatchNotificationModal({ show, onHide, onDispatchSuccess }) {
-    // Completed patients state from MongoDB
     const [completedPatients, setCompletedPatients] = useState([]);
     const [selectedCompletedKey, setSelectedCompletedKey] = useState("");
     const [loadingPatients, setLoadingPatients] = useState(false);
 
-    // Form fields
     const [testOrderId, setTestOrderId] = useState("");
     const [specimenBarcode, setSpecimenBarcode] = useState("");
     const [patientId, setPatientId] = useState("");
@@ -31,8 +29,8 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
     const [patientEmail, setPatientEmail] = useState("");
     const [testPackageName, setTestPackageName] = useState("");
 
-    const [channel, setChannel] = useState(3); // Email (Primary)
-    const [priority, setPriority] = useState(1); // Normal
+    const [channel, setChannel] = useState(3);
+    const [priority, setPriority] = useState(1);
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
 
@@ -42,7 +40,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
     const buildItemKey = (item, idx) =>
         `${item?.testOrderId || ""}__${item?.specimenBarcode || ""}__${idx}`;
 
-    // Load Doctor-approved test orders from MongoDB when modal is opened
     useEffect(() => {
         if (!show) return;
 
@@ -180,7 +177,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             )}
 
-                            {/* CHỌN ĐƠN XÉT NGHIỆM BÁC SĨ ĐÃ DUYỆT KẾT QUẢ */}
                             <div className="p-3 rounded border mb-4 bg-light shadow-xs border-primary-subtle">
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <label className="form-label text-primary fw-bold small mb-0 d-flex align-items-center gap-2">
@@ -216,7 +212,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </small>
                             </div>
 
-                            {/* Order & Specimen Info */}
                             <div className="row g-3 mb-3">
                                 <div className="col-12 col-md-6">
                                     <label className="form-label text-dark fw-semibold small">
@@ -244,7 +239,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             </div>
 
-                            {/* Patient Info */}
                             <div className="row g-3 mb-3">
                                 <div className="col-12 col-md-4">
                                     <label className="form-label text-dark fw-semibold small">
@@ -272,7 +266,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             </div>
 
-                            {/* Contact Info */}
                             <div className="row g-3 mb-3">
                                 <div className="col-12 col-md-6">
                                     <label className="form-label text-dark fw-semibold small">
@@ -300,7 +293,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             </div>
 
-                            {/* Gói Xét Nghiệm */}
                             <div className="mb-3">
                                 <label className="form-label text-dark fw-semibold small">
                                     Tên Gói Xét Nghiệm
@@ -314,7 +306,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 />
                             </div>
 
-                            {/* Channel & Priority */}
                             <div className="row g-3 mb-3">
                                 <div className="col-12 col-md-7">
                                     <label className="form-label text-dark fw-semibold small">
@@ -348,7 +339,6 @@ export default function DispatchNotificationModal({ show, onHide, onDispatchSucc
                                 </div>
                             </div>
 
-                            {/* Custom Message & Title */}
                             <div className="mb-3">
                                 <label className="form-label text-dark fw-semibold small">
                                     Tiêu Đề Thông Báo

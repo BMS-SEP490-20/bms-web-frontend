@@ -46,7 +46,6 @@ export default function PatientHomePage({ user: propUser }) {
   );
 
   useEffect(() => {
-    // Load patient profile to resolve canonical PatientCode (PID)
     api.get('/patients/me')
       .then(res => {
         const profile = res?.data?.data || res?.data;
@@ -55,7 +54,6 @@ export default function PatientHomePage({ user: propUser }) {
       })
       .catch(() => {});
 
-    // Load service packages & public ratings
     fetchServiceCatalog()
       .then(res => {
         if (res?.packages?.length) {
@@ -72,7 +70,6 @@ export default function PatientHomePage({ user: propUser }) {
       })
       .catch(() => {});
 
-    // Load recent test order from real patient database
     getTestHistory({ pageSize: 1 })
       .then(res => {
         const items = res?.items || res?.data || (Array.isArray(res) ? res : []);
@@ -114,10 +111,10 @@ export default function PatientHomePage({ user: propUser }) {
       <PortalNavbar user={user} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Hero Section (Asymmetric Dashboard Layout) */}
+
       <section className="bms-hero-container-wrap">
         <div className="bms-hero-grid">
-          {/* Left Column: Narrative & Metrics */}
+
           <div className="bms-hero-narrative">
             <div className="bms-status-chip">
               CHUẨN Y KHOA QUỐC GIA · HỆ THỐNG BMS LAB
@@ -144,7 +141,6 @@ export default function PatientHomePage({ user: propUser }) {
               Quản lý khép kín quy trình xét nghiệm từ khâu tiếp nhận chỉ định, dán mã vạch Barcode đến phân tích máy tự động, bác sĩ thẩm định và trả kết quả trực tuyến.
             </p>
 
-            {/* Search Pill */}
             <form
               className="bms-search-pill-capsule"
               onSubmit={(e) => {
@@ -164,7 +160,6 @@ export default function PatientHomePage({ user: propUser }) {
               </button>
             </form>
 
-            {/* Metric Cards Quad */}
             <div className="bms-metric-quad">
               <div className="bms-metric-soft-card">
                 <div className="bms-metric-number" style={{ fontSize: '18px' }}>Mã Vạch 1D/2D</div>
@@ -185,7 +180,6 @@ export default function PatientHomePage({ user: propUser }) {
             </div>
           </div>
 
-          {/* Right Column: Personalized Medical Activity Hub */}
           <div className="bms-hero-tracker-card" id="tra-cuu">
             <div className="bms-tracker-head">
               <h2 className="bms-tracker-title">Kết Quả Xét Nghiệm Gần Nhất</h2>
@@ -194,7 +188,6 @@ export default function PatientHomePage({ user: propUser }) {
               </p>
             </div>
 
-            {/* Recent Result Pill */}
             {recentTest ? (
               <div className="bms-recent-result-dock">
                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -226,7 +219,6 @@ export default function PatientHomePage({ user: propUser }) {
               </div>
             )}
 
-            {/* Upcoming Appointment Tile */}
             <div className="bms-appointment-soft-tile mt-3">
               <div className="d-flex justify-content-between align-items-center mb-1">
                 <span className="bms-appointment-label">Lịch Hẹn Của Bạn</span>
@@ -246,7 +238,6 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 2. Service Packages Catalog (Moved to Top) */}
       <section className="bms-section-wrap" id="danh-muc">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
@@ -271,7 +262,7 @@ export default function PatientHomePage({ user: propUser }) {
                 }}
                 className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
               >
-                {/* Left: Specialty Icon + Full-Width Content Stack */}
+
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="d-flex align-items-center" style={{ gap: '24px' }}>
                     <div
@@ -290,7 +281,7 @@ export default function PatientHomePage({ user: propUser }) {
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      {/* Row 1: Badges */}
+
                       <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
                         <span
                           style={{
@@ -322,7 +313,6 @@ export default function PatientHomePage({ user: propUser }) {
                         <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                       </div>
 
-                      {/* Row 2: Full Package Title */}
                       <h3
                         className="mb-1.5"
                         style={{
@@ -337,7 +327,6 @@ export default function PatientHomePage({ user: propUser }) {
                         {pkg.packageName}
                       </h3>
 
-                      {/* Row 3: Clinical Scope & Description */}
                       <p
                         className="mb-0 text-muted"
                         style={{
@@ -353,7 +342,6 @@ export default function PatientHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Middle Dedicated Column: Specimen Standards & TAT */}
                 <div
                   className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
                   style={{
@@ -366,7 +354,6 @@ export default function PatientHomePage({ user: propUser }) {
                     Tiêu Chuẩn Lấy Mẫu &amp; Kết Quả
                   </div>
 
-                  {/* Tube Specimen */}
                   <div className="d-flex align-items-center gap-2.5 mb-2">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaVial style={{ color: '#1E60E6', fontSize: '12px' }} />
@@ -379,7 +366,6 @@ export default function PatientHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  {/* TAT */}
                   <div className="d-flex align-items-center gap-2.5">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
@@ -393,7 +379,6 @@ export default function PatientHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Right: Price & CTA Action Button */}
                 <div
                   className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
                   style={{
@@ -460,7 +445,6 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
       <section className="bms-section-wrap" id="quy-trinh">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
@@ -513,7 +497,6 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 4. Quality & Trust Pillars */}
       <section className="bms-section-wrap">
         <div className="bms-inner-container">
           <div className="bms-section-lead-center">
@@ -546,7 +529,6 @@ export default function PatientHomePage({ user: propUser }) {
         </div>
       </section>
 
-        {/* 5. Mega Footer */}
         <MegaFooter />
       </div>
     </div>

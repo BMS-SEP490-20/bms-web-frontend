@@ -11,9 +11,7 @@ import { Modal, Button, Form, Row, Col, Alert, Spinner, Badge } from 'react-boot
 import { Save, Check as LucideCheck, X as LucideX, CheckCircle2 } from 'lucide-react';
 import { createRole, updateRole } from '../../../services/roleService';
 
-// Medical domain translation dictionary for permissions
 const PERMISSION_TRANSLATIONS = {
-  // Categories
   'Identity & Access Management (IAM)': 'Quản Trị Nhận Dạng & Phân Quyền (IAM)',
   'Reception & Queuing': 'Tiếp Đón & Điều Phối Hàng Đợi',
   'Clinical Examination (EMR)': 'Khám Lâm Sàng & Bệnh Án Điện Tử (EMR)',
@@ -21,7 +19,6 @@ const PERMISSION_TRANSLATIONS = {
   'Billing & Cashier': 'Viện Phí & Thu Ngân',
   'Inventory & IoT Monitoring': 'Kho Hóa Chất & Giám Sát IoT',
 
-  // Permissions
   'IAM_VIEW': 'Xem danh sách tài khoản & nhân sự',
   'IAM_MANAGE': 'Quản lý cấp phát, khóa & phân quyền tài khoản',
   'RECEPTION_QUEUE': 'Điều phối hàng đợi tiếp đón bệnh nhân',
@@ -216,7 +213,6 @@ export const RoleFormModal = ({
 
           <hr className="my-3 text-muted" />
 
-          {/* Granular Permissions Matrix */}
           <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h6 className="fw-bold m-0 text-dark d-flex align-items-center gap-2">

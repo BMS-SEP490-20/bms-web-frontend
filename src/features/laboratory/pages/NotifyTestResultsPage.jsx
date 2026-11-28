@@ -30,7 +30,6 @@ export default function NotifyTestResultsPage() {
     const canDispatch = hasRole(currentUser, ROLES.DOCTOR, ROLES.MANAGER);
     const canMarkRead = hasRole(currentUser, ROLES.PATIENT);
 
-    // States
     const [notifications, setNotifications] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -44,7 +43,6 @@ export default function NotifyTestResultsPage() {
         deliverySuccessRate: 100.0
     });
 
-    // Filters
     const [activeTab, setActiveTab] = useState("ALL");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedChannel, setSelectedChannel] = useState("");
@@ -52,12 +50,10 @@ export default function NotifyTestResultsPage() {
     const [loading, setLoading] = useState(false);
     const [toastMessage, setToastMessage] = useState(null);
 
-    // Modals
     const [showDispatchModal, setShowDispatchModal] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
-    // Auto-dismiss toast
     useEffect(() => {
         if (toastMessage) {
             const timer = setTimeout(() => setToastMessage(null), 4000);
@@ -65,7 +61,6 @@ export default function NotifyTestResultsPage() {
         }
     }, [toastMessage]);
 
-    // Load data
     const loadData = useCallback(async () => {
         setLoading(true);
         try {
@@ -116,7 +111,6 @@ export default function NotifyTestResultsPage() {
         loadData();
     }, [loadData]);
 
-    // View detail
     const handleViewDetail = async (id) => {
         try {
             const detail = await fetchNotificationById(id);
@@ -132,14 +126,12 @@ export default function NotifyTestResultsPage() {
         }
     };
 
-    // Dispatch new
     const handleDispatch = async (payload) => {
         await dispatchNotification(payload);
         setToastMessage({ type: "success", text: "Phát hành thông báo kết quả xét nghiệm thành công!" });
         loadData();
     };
 
-    // Mark as read
     const handleMarkAsRead = async (id) => {
         try {
             await markNotificationAsRead(id);
@@ -157,7 +149,6 @@ export default function NotifyTestResultsPage() {
         }
     };
 
-    // Resend
     const handleResend = async (id) => {
         try {
             const updated = await resendNotification(id);
@@ -217,7 +208,7 @@ export default function NotifyTestResultsPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -254,7 +245,6 @@ export default function NotifyTestResultsPage() {
                 </div>
             </div>
 
-            {/* Notification Toast */}
             {toastMessage && (
                 <div
                     className={`alert alert-${toastMessage.type} alert-dismissible fade show shadow-sm mb-4 rounded-3`}
@@ -272,7 +262,6 @@ export default function NotifyTestResultsPage() {
                 </div>
             )}
 
-            {/* 3 KPI Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-md-4">
                     <div className="bms-kpi-quad-card">
@@ -312,7 +301,6 @@ export default function NotifyTestResultsPage() {
                 </div>
             </div>
 
-            {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
                     <Search className="bms-search-icon"  size="1em"/>
@@ -388,7 +376,6 @@ export default function NotifyTestResultsPage() {
                 </span>
             </div>
 
-            {/* Standalone Notification Directory Table */}
             <section className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>
@@ -508,7 +495,6 @@ export default function NotifyTestResultsPage() {
                 </div>
             </section>
 
-            {/* Modals */}
             {canDispatch && (
                 <DispatchNotificationModal
                     show={showDispatchModal}

@@ -38,14 +38,12 @@ export default function ConfigureReferenceIntervalsPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
-  // Modal states
   const [modalState, setModalState] = useState({
     isOpen: false,
-    mode: 'create', // 'create' | 'edit'
+    mode: 'create',
     interval: null,
   });
 
-  // Simulator toggle
   const [showSimulator, setShowSimulator] = useState(false);
 
   const showToast = (message, type = 'success') => {
@@ -165,7 +163,7 @@ export default function ConfigureReferenceIntervalsPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Toast Notification */}
+
       {toast && (
         <Alert
           variant={toast.type}
@@ -183,7 +181,6 @@ export default function ConfigureReferenceIntervalsPage() {
         </Alert>
       )}
 
-      {/* Header Card */}
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -219,7 +216,6 @@ export default function ConfigureReferenceIntervalsPage() {
         </div>
       </div>
 
-      {/* Interactive Clinical Range Simulator */}
       {showSimulator && (
         <ClinicalRangeSimulator
           onCriterionChange={(code) => {
@@ -228,7 +224,6 @@ export default function ConfigureReferenceIntervalsPage() {
         />
       )}
 
-      {/* Single-Line Flat Filter Toolbar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <Search className="bms-search-icon"  size="1em"/>
@@ -286,7 +281,6 @@ export default function ConfigureReferenceIntervalsPage() {
         </span>
       </div>
 
-      {/* Reference Intervals Standalone Data Table */}
       <section className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -426,7 +420,6 @@ export default function ConfigureReferenceIntervalsPage() {
           </Table>
         </div>
 
-        {/* Pagination Bar */}
         {pagination.totalPages > 1 && (
           <div className="bg-white p-3 border-top d-flex justify-content-between align-items-center">
             <span className="small text-muted">
@@ -455,7 +448,6 @@ export default function ConfigureReferenceIntervalsPage() {
         )}
       </section>
 
-      {/* Modal Configure Reference Interval */}
       <ReferenceIntervalModal
         isOpen={modalState.isOpen}
         mode={modalState.mode}

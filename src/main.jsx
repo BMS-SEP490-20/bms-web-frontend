@@ -16,7 +16,6 @@ import "./styles/bms-foundation.css";
 import App from "./App.jsx";
 import { GoogleConfigProvider } from "./shared/contexts/GoogleConfigContext.jsx";
 
-// Mount root component inside React StrictMode to catch side effects and deprecated lifecycles in development
 createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <GoogleConfigProvider>

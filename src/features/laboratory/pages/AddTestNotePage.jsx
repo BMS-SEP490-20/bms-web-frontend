@@ -19,7 +19,6 @@ export default function AddTestNotePage() {
   const [searchParams] = useSearchParams();
   const initialSpecimenId = searchParams.get("specimenId") || searchParams.get("sampleId") || "";
 
-  // Người dùng hiện tại
   const currentUser = useMemo(() => {
     try {
       const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user") || localStorage.getItem("user");
@@ -31,26 +30,22 @@ export default function AddTestNotePage() {
 
   const technicianName = currentUser?.fullName || currentUser?.name || "Kỹ thuật viên trực ca";
 
-  // State thông tin mẫu và lựa chọn
   const [specimenInput, setSpecimenInput] = useState(initialSpecimenId);
   const [selectedSpecimenId, setSelectedSpecimenId] = useState(initialSpecimenId);
   const [specimenContext, setSpecimenContext] = useState(null);
   const [availableSpecimens, setAvailableSpecimens] = useState([]);
   const [existingNotes, setExistingNotes] = useState([]);
 
-  // Form inputs
   const [noteType, setNoteType] = useState("Quan sát kỹ thuật (Technical observation)");
-  const [visibility, setVisibility] = useState("Internal"); // "Internal" | "Report"
+  const [visibility, setVisibility] = useState("Internal");
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
 
-  // Trạng thái xử lý
   const [loadingContext, setLoadingContext] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Tải danh sách mẫu khả dụng
   useEffect(() => {
     let isMounted = true;
     const loadSpecimens = async () => {
@@ -67,7 +62,6 @@ export default function AddTestNotePage() {
     return () => { isMounted = false; };
   }, []);
 
-  // Tải bối cảnh mẫu khi selectedSpecimenId thay đổi
   useEffect(() => {
     if (!selectedSpecimenId) {
       setSpecimenContext(null);
@@ -177,7 +171,7 @@ export default function AddTestNotePage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -209,7 +203,6 @@ export default function AddTestNotePage() {
         </div>
       </div>
 
-      {/* Thông báo Alert */}
       {successMessage && (
         <div className="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4 border-0 shadow-sm rounded-3" role="alert">
           <CheckCircle2 className="flex-shrink-0 me-2" size={18} />
@@ -227,7 +220,7 @@ export default function AddTestNotePage() {
       )}
 
       <div className="row g-4">
-        {/* Cột trái: Thông tin mẫu & Thiết lập loại ghi chú */}
+
         <div className="col-lg-5">
           <div className="card shadow-sm border-0 h-100 bg-white rounded-3">
             <div className="card-header bg-white py-3 border-bottom">
@@ -237,7 +230,7 @@ export default function AddTestNotePage() {
               </h5>
             </div>
             <div className="card-body p-2">
-              {/* Ô nhập / Quét mã vạch */}
+
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-secondary">
                   Mã Barcode / Định Danh Ống Mẫu <span className="text-danger">*</span>
@@ -282,7 +275,6 @@ export default function AddTestNotePage() {
                 )}
               </div>
 
-              {/* Bảng hiển thị thông tin bệnh phẩm */}
               {specimenContext ? (
                 <div className="p-3 mb-4 rounded-3 border bg-light">
                   <div className="row g-2 small">
@@ -321,7 +313,6 @@ export default function AddTestNotePage() {
                 </div>
               )}
 
-              {/* Lựa chọn loại ghi chú chuẩn y khoa */}
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-secondary">
                   Phân Loại Ghi Chú (Note Category) <span className="text-danger">*</span>
@@ -340,7 +331,6 @@ export default function AddTestNotePage() {
                 </select>
               </div>
 
-              {/* Tùy chọn phạm vi hiển thị */}
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-secondary d-block">
                   Phạm Vi Hiển Thị (Visibility)
@@ -375,7 +365,6 @@ export default function AddTestNotePage() {
                 </div>
               </div>
 
-              {/* Gắn thẻ Tags */}
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-secondary">
                   Thẻ Phân Loại (Tags)
@@ -400,9 +389,8 @@ export default function AddTestNotePage() {
           </div>
         </div>
 
-        {/* Cột phải: Nội dung ghi chú & Dòng thời gian lịch sử */}
         <div className="col-lg-7">
-          {/* Card Soạn thảo nội dung */}
+
           <div className="card shadow-sm border-0 mb-4 bg-white rounded-3">
             <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
               <h5 className="card-title mb-0 fw-bold text-dark fs-6">
@@ -413,7 +401,7 @@ export default function AddTestNotePage() {
               </span>
             </div>
             <div className="card-body p-2">
-              {/* Thanh công cụ định dạng nhanh */}
+
               <div className="btn-toolbar p-1 mb-2 bg-light rounded border gap-1">
                 <button
                   type="button"
@@ -461,7 +449,6 @@ export default function AddTestNotePage() {
             </div>
           </div>
 
-          {/* Card Lịch sử ghi chú đã lưu (Audit Trail) */}
           <div className="card shadow-sm border-0 bg-white rounded-3">
             <div className="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
               <h5 className="card-title mb-0 fw-bold text-dark fs-6 d-flex align-items-center gap-2">

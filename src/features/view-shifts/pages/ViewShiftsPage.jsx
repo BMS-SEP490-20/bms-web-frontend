@@ -89,9 +89,6 @@ export function ViewShiftsPage() {
     return sourceShifts;
   }, [activeRoleTab, doctorShifts, labShifts, receptionistShifts, sourceShifts]);
 
-  // Strict personal shift scoping:
-  // If user is Admin or Manager -> can see all shifts & switch tabs.
-  // If user is regular staff (e.g. Lab tech Hưng) -> ONLY sees shifts belonging to Hưng!
   const myVisibleShifts = useMemo(() => {
     if (canManageShifts) {
       return roleFilteredShifts;
@@ -192,7 +189,7 @@ export function ViewShiftsPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -223,14 +220,12 @@ export function ViewShiftsPage() {
         </div>
       </div>
 
-      {/* Error alert */}
       {error && (
         <div className="alert alert-danger shadow-sm mb-4" role="alert" style={{ borderRadius: 14 }}>
           {error}
         </div>
       )}
 
-      {/* 2. KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={4}>
           <div className="bms-kpi-quad-card">
@@ -270,7 +265,6 @@ export function ViewShiftsPage() {
         </Col>
       </Row>
 
-      {/* Role Tabs Bar: Bác Sĩ / Xét Nghiệm / Lễ Tân */}
       {canManageShifts && (
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
         <div className="d-flex align-items-center gap-2 p-1 bg-white border rounded-pill shadow-sm">
@@ -321,7 +315,6 @@ export function ViewShiftsPage() {
 
       )}
 
-      {/* 3. Standalone Independent Table Section for Shifts (ZERO TABLE IN CARDS) */}
       {viewMode === 'table' && (
         <div className="bms-filter-bar mb-3">
           <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
@@ -344,7 +337,6 @@ export function ViewShiftsPage() {
               />
             </div>
 
-            {/* Pill filter buttons on 1 line */}
             <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <button
                 type="button"
@@ -387,7 +379,7 @@ export function ViewShiftsPage() {
           </div>
 
           <div className="d-flex align-items-center gap-2">
-            {/* View Mode Toggle */}
+
             <div className="btn-group shadow-sm" role="group" style={{ borderRadius: '9999px', overflow: 'hidden' }}>
               <button
                 type="button"
@@ -507,9 +499,8 @@ export function ViewShiftsPage() {
         </div>
       </div>
 
-      {/* Shift Detail Modal */}
-      <Modal 
-        show={showShiftDetailModal} 
+      <Modal
+        show={showShiftDetailModal}
         onHide={() => setShowShiftDetailModal(false)}
         size="lg"
         centered
@@ -534,8 +525,8 @@ export function ViewShiftsPage() {
             const sid = String(selectedShift.shiftId || selectedShift.id || 'CA-001');
             const code = formatShiftCode(sid);
             const shiftTypeVi = formatShiftType(selectedShift.shiftType);
-            const timeWindow = selectedShift.shiftStart && selectedShift.shiftEnd 
-              ? `${selectedShift.shiftStart} – ${selectedShift.shiftEnd}` 
+            const timeWindow = selectedShift.shiftStart && selectedShift.shiftEnd
+              ? `${selectedShift.shiftStart} – ${selectedShift.shiftEnd}`
               : '07:00 – 11:30';
             const roomName = selectedShift.roomName || 'Quầy Tiếp Đón Sảnh A / Phòng 101';
             const current = selectedShift.currentPatientsCount || 0;
@@ -544,7 +535,7 @@ export function ViewShiftsPage() {
 
             return (
               <div className="d-flex flex-column gap-3">
-                {/* Header Card */}
+
                 <div className="d-flex flex-wrap align-items-center justify-content-between p-3 bg-white rounded-3 border shadow-sm gap-2">
                   <div className="d-flex align-items-center gap-2">
                     <span className="badge bg-primary px-3 py-2 fs-6 font-monospace shadow-sm">
@@ -563,9 +554,8 @@ export function ViewShiftsPage() {
                   </div>
                 </div>
 
-                {/* 2-Column Details: MOH Staff Identity + Shift Location */}
                 <Row className="g-3">
-                  {/* Left Column: MOH Personnel Credentials */}
+
                   <Col xs={12} md={7}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center justify-content-between">
@@ -624,7 +614,6 @@ export function ViewShiftsPage() {
                     </Card>
                   </Col>
 
-                  {/* Right Column: Time & Room Info */}
                   <Col xs={12} md={5}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white p-3">
                       <div className="small fw-semibold text-muted text-uppercase mb-3 d-flex align-items-center gap-2">
@@ -668,7 +657,6 @@ export function ViewShiftsPage() {
                   </Col>
                 </Row>
 
-                {/* Capacity & Workflow Card */}
                 <Card className="border shadow-sm rounded-3 bg-white p-3">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <div className="small fw-semibold text-muted text-uppercase d-flex align-items-center gap-2">
@@ -680,8 +668,8 @@ export function ViewShiftsPage() {
                     </Badge>
                   </div>
                   <div className="progress mb-3" style={{ height: 10, borderRadius: 9999 }}>
-                    <div 
-                      className={`progress-bar ${current >= max ? 'bg-danger' : 'bg-primary'}`} 
+                    <div
+                      className={`progress-bar ${current >= max ? 'bg-danger' : 'bg-primary'}`}
                       style={{ width: `${Math.min(100, (current / max) * 100)}%` }}
                     />
                   </div>
@@ -698,8 +686,8 @@ export function ViewShiftsPage() {
           })()}
         </Modal.Body>
         <Modal.Footer className="bg-white border-top py-3 px-4 d-flex justify-content-end">
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => setShowShiftDetailModal(false)}
             className="px-4 py-2 rounded-3 fw-semibold"
           >

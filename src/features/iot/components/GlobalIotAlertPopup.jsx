@@ -64,7 +64,6 @@ function playPopupAlarmBeep() {
     osc.start();
     osc.stop(ctx.currentTime + 0.36);
   } catch {
-    // Ignore autoplay restriction until user interacts
   }
 }
 
@@ -95,7 +94,6 @@ export default function GlobalIotAlertPopup() {
     location.pathname === '/forgot-password' ||
     location.pathname === '/';
 
-  // Keep live cold-chain monitoring active across ALL staff routes (including /reports, /invoices, /qc, /inventory, /patients...)
   const isAuthorized = isRoleAuthorized && !isAuthPage;
 
   const syncAllDevicesAndAlerts = useCallback(async () => {
@@ -143,7 +141,6 @@ export default function GlobalIotAlertPopup() {
         setOpenAlerts(pending);
       }
     } catch {
-      // Retain last known state on transient failure
     } finally {
       inFlightRef.current = false;
     }
@@ -154,7 +151,6 @@ export default function GlobalIotAlertPopup() {
 
     syncAllDevicesAndAlerts();
 
-    // Real-time SignalR subscription across ALL devices
     const unsubscribe = subscribeIotRealtime({
       onConnectionStateChange: (connected) => setSignalRConnected(connected),
       onDeviceStatusUpdated: (updatedStatus) => {
@@ -188,7 +184,6 @@ export default function GlobalIotAlertPopup() {
       }
     });
 
-    // Fallback poll (20s) only to recover from missed frames if SignalR disconnects
     const fallbackTimer = setInterval(syncAllDevicesAndAlerts, 20000);
 
     const handleInstantRefresh = () => {
@@ -233,7 +228,6 @@ export default function GlobalIotAlertPopup() {
     return null;
   }
 
-  // 1. Reconnection banner if everything else is healthy
   if (recoveryNotice && !hasCriticalIncident) {
     const recovered = recoveryNotice.lastRecoveredOutage;
     return (
@@ -294,7 +288,6 @@ export default function GlobalIotAlertPopup() {
 
   const isSevere = disconnectedDevices.length > 0 || activeAlertsCount > 0;
 
-  // Build concise multi-device pill summary
   const summaryParts = [];
   if (disconnectedDevices.length > 0) {
     summaryParts.push(
@@ -309,7 +302,6 @@ export default function GlobalIotAlertPopup() {
     summaryParts.push(`${violatingDevices.length} tủ vượt ngưỡng`);
   }
 
-  // 2. Minimized Bottom-Right Multi-Device Pill
   if (minimized) {
     return (
       <div
@@ -358,7 +350,6 @@ export default function GlobalIotAlertPopup() {
     );
   }
 
-  // 3. Expanded Multi-Device Monitoring Card
   return (
     <div
       role="alert"
@@ -380,7 +371,7 @@ export default function GlobalIotAlertPopup() {
         overflow: 'hidden'
       }}
     >
-      {/* Header */}
+
       <div
         style={{
           background: isSevere ? '#fef2f2' : '#fffbeb',
@@ -451,7 +442,6 @@ export default function GlobalIotAlertPopup() {
         </div>
       </div>
 
-      {/* Scrollable Multi-Device & Open CAPA Alert List */}
       <div style={{ padding: '12px 14px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12.5px' }}>
         {openAlerts.length > 0 && (
           <div>
@@ -573,7 +563,6 @@ export default function GlobalIotAlertPopup() {
         )}
       </div>
 
-      {/* Footer Actions */}
       <div
         style={{
           padding: '10px 14px',

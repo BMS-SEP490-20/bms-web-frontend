@@ -1,9 +1,3 @@
-/**
- * @file RolesManagementPage.css
- * @description Design tokens and styling for RBAC Roles management screen (UC13).
- * Enforces edge-to-edge standalone table section, seamless badges, and luxury UI.
- */
-
 .bms-role-code-cell {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-weight: 700;

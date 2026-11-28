@@ -11,12 +11,12 @@ import { Info, CheckCircle2, CheckCheck, DoorOpen, RotateCw, Printer, Eye, Alert
 /**
  * Quick Check-In QR Code Scanner Component.
  * Feature Task: Scan QR Check-in (Web).
- * 
+ *
  * @description Provides high-speed QR code scanning and manual appointment lookup at the reception desk.
  * Captures appointment QR codes via camera feed (Html5Qrcode), validates appointment status,
  * verifies the reception time window, updates status to 'checked_in', and automatically adds
  * the patient to the active consultation/sample collection queue.
- * 
+ *
  * @component
  * @param {Object} props - Component properties.
  * @param {string} [props.receptionistId] - Identifier of the receptionist handling the intake.
@@ -26,13 +26,13 @@ import { Info, CheckCircle2, CheckCheck, DoorOpen, RotateCw, Printer, Eye, Alert
  * @param {string} [props.initialManualCode=''] - Initial appointment code for manual fallback.
  * @returns {JSX.Element} The rendered QR scanner and intake confirmation interface.
  */
-const QuickCheckInScan = ({ 
-  receptionistId, 
-  onSuccess, 
-  isModalOpen = true, 
-  initialMode = "camera", 
+const QuickCheckInScan = ({
+  receptionistId,
+  onSuccess,
+  isModalOpen = true,
+  initialMode = "camera",
   initialManualCode = "",
-  onViewDetail = null 
+  onViewDetail = null
 }) => {
   const { showSuccess, showError, showInfo, showWarning } = useNotificationContext();
   const scannerRef = useRef(null);
@@ -54,7 +54,7 @@ const QuickCheckInScan = ({
   const [isConfirming, setIsConfirming] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const retryCountRef = useRef(0);
-  const MAX_RETRIES = 10; // Maximum initialization retry attempts
+  const MAX_RETRIES = 10;
 
   const formatDisplayDate = (dStr) => {
     if (!dStr) return 'N/A';
@@ -94,7 +94,6 @@ const QuickCheckInScan = ({
     containerIdRef.current = `qr-quick-checkin-zone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // Trigger manual mode if specified in initialMode
   useEffect(() => {
     if (isModalOpen && initialMode === 'manual' && initialManualCode && !startedRef.current) {
       handleManualSubmit({ preventDefault: () => { } });
@@ -120,8 +119,8 @@ const QuickCheckInScan = ({
       const list = liveQ?.data || liveQ || [];
       if (Array.isArray(list)) {
         const targetCode = fallbackCode || apt?.appointmentCode || apt?.code;
-        const matched = list.find(t => 
-          (targetCode && t.patientCode === targetCode) || 
+        const matched = list.find(t =>
+          (targetCode && t.patientCode === targetCode) ||
           (apt?.patientId && t.patientId === apt?.patientId)
         );
         if (matched?.ticketNumber) return matched.ticketNumber;
@@ -266,30 +265,25 @@ const QuickCheckInScan = ({
     scanningRef.current = false;
   };
 
-
   const clearContainer = () => {
     const el = document.getElementById(containerIdRef.current);
     if (el) el.innerHTML = '';
   };
 
-  // Verify component mounting and DOM readiness
   useEffect(() => {
     if (isModalOpen) {
-      // Reset state when modal is reopened
       clearedRef.current = false;
       startedRef.current = false;
       errorShownRef.current = false;
-      retryCountRef.current = 0; // Reset retry count
+      retryCountRef.current = 0;
 
-      // Delay execution to ensure modal mounting
       const timer = setTimeout(() => {
         setIsReady(true);
-      }, 300); // Wait for modal rendering
+      }, 300);
       return () => clearTimeout(timer);
     } else {
-      // Clean up camera stream and reset state upon modal dismissal
       setIsReady(false);
-      retryCountRef.current = 0; // Reset retry count
+      retryCountRef.current = 0;
       if (scannerRef.current && !clearedRef.current) {
         clearedRef.current = true;
         scannerRef.current.clear().catch(() => { });
@@ -306,7 +300,6 @@ const QuickCheckInScan = ({
     const startScanner = () => {
       if (startedRef.current || clearedRef.current) return;
 
-      // Verify DOM target element exists before starting scanner
       const containerElement = document.getElementById(containerIdRef.current);
       if (!containerElement) {
         retryCountRef.current += 1;
@@ -315,16 +308,15 @@ const QuickCheckInScan = ({
           errorShownRef.current = true;
           return;
         }
-        // Retry after brief delay for DOM readiness
+
         setTimeout(() => {
           if (!startedRef.current && !clearedRef.current && retryCountRef.current <= MAX_RETRIES) {
             startScanner();
           }
-        }, 200); // Retry delay interval
+        }, 200);
         return;
       }
 
-      // Reset retry counter when element is located
       retryCountRef.current = 0;
 
       startedRef.current = true;
@@ -334,16 +326,13 @@ const QuickCheckInScan = ({
       errorShownRef.current = false;
 
       try {
-        // Scanner configuration with default format support
-        // Optional fallback to QR_CODE only if needed
         const scanner = new Html5QrcodeScanner(
           containerIdRef.current,
           {
             fps: 10,
             qrbox: { width: 300, height: 300 },
             aspectRatio: 1.0,
-            // Default scanner config supporting standard formats
-            // supportedScanTypes: [Html5QrcodeSupportedFormats.QR_CODE],
+
             showTorchButtonIfSupported: true,
             showZoomSliderIfSupported: true,
             rememberLastUsedCamera: true
@@ -368,7 +357,6 @@ const QuickCheckInScan = ({
                 qrObj = JSON.parse(decodedText);
                 appointmentCodeFromQR = qrObj.c || qrObj.appointmentCode;
               } catch (err) {
-                // If JSON parsing fails, treat string directly as appointment code
                 appointmentCodeFromQR = decodedText.trim();
               }
 
@@ -378,7 +366,6 @@ const QuickCheckInScan = ({
                 return;
               }
 
-              // Locate appointment using scanned code
               showInfo(`Đang tìm lịch hẹn với mã: ${appointmentCodeFromQR}...`);
 
               const respGet = await appointmentService.getAppointmentByCode(appointmentCodeFromQR);
@@ -392,7 +379,6 @@ const QuickCheckInScan = ({
               let rawName = apt.patientName || (apt.patient && (apt.patient.fullName || apt.patient.name)) || '';
               const patientName = cleanPatientName(rawName, apt.patientId);
 
-              // Enrich appointment with shift date and time if absent
               const aptShiftId = apt.doctorShiftId || apt.DoctorShiftId || apt.doctor_shift_id || apt.shiftId || apt.ShiftId;
               if (aptShiftId && (!apt.appointmentDate || !apt.appointmentTime)) {
                 try {
@@ -400,7 +386,6 @@ const QuickCheckInScan = ({
                   if (shiftResp.success && shiftResp.data) {
                     const shift = shiftResp.data;
 
-                    // Enrich date
                     if (!apt.appointmentDate) {
                       const shiftDate = shift.ShiftDate || shift.shiftDate || shift.date || shift.Date;
                       if (shiftDate) {
@@ -414,12 +399,11 @@ const QuickCheckInScan = ({
                       }
                     }
 
-                    // Enrich time
                     if (!apt.appointmentTime) {
                       const shiftStart = shift.ShiftStart || shift.shiftStart || shift.start || shift.Start;
                       if (shiftStart) {
                         if (typeof shiftStart === 'string') {
-                          apt.appointmentTime = shiftStart.substring(0, 5); // Take HH:MM
+                          apt.appointmentTime = shiftStart.substring(0, 5);
                         } else {
                           apt.appointmentTime = String(shiftStart);
                         }
@@ -430,7 +414,6 @@ const QuickCheckInScan = ({
                 }
               }
 
-              // Verify appointment workflow status
               const rawAptStatus = (apt.status || '').toString();
 
               if (isTerminalStatus(rawAptStatus)) {
@@ -459,7 +442,6 @@ const QuickCheckInScan = ({
                 return;
               }
 
-              // Set pending state for manual confirmation instead of auto check-in
               setAlreadyCheckedInPatient(null);
               setPendingCheckInPatient({
                 aptId: apt.id,
@@ -533,7 +515,6 @@ const QuickCheckInScan = ({
       }
 
       try {
-        // Verify HTTPS or localhost context for camera API access
         const isSecureContext = window.isSecureContext ||
           window.location.protocol === 'https:' ||
           window.location.hostname === 'localhost' ||
@@ -545,32 +526,27 @@ const QuickCheckInScan = ({
           return;
         }
 
-        // Verify browser mediaDevices support
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           setCameraError('not_supported');
           showError('❌ Trình duyệt không hỗ trợ camera. Vui lòng sử dụng trình duyệt hiện đại như Chrome, Firefox, Safari hoặc Edge.');
           return;
         }
 
-        // Verify camera permission access
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' }
           });
-          // Stop validation stream immediately after check
+
           stream.getTracks().forEach(track => track.stop());
 
-          // Initialize scanner once camera permission is confirmed
           if (!clearedRef.current) {
-            // Delay initialization to ensure modal DOM rendering
             setTimeout(() => {
               if (!clearedRef.current && !startedRef.current) {
                 startScanner();
               }
-            }, 300); // Allow modal DOM to mount
+            }, 300);
           }
         } catch (permissionError) {
-          // Handle camera permission denial or error
           const errorMsg = permissionError.message || permissionError.name || '';
           errorShownRef.current = true;
 
@@ -591,20 +567,15 @@ const QuickCheckInScan = ({
       }
     };
 
-    // Initialize camera only when modal is fully visible
     if (scanMode === 'camera' && isModalOpen && isReady && !initialized && !startedRef.current && !clearedRef.current) {
-      // Await component mounting and element render
-      // Modal container readiness check
       const timer = setTimeout(() => {
-        // Verify scanner container element presence
         const containerElement = document.getElementById(containerIdRef.current);
         if (containerElement) {
           ensurePermission();
         } else {
-          // Proceed to ensurePermission with retry handling
           ensurePermission();
         }
-      }, 500); // Extended delay for modal mount
+      }, 500);
 
       return () => clearTimeout(timer);
     }
@@ -630,7 +601,6 @@ const QuickCheckInScan = ({
 
       const decodedText = await html5QrCodeRef.current.scanFile(file, false);
 
-      // Simulate QR scan
       if (decodedText) {
         scanningRef.current = true;
         showInfo('Đã quét được mã QR từ file, đang tìm lịch hẹn...');
@@ -690,7 +660,6 @@ const QuickCheckInScan = ({
           return;
         }
 
-        // Set pending state for manual confirmation instead of auto check-in
         setAlreadyCheckedInPatient(null);
         setPendingCheckInPatient({
           aptId: apt.id,
@@ -711,21 +680,18 @@ const QuickCheckInScan = ({
       scanningRef.current = false;
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   const handleRetryCamera = () => {
-    // Reset all states and refs
     setCameraError(null);
     errorShownRef.current = false;
     startedRef.current = false;
     clearedRef.current = false;
     clearContainer();
 
-    // Reset initialized to trigger useEffect to run again
     setInitialized(false);
   };
 
@@ -745,7 +711,6 @@ const QuickCheckInScan = ({
         </div>
       </Alert>
 
-      {/* Patient already checked-in notification panel */}
       {alreadyCheckedInPatient && !lastCheckedInPatient && (
         <div className="mb-4 p-3 rounded-4 border shadow-sm" style={{ background: '#F0F9FF', borderColor: '#BAE6FD', animation: 'fadeIn 0.3s' }}>
           <div className="d-flex align-items-start gap-3">
@@ -796,9 +761,9 @@ const QuickCheckInScan = ({
               </div>
 
               <div className="d-flex gap-2 justify-content-end flex-wrap">
-                <Button 
-                  variant="outline-secondary" 
-                  size="sm" 
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
                   className="rounded-pill px-3"
                   onClick={() => {
                     setAlreadyCheckedInPatient(null);
@@ -807,18 +772,18 @@ const QuickCheckInScan = ({
                 >
                   <RotateCw size="1em" className="me-1" /> Quét / Nhập mã khác
                 </Button>
-                <Button 
-                  variant="outline-primary" 
-                  size="sm" 
+                <Button
+                  variant="outline-primary"
+                  size="sm"
                   className="rounded-pill px-3 fw-semibold"
                   onClick={() => handlePrintK80Slip(alreadyCheckedInPatient)}
                 >
                   <Printer size="1em" className="me-1" /> In Lại Phiếu K80
                 </Button>
                 {onViewDetail && (
-                  <Button 
-                    variant="primary" 
-                    size="sm" 
+                  <Button
+                    variant="primary"
+                    size="sm"
                     className="rounded-pill px-3 fw-semibold text-white shadow-sm"
                     style={{ backgroundColor: '#1E60E6', borderColor: '#1E60E6' }}
                     onClick={() => {
@@ -834,7 +799,6 @@ const QuickCheckInScan = ({
         </div>
       )}
 
-      {/* Patient check-in pending confirmation panel */}
       {pendingCheckInPatient && !lastCheckedInPatient && !alreadyCheckedInPatient && (
         <Alert variant="warning" className="mb-3" style={{ borderRadius: '10px', animation: 'fadeIn 0.5s' }}>
           <div className="d-flex align-items-start">
@@ -871,7 +835,6 @@ const QuickCheckInScan = ({
         </Alert>
       )}
 
-      {/* Patient check-in success confirmation panel */}
       {lastCheckedInPatient && (
         <Alert variant="success" className="mb-3 rounded-4 shadow-sm border-0" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', animation: 'fadeIn 0.5s' }}>
           <div className="d-flex align-items-start gap-3">
@@ -980,7 +943,7 @@ const QuickCheckInScan = ({
               if (scanMode !== 'file') {
                 setScanMode('file');
                 setCameraError(null);
-                // Clear camera when switching to file mode
+
                 if (scannerRef.current && !clearedRef.current) {
                   clearedRef.current = true;
                   scannerRef.current.clear().catch(() => { });
@@ -1229,7 +1192,6 @@ const QuickCheckInScan = ({
         </Alert>
       )}
 
-      {/* Unified POS K80 Queue STT Slip Modal */}
       {posSlipPatient && (
         <PosThermalModal
           show={Boolean(posSlipPatient)}
@@ -1284,4 +1246,3 @@ const QuickCheckInScan = ({
 };
 
 export default QuickCheckInScan;
-

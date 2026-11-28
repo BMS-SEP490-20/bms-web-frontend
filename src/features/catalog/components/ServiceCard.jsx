@@ -71,7 +71,7 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         fontFamily: 'var(--font-sans)'
       }}
     >
-      {/* Category & Service Code Header */}
+
       <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '14px' }}>
         <span
           style={{
@@ -102,7 +102,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         </span>
       </div>
 
-      {/* Category Medical Artwork & Stylized Title */}
       <div className="d-flex align-items-center" style={{ gap: '16px', marginBottom: '12px' }}>
         <div style={{ width: '56px', height: '56px', flexShrink: 0 }}>
           <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={56} />
@@ -128,7 +127,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         </div>
       </div>
 
-      {/* Health Value Proposition */}
       <p
         className="small flex-grow-1"
         style={{
@@ -142,7 +140,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         {pkg.description}
       </p>
 
-      {/* Biomarker Pill Tags Preview */}
       {criteriaList.length > 0 && (
         <div className="d-flex flex-wrap align-items-center" style={{ gap: '6px', marginBottom: '18px' }}>
           {criteriaList.slice(0, 4).map((c, i) => (
@@ -168,7 +165,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         </div>
       )}
 
-      {/* Clinical Laboratory Manifest (Precision Details Box - Real Data Only) */}
       <div
         style={{
           backgroundColor: '#F8FAFC',
@@ -239,7 +235,6 @@ export default function ServiceCard({ package: pkgProp, pkg: directPkg, ratingSu
         ) : null}
       </div>
 
-      {/* Price & Action Buttons - 100% 2D Flat */}
       <div
         className="d-flex justify-content-between align-items-center mt-auto"
         style={{ border: 'none', paddingTop: '2px' }}

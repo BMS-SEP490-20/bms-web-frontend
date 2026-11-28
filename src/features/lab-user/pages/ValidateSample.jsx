@@ -26,7 +26,6 @@ import { sampleService } from '../../../services/sampleService';
 import api from '../../../config/api';
 import { getStoredUser } from '../../../constants/roles';
 
-// Các tiêu chuẩn đánh giá chất lượng tiền phân tích theo ISO 15189:2022
 const QUALITY_ASSESSMENT_OPTIONS = [
   {
     id: 'PASSED',
@@ -76,7 +75,6 @@ const ValidateSample = () => {
 
   const { showSuccess, showError } = useNotificationContext();
 
-  // Modal Kiểm chuẩn chi tiết
   const [showModal, setShowModal] = useState(false);
   const [selectedSample, setSelectedSample] = useState(null);
   const [assessmentType, setAssessmentType] = useState('PASSED');
@@ -91,7 +89,7 @@ const ValidateSample = () => {
     try {
       setLoading(true);
       setError(null);
-      // Ưu tiên tải từ BloodSample hoặc queue
+
       let sampleList = [];
       try {
         const response = await sampleService.getAllSamples();
@@ -101,7 +99,6 @@ const ValidateSample = () => {
           sampleList = response.data;
         }
       } catch {
-        // Fallback sang endpoint hàng đợi phòng lab
         const qRes = await api.get('/laboratory/samples/queue', { params: { pageSize: 50 } });
         if (Array.isArray(qRes.data?.data)) {
           sampleList = qRes.data.data;
@@ -117,7 +114,6 @@ const ValidateSample = () => {
     }
   };
 
-  // Mở modal kiểm chuẩn cho 1 mẫu
   const openAssessmentModal = (sample, defaultAssessment = 'PASSED') => {
     setSelectedSample(sample);
     setAssessmentType(defaultAssessment);
@@ -133,7 +129,6 @@ const ValidateSample = () => {
     setShowModal(true);
   };
 
-  // Xử lý gửi kết quả kiểm chuẩn
   const handleSubmitAssessment = async (e) => {
     e.preventDefault();
     if (!selectedSample) return;
@@ -148,7 +143,6 @@ const ValidateSample = () => {
 
     setSubmitting(true);
     try {
-      // 1. Gửi validate theo service
       await sampleService.validateSample(sampleId, {
         isValid: isApproved,
         status: selectedOption.status,
@@ -159,7 +153,6 @@ const ValidateSample = () => {
         LabUserId: labUserId
       });
 
-      // 2. RÀNG BUỘC NGHIỆP VỤ: Mẫu bị tán huyết (Hemolysis) -> Khóa phân tích & Kích hoạt Rerun/Recollect
       if (isHemolysis) {
         try {
           await api.post(`/laboratory/samples/${encodeURIComponent(sampleId)}/rerun`, {
@@ -167,21 +160,17 @@ const ValidateSample = () => {
             requestedBy: labUserName
           });
         } catch {
-          // Bỏ qua nếu mẫu đã có yêu cầu rerun
         }
 
         try {
-          // Cập nhật trạng thái sang Rejected trên queue để khóa triệt để
           await api.put(`/laboratory/samples/${encodeURIComponent(sampleId)}/status`, {
             status: 'Rejected',
             rejectionReason: `Tán huyết (Hemolysis) - Khóa phân tích: ${notes}`,
             technicianName: labUserName
           });
         } catch {
-          // Non-blocking
         }
       } else if (!isApproved) {
-        // Các lý do từ chối khác (Đông dây, thiếu thể tích)
         try {
           await api.put(`/laboratory/samples/${encodeURIComponent(sampleId)}/status`, {
             status: 'Rejected',
@@ -189,7 +178,6 @@ const ValidateSample = () => {
             technicianName: labUserName
           });
         } catch {
-          // Non-blocking
         }
       }
 
@@ -258,7 +246,7 @@ const ValidateSample = () => {
 
   return (
     <Container fluid className="py-2 px-md-4">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <div className="bms-page-title-row">
@@ -284,7 +272,6 @@ const ValidateSample = () => {
         </Alert>
       )}
 
-      {/* Single-Line Filter Bar */}
       <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
           <Search className="bms-search-icon" size="1em" />
@@ -312,7 +299,6 @@ const ValidateSample = () => {
         </span>
       </div>
 
-      {/* Bảng danh sách mẫu kiểm chuẩn */}
       <Card className="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
         <Card.Body className="p-0">
           <div className="table-responsive">
@@ -396,7 +382,7 @@ const ValidateSample = () => {
                         </td>
                         <td className="px-3 text-end">
                           <div className="d-flex justify-content-end gap-1 flex-wrap">
-                            {/* Nút Đạt chuẩn */}
+
                             {canQc ? (
                               <>
                                 <Button
@@ -452,7 +438,6 @@ const ValidateSample = () => {
         </Card.Body>
       </Card>
 
-      {/* Modal Kiểm chuẩn Chất Lượng Chi Tiết ISO 15189 */}
       <Modal show={showModal} onHide={() => !submitting && setShowModal(false)} size="lg" centered backdrop="static">
         <Form onSubmit={handleSubmitAssessment}>
           <Modal.Header closeButton={!submitting} className="bg-light">
@@ -479,7 +464,6 @@ const ValidateSample = () => {
               </div>
             )}
 
-            {/* Lựa chọn phân loại chất lượng */}
             <div className="mb-3">
               <Form.Label className="small fw-bold text-secondary text-uppercase">
                 Chọn kết quả kiểm chuẩn chất lượng mẫu (Pre-analytical Status) <span className="text-danger">*</span>
@@ -530,30 +514,27 @@ const ValidateSample = () => {
               </div>
             </div>
 
-            {/* CẢNH BÁO RÀNG BUỘC NGHIỆP VỤ TÁN HUYẾT */}
             {assessmentType === 'HEMOLYSIS' && (
               <Alert variant="danger" className="d-flex align-items-center gap-2 rounded-3 border-danger">
                 <Lock className="fs-3 text-danger flex-shrink-0"  size="1em"/>
                 <div className="small">
-                  <strong>LƯU Ý:</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>, cần từ chối và lấy lại. 
-                  Hệ thống sẽ ngay lập tức <strong>Khóa phân tích mẫu này trên máy tự động</strong> và tự động chuyển yêu cầu 
+                  <strong>LƯU Ý:</strong> Mẫu bị <strong>Tán Huyết (Hemolysis)</strong>, cần từ chối và lấy lại.
+                  Hệ thống sẽ ngay lập tức <strong>Khóa phân tích mẫu này trên máy tự động</strong> và tự động chuyển yêu cầu
                   <strong> Lấy lại mẫu mới (Recollect / Rerun)</strong> đến khoa phòng chỉ định.
                 </div>
               </Alert>
             )}
 
-            {/* CẢNH BÁO RÀNG BUỘC ĐÔNG DÂY */}
             {assessmentType === 'CLOTTED' && (
               <Alert variant="warning" className="d-flex align-items-center gap-2 rounded-3 border-warning">
                 <AlertTriangle className="fs-3 text-warning-emphasis flex-shrink-0"  size="1em"/>
                 <div className="small text-dark">
-                  <strong>CẢNH BÁO AN TOÀN THIẾT BỊ:</strong> Mẫu bị <strong>Đông dây / Vón cục (Clotted)</strong>. 
+                  <strong>CẢNH BÁO AN TOÀN THIẾT BỊ:</strong> Mẫu bị <strong>Đông dây / Vón cục (Clotted)</strong>.
                   Khóa phân tích để ngăn ngừa tắc kim hút và hỏng cảm biến máy phân tích tự động. Yêu cầu lấy lại mẫu.
                 </div>
               </Alert>
             )}
 
-            {/* Ghi chú chuyên môn */}
             <div className="mb-3">
               <Form.Label className="small fw-semibold text-secondary">
                 Ghi Chú Đánh Giá Kỹ Thuật (Technical Validation Notes) <span className="text-danger">*</span>

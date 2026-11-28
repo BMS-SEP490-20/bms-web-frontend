@@ -32,19 +32,16 @@ export default function BillingInvoicesPage() {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Filters
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Modals
   const [printData, setPrintData] = useState(null);
   const [showVatModal, setShowVatModal] = useState(false);
   const [vatInvoiceData, setVatInvoiceData] = useState(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(1); // 1: Cash, 2: VNPay, 3: BankTransfer, 4: POS Card
+  const [paymentMethod, setPaymentMethod] = useState(1);
 
-  // New Invoice Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPatientName, setNewPatientName] = useState('');
   const [newPatientPhone, setNewPatientPhone] = useState('');
@@ -208,7 +205,6 @@ export default function BillingInvoicesPage() {
     }
   };
 
-  // Filtered list by search
   const filteredInvoices = useMemo(() => {
     return invoices.filter(inv => {
       if (!searchTerm) return true;
@@ -239,8 +235,7 @@ export default function BillingInvoicesPage() {
 
   return (
     <div className="container-fluid py-3 px-4" style={{ maxWidth: '1440px', margin: '0 auto', fontFamily: 'Inter, system-ui, sans-serif' }}>
-      
-      {/* Master Page Header Card (BMS Luxury Standard) */}
+
       <div className="bms-page-header-card d-flex align-items-center justify-content-between flex-wrap gap-3 p-3 mb-4 bg-white rounded-4 shadow-sm border border-slate-100">
         <div className="d-flex align-items-center gap-3">
           <div style={{
@@ -301,7 +296,6 @@ export default function BillingInvoicesPage() {
         </div>
       </div>
 
-      {/* Notifications */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm py-2 px-3 mb-3">
           <AlertTriangle size="1em" className="me-2" />
@@ -315,7 +309,6 @@ export default function BillingInvoicesPage() {
         </Alert>
       )}
 
-      {/* Luxury Metric Cards */}
       <Row className="g-3 mb-4">
         <Col md={4}>
           <div className="p-3 bg-white rounded-4 border shadow-sm d-flex align-items-center justify-content-between h-100" style={{ borderColor: '#e2e8f0' }}>
@@ -360,7 +353,6 @@ export default function BillingInvoicesPage() {
         </Col>
       </Row>
 
-      {/* Unified Invoices Card */}
       <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
         <div className="card-header bg-white border-bottom py-3 px-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
@@ -461,7 +453,7 @@ export default function BillingInvoicesPage() {
 
                     return (
                       <tr key={inv.id || inv.invoiceCode} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        {/* Mã Hóa Đơn */}
+
                         <td style={{ padding: '12px 16px' }}>
                           <span
                             className="bms-role-code-cell fw-bold"
@@ -478,7 +470,6 @@ export default function BillingInvoicesPage() {
                           </span>
                         </td>
 
-                        {/* Bệnh Nhân */}
                         <td style={{ padding: '12px 16px' }}>
                           <div className="fw-semibold text-dark" style={{ fontSize: '13.5px' }}>
                             {inv.patientName || 'Khách vãng lai'}
@@ -488,7 +479,6 @@ export default function BillingInvoicesPage() {
                           </div>
                         </td>
 
-                        {/* Dịch Vụ */}
                         <td style={{ padding: '12px 16px', maxWidth: '240px' }}>
                           <div className="text-truncate text-dark fw-medium" title={mainItem}>
                             {mainItem}
@@ -498,14 +488,12 @@ export default function BillingInvoicesPage() {
                           </div>
                         </td>
 
-                        {/* Số Tiền */}
                         <td style={{ padding: '12px 16px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                           <div className="fw-bold" style={{ color: '#0f172a', fontSize: '14.5px' }}>
                             {Number(inv.totalAmount || inv.finalAmount || 0).toLocaleString('vi-VN')} đ
                           </div>
                         </td>
 
-                        {/* Trạng Thái */}
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           {(() => {
                             const stRaw = String(inv.status ?? '').toLowerCase();
@@ -542,7 +530,6 @@ export default function BillingInvoicesPage() {
                           })()}
                         </td>
 
-                        {/* Số Lần In */}
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           {inv.printCount > 0 ? (
                             <span
@@ -563,12 +550,10 @@ export default function BillingInvoicesPage() {
                           )}
                         </td>
 
-                        {/* Thời Gian */}
                         <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '12.5px', whiteSpace: 'nowrap' }}>
                           {inv.createdAt ? new Date(inv.createdAt).toLocaleString('vi-VN') : '—'}
                         </td>
 
-                        {/* THAO TÁC: Standardized to "In Biên Lai" & "HĐ VAT" with Luxury System Styling */}
                         <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                           <div className="d-inline-flex align-items-center gap-2">
                             {!isPaid ? (
@@ -603,7 +588,7 @@ export default function BillingInvoicesPage() {
                               })()
                             ) : (
                               <>
-                                {/* In Biên Lai (K80) */}
+
                                 <Button
                                   variant="outline-primary"
                                   size="sm"
@@ -623,7 +608,6 @@ export default function BillingInvoicesPage() {
                                   <span>In Biên Lai</span>
                                 </Button>
 
-                                {/* Hóa Đơn Thu Phí Dịch Vụ (POS K80) */}
                                 <Button
                                   variant="outline-secondary"
                                   size="sm"
@@ -665,9 +649,6 @@ export default function BillingInvoicesPage() {
         </div>
       </div>
 
-      {/* ============================================================== */}
-      {/* MODAL 1: TẠO HÓA ĐƠN THU PHÍ MỚI (Overhauled with BMS Luxury UI) */}
-      {/* ============================================================== */}
       <Modal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
@@ -705,7 +686,7 @@ export default function BillingInvoicesPage() {
           </Modal.Header>
 
           <Modal.Body style={{ padding: '24px' }}>
-            {/* 1. Thông Tin Người Bệnh */}
+
             <div className="mb-4">
               <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
                 <IdCard size="1em" className="text-primary" />
@@ -756,7 +737,6 @@ export default function BillingInvoicesPage() {
 
             <hr className="my-3 text-slate-200" />
 
-            {/* 2. Chỉ Định Dịch Vụ & Viện Phí */}
             <div className="mb-4">
               <h6 className="fw-bold text-dark d-flex align-items-center gap-2 mb-3" style={{ fontSize: '14.5px' }}>
                 <ClipboardList size="1em" className="text-primary" />
@@ -833,7 +813,6 @@ export default function BillingInvoicesPage() {
               </Row>
             </div>
 
-            {/* 3. Live Summary Card (BMS Billing Calculator) */}
             <div
               className="p-3 rounded-3 border"
               style={{
@@ -897,9 +876,6 @@ export default function BillingInvoicesPage() {
         </Form>
       </Modal>
 
-      {/* ============================================================== */}
-      {/* MODAL 2: XÁC NHẬN THU TIỀN POS / TIỀN MẶT (BMS System Style)   */}
-      {/* ============================================================== */}
       <Modal
         show={showPayModal && !!selectedInvoice}
         onHide={() => setShowPayModal(false)}
@@ -1021,9 +997,6 @@ export default function BillingInvoicesPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* ============================================================== */}
-      {/* MODAL 3: IN BIÊN LAI NHIỆT K80 (ReceiptPrintModal)             */}
-      {/* ============================================================== */}
       {printData && (
         <ReceiptPrintModal
           printData={printData}
@@ -1031,9 +1004,6 @@ export default function BillingInvoicesPage() {
         />
       )}
 
-      {/* ============================================================== */}
-      {/* MODAL 4: HÓA ĐƠN ĐIỆN TỬ VAT (Nghị định 123 / Thông tư 78)     */}
-      {/* ============================================================== */}
       <VatInvoiceModal
         show={showVatModal}
         onClose={() => setShowVatModal(false)}

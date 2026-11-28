@@ -93,7 +93,6 @@ export default function AddMedicalNotesPage() {
 
   const record = context?.record;
 
-  // Defensive array checks
   const notes = Array.isArray(context?.items)
     ? context.items
     : (Array.isArray(context?.data) ? context.data : (Array.isArray(context) ? context : []));
@@ -212,7 +211,7 @@ export default function AddMedicalNotesPage() {
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <Form.Label htmlFor="medical-note-content" className="fw-semibold mb-0">Nội dung ghi chú <span className="text-danger">*</span></Form.Label>
                   </div>
-                  {/* SOAPE Clinical Note Template Helpers */}
+
                   <div className="mb-2 d-flex flex-wrap gap-1 align-items-center">
                     <span className="small text-muted fw-semibold me-1" style={{ fontSize: "11px" }}>Mẫu SOAPE:</span>
                     <Button

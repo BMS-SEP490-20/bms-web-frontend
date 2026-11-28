@@ -136,7 +136,6 @@ export default function InitialMedicalProfileSetup() {
         try {
           pat = await getMyPatientInformation();
         } catch {
-          // Fallback to stored session
         }
 
         const fullName = pat?.fullName || stored?.fullName || stored?.FullName || '';
@@ -404,7 +403,7 @@ export default function InitialMedicalProfileSetup() {
 
       <div className="bms-intake-page">
         <div className="bms-intake-container">
-          {/* Header Card */}
+
           <div className="bms-page-header-card mb-4">
             <div className="bms-page-header-content">
               <div className="bms-page-title-row">
@@ -443,7 +442,7 @@ export default function InitialMedicalProfileSetup() {
           )}
 
           <Form onSubmit={handleSubmit}>
-            {/* Section 1: Demographics */}
+
             <div className="bms-intake-card">
               <div className="bms-intake-card-head">
                 <h2 className="bms-intake-card-title">
@@ -571,7 +570,6 @@ export default function InitialMedicalProfileSetup() {
               </Row>
             </div>
 
-            {/* Section 2: Blood Type & Vitals */}
             <div className="bms-intake-card" id="field-bloodType">
               <div className="bms-intake-card-head">
                 <h2 className="bms-intake-card-title">
@@ -680,7 +678,6 @@ export default function InitialMedicalProfileSetup() {
               </div>
             </div>
 
-            {/* Section 3: Medical History & Allergies */}
             <div className="bms-intake-card">
               <div className="bms-intake-card-head">
                 <h2 className="bms-intake-card-title">
@@ -690,7 +687,6 @@ export default function InitialMedicalProfileSetup() {
                 <p className="bms-intake-card-sub">Bật công tắc nếu không có</p>
               </div>
 
-              {/* Coagulation */}
               <div className="bms-intake-history-item" id="field-coagulation">
                 <div className="bms-intake-history-top">
                   <div className="bms-intake-history-title">Rối loạn đông máu / Dùng kháng đông *</div>
@@ -733,7 +729,6 @@ export default function InitialMedicalProfileSetup() {
                 {errors.coagulation && <small className="bms-intake-err">{errors.coagulation}</small>}
               </div>
 
-              {/* Chronic Conditions */}
               <div className="bms-intake-history-item" id="field-medicalHistory">
                 <div className="bms-intake-history-top">
                   <div className="bms-intake-history-title">Bệnh lý mạn tính *</div>
@@ -779,7 +774,6 @@ export default function InitialMedicalProfileSetup() {
                 {errors.medicalHistory && <small className="bms-intake-err">{errors.medicalHistory}</small>}
               </div>
 
-              {/* Allergies */}
               <div className="bms-intake-history-item" id="field-allergies">
                 <div className="bms-intake-history-top">
                   <div className="bms-intake-history-title">Tiền sử dị ứng (thuốc, thực phẩm, hóa chất) *</div>
@@ -823,7 +817,6 @@ export default function InitialMedicalProfileSetup() {
                 {errors.allergies && <small className="bms-intake-err">{errors.allergies}</small>}
               </div>
 
-              {/* Medications */}
               <div className="bms-intake-history-item" id="field-medications">
                 <div className="bms-intake-history-top">
                   <div className="bms-intake-history-title">Thuốc đang sử dụng định kỳ *</div>
@@ -855,7 +848,6 @@ export default function InitialMedicalProfileSetup() {
               </div>
             </div>
 
-            {/* Section 4: Emergency Contact & Submit */}
             <div className="bms-intake-card">
               <div className="bms-intake-card-head">
                 <h2 className="bms-intake-card-title">

@@ -1,11 +1,3 @@
-/* ============================================================================
-   UNIFIED 80mm POS THERMAL SLIP DESIGN SYSTEM (KHỔ GIẤY MÁY IN NHIỆT K80)
-   Used identically for:
-   1. Hóa đơn thu phí dịch vụ y tế (Billing / Payment Receipt)
-   2. Phiếu xác nhận lịch hẹn & tiếp đón (Appointment / Reception Slip)
-   3. Phiếu số thứ tự lấy mẫu (Queue STT Ticket)
-   ============================================================================ */
-
 .bms-pos-modal-overlay {
   position: fixed;
   inset: 0;
@@ -17,7 +9,6 @@
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
-/* Top dark floating action bar (hidden in print) */
 .bms-pos-modal-toolbar {
   display: flex;
   align-items: center;
@@ -131,7 +122,6 @@
   color: #ffffff;
 }
 
-/* Scrollable preview stage */
 .bms-pos-modal-stage {
   flex: 1;
   overflow-y: auto;
@@ -141,9 +131,6 @@
   align-items: center;
 }
 
-/* ============================================================================
-   THE 80mm THERMAL PAPER ROLL CARD (SCREEN PREVIEW + PRINT)
-   ============================================================================ */
 .bms-pos-paper {
   position: relative;
   width: 340px;
@@ -158,7 +145,6 @@
   text-align: left;
 }
 
-/* Authentic perforated / serrated thermal paper edge top & bottom (screen only) */
 .bms-pos-paper::before,
 .bms-pos-paper::after {
   content: '';
@@ -182,7 +168,6 @@
     linear-gradient(315deg, transparent 50%, #ffffff 50%);
 }
 
-/* Reprint warning strip */
 .bms-pos-reprint-banner {
   border: 1.5px dashed #dc2626;
   background: #fef2f2;
@@ -196,7 +181,6 @@
   border-radius: 4px;
 }
 
-/* Unified clinic header */
 .bms-pos-clinic-header {
   text-align: center;
   margin-bottom: 10px;
@@ -218,7 +202,6 @@
   line-height: 1.38;
 }
 
-/* Dashed thermal separators */
 .bms-pos-divider {
   border: 0;
   border-top: 1px dashed #64748b;
@@ -232,7 +215,6 @@
   margin: 10px 0;
 }
 
-/* Slip Title */
 .bms-pos-title-block {
   text-align: center;
   margin: 6px 0;
@@ -253,7 +235,6 @@
   margin-top: 2px;
 }
 
-/* Highlight Box (STT Number / Appointment Code / Paid Status) */
 .bms-pos-highlight {
   border: 2px solid #0f172a;
   background: #f8fafc;
@@ -307,7 +288,6 @@
   background: #ffffff;
 }
 
-/* Section Heading */
 .bms-pos-section-title {
   font-size: 10.5px;
   font-weight: 800;
@@ -317,7 +297,6 @@
   margin: 8px 0 5px 0;
 }
 
-/* Key-Value Metadata Rows */
 .bms-pos-kv-list {
   display: flex;
   flex-direction: column;
@@ -349,7 +328,6 @@
   font-family: 'Consolas', 'Courier New', monospace;
 }
 
-/* Itemized Service Lines (2-line POS format so long medical names never clip) */
 .bms-pos-items-header {
   display: flex;
   justify-content: space-between;
@@ -392,7 +370,6 @@
   color: #0f172a;
 }
 
-/* Totals Block */
 .bms-pos-totals {
   display: flex;
   flex-direction: column;
@@ -433,7 +410,6 @@
   line-height: 1.38;
 }
 
-/* Dashed Notice / Instructions Box */
 .bms-pos-notice {
   border: 1px dashed #64748b;
   background: #f8fafc;
@@ -454,7 +430,6 @@
   margin-bottom: 3px;
 }
 
-/* QR Block */
 .bms-pos-qr-block {
   text-align: center;
   margin: 10px 0 4px 0;
@@ -483,7 +458,6 @@
   letter-spacing: 0.4px;
 }
 
-/* Unified Footer */
 .bms-pos-footer {
   text-align: center;
   font-size: 10.2px;
@@ -505,7 +479,6 @@
   margin-top: 5px;
 }
 
-/* Paper format hint chip below the roll on screen */
 .bms-pos-stage-hint {
   margin-top: 18px;
   font-size: 11.5px;
@@ -513,7 +486,6 @@
   text-align: center;
 }
 
-/* Fallback browser Ctrl+P print isolation */
 @media print {
   @page {
     size: 80mm auto;

@@ -31,10 +31,9 @@ export default function TestCriteriaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
-  // Modal states
   const [formModalState, setFormModalState] = useState({
     isOpen: false,
-    mode: 'create', // 'create' | 'edit'
+    mode: 'create',
     criterion: null,
   });
 
@@ -43,7 +42,6 @@ export default function TestCriteriaPage() {
     criterion: null,
   });
 
-  // Debounce search ref
   const searchTimeoutRef = useRef(null);
 
   const showToast = (message, type = 'success') => {
@@ -194,7 +192,7 @@ export default function TestCriteriaPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -229,7 +227,6 @@ export default function TestCriteriaPage() {
         </div>
       </div>
 
-      {/* Single-Line Flat Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <Search className="bms-search-icon"  size="1em"/>
@@ -301,7 +298,6 @@ export default function TestCriteriaPage() {
         </span>
       </div>
 
-      {/* Standalone Table Section */}
       <section className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -433,7 +429,6 @@ export default function TestCriteriaPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
         <div className="bms-pagination-bar p-3 bg-white border-top d-flex align-items-center justify-content-between">
           <div className="bms-pagination-info small text-muted">
             Trang <strong>{pagination.currentPage}</strong> / <strong>{pagination.totalPages}</strong>
@@ -459,7 +454,6 @@ export default function TestCriteriaPage() {
         </div>
       </section>
 
-      {/* Add / Edit Modal */}
       <TestCriterionFormModal
         isOpen={formModalState.isOpen}
         mode={formModalState.mode}
@@ -468,7 +462,6 @@ export default function TestCriteriaPage() {
         onSave={handleSaveCriterion}
       />
 
-      {/* Deactivate Modal */}
       <DeactivateCriterionModal
         isOpen={deactivateModalState.isOpen}
         criterion={deactivateModalState.criterion}
@@ -476,7 +469,6 @@ export default function TestCriteriaPage() {
         onConfirm={handleConfirmDeactivate}
       />
 
-      {/* Toast Notification */}
       {toast && (
         <div className={`bms-toast ${toast.type === 'error' ? 'bms-toast-error' : 'bms-toast-success'}`}>
           <span className="d-inline-flex align-items-center">

@@ -20,7 +20,7 @@ export default function TermsOfServicePage() {
       <PortalNavbar />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Header Banner */}
+
         <section className="pt-4 pb-3 mb-4">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -49,7 +49,6 @@ export default function TermsOfServicePage() {
           </div>
         </section>
 
-        {/* 2. Content Body */}
         <section className="pb-5 mb-5">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -61,7 +60,7 @@ export default function TermsOfServicePage() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
               }}
             >
-              {/* Điều 1 */}
+
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   1. Giới Thiệu &amp; Phạm Vi Cung Cấp Dịch Vụ
@@ -71,7 +70,6 @@ export default function TermsOfServicePage() {
                 </p>
               </div>
 
-              {/* Điều 2 */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   2. Quyền Lợi &amp; Nghĩa Vụ Của Người Bệnh
@@ -104,7 +102,6 @@ export default function TermsOfServicePage() {
                 </div>
               </div>
 
-              {/* Điều 3 */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   3. Quy Trình Đặt Lịch &amp; Dịch Vụ Lấy Mẫu Tận Nơi
@@ -119,7 +116,6 @@ export default function TermsOfServicePage() {
                 </ul>
               </div>
 
-              {/* Điều 4 */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   4. Trả Kết Quả Điện Tử &amp; Giá Trị Pháp Lý
@@ -129,7 +125,6 @@ export default function TermsOfServicePage() {
                 </p>
               </div>
 
-              {/* Điều 5 */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   5. Chính Sách Đổi Lịch Hẹn, Hủy Lịch &amp; Hoàn Tiền
@@ -141,7 +136,6 @@ export default function TermsOfServicePage() {
                 </ul>
               </div>
 
-              {/* Điều 6 */}
               <div>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   6. Hỗ Trợ Khách Hàng &amp; Giải Quyết Khiếu Nại
@@ -164,10 +158,8 @@ export default function TermsOfServicePage() {
           </div>
         </section>
 
-        {/* 3. Mega Footer */}
         <MegaFooter />
       </div>
     </div>
   );
 }
-

@@ -15,7 +15,7 @@ export const getUserProfile = async () => {
   try {
     const response = await api.get('/api/v1/users/me', {
       headers: {
-        'X-Demo-User': '1', // Permits offline development and UI preview
+        'X-Demo-User': '1',
       },
     });
 

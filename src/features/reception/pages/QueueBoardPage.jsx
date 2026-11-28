@@ -96,7 +96,7 @@ export default function QueueBoardPage() {
 
   useEffect(() => {
     loadQueue();
-    const timer = setInterval(loadQueue, 15000); // Live poll every 15s
+    const timer = setInterval(loadQueue, 15000);
     return () => clearInterval(timer);
   }, [loadQueue]);
 
@@ -109,7 +109,7 @@ export default function QueueBoardPage() {
         patientCode: `WLK-${Date.now().toString().slice(-4)}`,
         isWalkIn: true,
         packageName: "Tổng phân tích tế bào máu",
-        priority: 1, // Routine
+        priority: 1,
       });
 
       const issuedCode = res?.data?.ticketNumber || nextNum;
@@ -156,7 +156,7 @@ export default function QueueBoardPage() {
     }
     const counterToUse = selectedCounter;
     try {
-      await queueApi.updateQueueTicketStatus(ticket.id, 3, counterToUse); // 3 = Collecting
+      await queueApi.updateQueueTicketStatus(ticket.id, 3, counterToUse);
       setActionMessage({ type: "success", text: `✅ Bệnh nhân ${ticket.ticketNumber} đang tiến hành lấy mẫu` });
     } catch (err) {
       setActionMessage({ type: "danger", text: `❌ Lỗi cập nhật: ${err?.message || "Không thể cập nhật"}` });
@@ -202,7 +202,7 @@ export default function QueueBoardPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <span className="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
@@ -257,9 +257,8 @@ export default function QueueBoardPage() {
         </div>
       )}
 
-      {/* Main Grid: Left Queue Standalone Table, Right Issue Box */}
       <div className="row g-4">
-        {/* Left Column: Unified Card Section */}
+
         <div className="col-12 col-xl-8">
           <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
             <div className="card-header bg-white border-bottom py-3 px-4">
@@ -379,9 +378,8 @@ export default function QueueBoardPage() {
         </div>
       </div>
 
-        {/* Right Column: Issue Ticket & Stats */}
         <div className="col-12 col-xl-4">
-          {/* Issue Ticket Card */}
+
           <div className="card shadow-sm border-0 rounded-4 mb-4 text-center" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Cấp Số Thứ Tự Mới</h3>
@@ -417,7 +415,6 @@ export default function QueueBoardPage() {
             </div>
           </div>
 
-          {/* Queue Stats Card */}
           <div className="card shadow-sm border-0 rounded-4 mb-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Thống Kê Hàng Đợi</h3>
@@ -454,7 +451,6 @@ export default function QueueBoardPage() {
             </div>
           </div>
 
-          {/* Collection Counters Card */}
           <div className="card shadow-sm border-0 rounded-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
             <div className="card-header bg-white py-3 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <h3 className="h6 fw-bold mb-0" style={{ color: '#0F172A' }}>Danh Sách Bàn Tiếp Đón</h3>
@@ -486,7 +482,6 @@ export default function QueueBoardPage() {
         </div>
       </div>
 
-      {/* Unified POS K80 Queue STT Slip Modal */}
       {posTicketSlip && (
         <PosThermalModal
           show={Boolean(posTicketSlip)}

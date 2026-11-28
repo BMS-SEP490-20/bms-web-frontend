@@ -193,7 +193,6 @@ export default function LookupBiochemicalResultsPage() {
       );
     });
 
-    // Prioritize Pending -> PANIC -> Abnormal -> Latest
     return [...filtered].sort((a, b) => {
       const aAppr = isResultApproved(a) ? 1 : 0;
       const bAppr = isResultApproved(b) ? 1 : 0;
@@ -228,7 +227,7 @@ export default function LookupBiochemicalResultsPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -261,7 +260,6 @@ export default function LookupBiochemicalResultsPage() {
         </div>
       </div>
 
-      {/* 4 Interactive KPI Summary Cards */}
       <div className="bms-res-kpi-grid mb-3">
         <button
           type="button"
@@ -324,7 +322,6 @@ export default function LookupBiochemicalResultsPage() {
         </button>
       </div>
 
-      {/* Single-Line Search & Filter Bar */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <Form onSubmit={handleSearchSubmit} className="d-flex align-items-center gap-2 flex-grow-1" style={{ minWidth: '280px' }}>
           <div className="bms-search-input-pill flex-grow-1">
@@ -393,7 +390,6 @@ export default function LookupBiochemicalResultsPage() {
         </Alert>
       )}
 
-      {/* Full-Width Clean Worklist Table */}
       <Card className="border-0 rounded-4 overflow-hidden bg-white" style={{ border: '1px solid #E2E8F0' }}>
         <Card.Header className="bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div className="d-flex align-items-center gap-2">

@@ -43,7 +43,6 @@ export default function QualityControlManagementPage() {
         return roles.some((r) => r === "manager" || r === "admin" || r === "clinicmanager");
     }, [user]);
 
-    // Top-level states
     const [lots, setLots] = useState([]);
     const [selectedLotId, setSelectedLotId] = useState("");    const [ljData, setLjData] = useState(null);
     const [qcError, setQcError] = useState("");
@@ -58,10 +57,9 @@ export default function QualityControlManagementPage() {
     const [flags, setFlags] = useState([]);
     const lotsPag = usePagination(lots, 10);
     const qcFlagsPag = usePagination(flags, 10);
-    const [activeTab, setActiveTab] = useState("chart"); // 'chart' | 'lots' | 'flags'
+    const [activeTab, setActiveTab] = useState("chart");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Record Run Modal / Form State
     const [showRecordModal, setShowRecordModal] = useState(false);
     const [measuredValue, setMeasuredValue] = useState("");
     const [operatorName, setOperatorName] = useState(() => user?.fullName || user?.name || user?.username || "KTV Phòng Xét Nghiệm");
@@ -75,7 +73,6 @@ export default function QualityControlManagementPage() {
     const [recordResult, setRecordResult] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
 
-    // Create Lot Modal State
     const [showCreateLotModal, setShowCreateLotModal] = useState(false);
     const [newLotForm, setNewLotForm] = useState({
         lotNumber: "",
@@ -90,13 +87,11 @@ export default function QualityControlManagementPage() {
     });
     const [isCreatingLot, setIsCreatingLot] = useState(false);
 
-    // Signoff Modal State
     const [showSignoffModal, setShowSignoffModal] = useState(false);
     const [selectedRunForSignoff, setSelectedRunForSignoff] = useState(null);
     const [correctiveActionNotes, setCorrectiveActionNotes] = useState("");
     const [isSigningOff, setIsSigningOff] = useState(false);
 
-    // Load initial data
     const loadLotsAndSummary = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -120,7 +115,6 @@ export default function QualityControlManagementPage() {
         }
     }, [selectedLotId]);
 
-    // Load Levey-Jennings Chart Data for selected lot
     const loadLeveyJennings = useCallback(async (lotId) => {
         if (!lotId) return;
         try {
@@ -141,7 +135,6 @@ export default function QualityControlManagementPage() {
         }
     }, [selectedLotId, loadLeveyJennings]);
 
-    // Handle recording QC run
     const handleRecordRun = async (e) => {
         e.preventDefault();
         if (!selectedLotId || !measuredValue) return;
@@ -165,7 +158,6 @@ export default function QualityControlManagementPage() {
         }
     };
 
-    // Handle create new QC Lot
     const handleCreateLot = async (e) => {
         e.preventDefault();
         setIsCreatingLot(true);
@@ -193,7 +185,6 @@ export default function QualityControlManagementPage() {
         }
     };
 
-    // Handle toggle lot status
     const handleToggleStatus = async (lotId) => {
         try {
             await toggleQcLotStatus(lotId);
@@ -204,7 +195,6 @@ export default function QualityControlManagementPage() {
         }
     };
 
-    // Handle signoff corrective action
     const handleSignoff = async (e) => {
         e.preventDefault();
         if (!selectedRunForSignoff) return;
@@ -228,7 +218,6 @@ export default function QualityControlManagementPage() {
         }
     };
 
-    // SVG Levey-Jennings Chart Rendering calculations
     const chartRenderData = useMemo(() => {
         if (!ljData || !ljData.points || ljData.points.length === 0) return null;
 
@@ -239,7 +228,6 @@ export default function QualityControlManagementPage() {
         const plotWidth = width - padding.left - padding.right;
         const plotHeight = height - padding.top - padding.bottom;
 
-        // Y-axis spans from -3.5s to +3.5s
         const yMin = mean - 3.5 * sd;
         const yMax = mean + 3.5 * sd;
 
@@ -274,7 +262,6 @@ export default function QualityControlManagementPage() {
         return { width, height, padding, lines, coords, polylinePoints, getY };
     }, [ljData]);
 
-    // RÀNG BUỘC NGHIỆP VỤ ISO 15189: Chỉ cảnh báo khóa máy khi có lượt chạy đang thực sự bị khóa (isLocked === true)
     const has13sViolation = useMemo(() => {
         if (!ljData || !Array.isArray(ljData.points)) return false;
         return ljData.points.some(p => Boolean(p.isLocked));
@@ -282,17 +269,17 @@ export default function QualityControlManagementPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Master Luxury Page Header Card */}
+
             <div className="bms-page-header-card">
                 <div className="bms-page-header-content">
-                    
+
                     <div className="bms-page-title-row">
-                        
+
                         <h1 className="bms-page-title">
                             Kiểm Chuẩn Chất Lượng Xét Nghiệm (IQC) &amp; Đa Quy Tắc Westgard
                         </h1>
                     </div>
-                    
+
                 </div>
 
                 <div className="bms-page-actions">
@@ -334,9 +321,8 @@ export default function QualityControlManagementPage() {
                 </div>
             ) : null}
 
-            {/* KPI Surveillance Ribbon */}
             <div className="row g-3 mb-4">
-                {/* In-Control Rate */}
+
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-success border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -348,7 +334,6 @@ export default function QualityControlManagementPage() {
                     </div>
                 </div>
 
-                {/* Active Lots */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4" style={{ borderLeftColor: '#1E60E6' }}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -360,7 +345,6 @@ export default function QualityControlManagementPage() {
                     </div>
                 </div>
 
-                {/* Westgard Warnings */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-warning border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -372,7 +356,6 @@ export default function QualityControlManagementPage() {
                     </div>
                 </div>
 
-                {/* Rejections & Locked Analyzers */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-danger border-4" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -387,7 +370,6 @@ export default function QualityControlManagementPage() {
                 </div>
             </div>
 
-            {/* Navigation Tabs */}
             <ul className="nav nav-pills mb-4 bg-white p-2 rounded-4 shadow-sm border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <li className="nav-item">
                     <button
@@ -418,10 +400,9 @@ export default function QualityControlManagementPage() {
                 </li>
             </ul>
 
-            {/* TAB 1: LEVEY-JENNINGS CHART */}
             {activeTab === "chart" && (
                 <div>
-                    {/* Lot Selector & Quick Stats Bar */}
+
                     <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
                         <div className="card-body p-3">
                             <div className="row g-3 align-items-center">
@@ -469,7 +450,6 @@ export default function QualityControlManagementPage() {
                         </div>
                     </div>
 
-                    {/* CẢNH BÁO VI PHẠM QUY TẮC WESTGARD 1_3S & KHÓA MÁY */}
                     {has13sViolation && (
                         <div className="alert alert-danger p-3 mb-4 rounded-3 border-danger shadow-sm d-flex align-items-center gap-3">
                             <Lock className="fs-2 text-danger flex-shrink-0"  size="1em"/>
@@ -482,7 +462,6 @@ export default function QualityControlManagementPage() {
                         </div>
                     )}
 
-                    {/* Chart Canvas Card */}
                     <div className="card border-0 shadow-sm rounded-3 mb-4 bg-white">
                         <div className="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
                             <h5 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
@@ -507,7 +486,7 @@ export default function QualityControlManagementPage() {
                                         viewBox={`0 0 ${chartRenderData.width} ${chartRenderData.height}`}
                                         style={{ width: "100%", maxWidth: "900px", height: "auto" }}
                                     >
-                                        {/* Background Grid Lines */}
+
                                         {(Array.isArray(chartRenderData?.lines) ? chartRenderData.lines : []).map((line, idx) => {
                                             const y = chartRenderData.getY(line.value);
                                             return (
@@ -535,7 +514,6 @@ export default function QualityControlManagementPage() {
                                             );
                                         })}
 
-                                        {/* Polyline connecting points */}
                                         <polyline
                                             fill="none"
                                             stroke="#1E60E6"
@@ -543,7 +521,6 @@ export default function QualityControlManagementPage() {
                                             points={chartRenderData.polylinePoints}
                                         />
 
-                                        {/* Data Points */}
                                         {(Array.isArray(chartRenderData?.coords) ? chartRenderData.coords : []).map((pt, idx) => {
                                             const isPass = pt.status === "PASS";
                                             const isWarn = pt.status === "WARNING_1_2S";
@@ -566,7 +543,7 @@ export default function QualityControlManagementPage() {
                                                             {`Lần chạy #${pt.runNumber}\nKết quả: ${pt.measuredValue} (Z = ${pt.zScore}s)\nTrạng thái: ${pt.status}\nKTV: ${pt.operatorName}\nThời gian: ${new Date(pt.timestamp).toLocaleString('vi-VN')}`}
                                                         </title>
                                                     </circle>
-                                                    {/* X-axis label */}
+
                                                     <text
                                                         x={pt.x}
                                                         y={chartRenderData.height - 15}
@@ -587,7 +564,6 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* TAB 2: QC LOTS MANAGEMENT (STANDALONE SECTION) */}
             {activeTab === "lots" && (
                 <div className="bms-table-standalone-section">
                     <div className="bms-table-standalone-header">
@@ -679,7 +655,6 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* TAB 3: QC FLAGS & AUDIT HISTORY (STANDALONE SECTION) */}
             {activeTab === "flags" && (
                 <div className="bms-table-standalone-section">
                     <div className="bms-table-standalone-header">
@@ -795,7 +770,6 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* MODAL: RECORD QC RUN */}
             {showRecordModal && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog modal-dialog-centered">
@@ -857,7 +831,6 @@ export default function QualityControlManagementPage() {
                                         />
                                     </div>
 
-                                    {/* Real-time Westgard result preview */}
                                     {recordResult && (
                                         <div className={`alert p-3 rounded border ${recordResult.isLocked ? 'alert-danger bg-danger-subtle border-danger' : recordResult.status === 'WARNING_1_2S' ? 'alert-warning bg-warning-subtle border-warning' : 'alert-success bg-success-subtle border-success'}`}>
                                             <div className="fw-bold d-flex align-items-center gap-2">
@@ -895,7 +868,6 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* MODAL: CREATE QC LOT */}
             {showCreateLotModal && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog modal-dialog-centered">
@@ -1030,7 +1002,6 @@ export default function QualityControlManagementPage() {
                 </div>
             )}
 
-            {/* MODAL: SIGNOFF CORRECTIVE ACTION */}
             {showSignoffModal && selectedRunForSignoff && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog modal-dialog-centered">

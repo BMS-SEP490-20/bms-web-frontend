@@ -176,7 +176,7 @@ export default function RoleBasedDashboard() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Unified Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 w-100">
           <div className="bms-page-header-content">
@@ -208,7 +208,6 @@ export default function RoleBasedDashboard() {
         </Alert>
       )}
 
-      {/* 2. Role-Scoped Real-Time KPI Quad */}
       <div className="mb-4">
         {activeRole === 'Manager' && (
           <Row className="g-3">
@@ -444,7 +443,6 @@ export default function RoleBasedDashboard() {
         )}
       </div>
 
-      {/* 3. Role-Scoped Standalone Live Data Table (Zero Box-in-Box) */}
       {activeRole === 'Manager' && (
         <>
           <div className="bms-table-standalone-section mb-4">

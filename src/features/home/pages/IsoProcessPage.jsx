@@ -8,11 +8,11 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { 
-  FaClock, 
-  FaCheckCircle, 
-  FaCalendarAlt, 
-  FaSearch, 
+import {
+  FaClock,
+  FaCheckCircle,
+  FaCalendarAlt,
+  FaSearch,
   FaAward,
   FaVial
 } from 'react-icons/fa';
@@ -112,7 +112,6 @@ export default function IsoProcessPage() {
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
 
-      {/* 1. Executive Spotlight Header (Pure 2D Flat Card Container) */}
       <section className="pt-5 pb-3 mb-5" style={{ marginTop: '20px' }}>
         <Container style={{ maxWidth: '1400px' }}>
           <div
@@ -138,7 +137,6 @@ export default function IsoProcessPage() {
                 </p>
               </div>
 
-              {/* Hero SVG Illustration */}
               <div className="d-none d-md-block text-center flex-shrink-0" style={{ maxWidth: '240px', width: '100%' }}>
                 <img
                   src="/assets/bms/svg/hero/iso/iso-hero.svg"
@@ -186,7 +184,6 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      {/* 2. ISO Quality Metrics Strip (Pure 2D Flat Quad with Icons Positioned Above Cards) */}
       <section className="py-3 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <Row className="g-4">
@@ -195,7 +192,7 @@ export default function IsoProcessPage() {
               return (
                 <Col key={idx} xs={12} sm={6} lg={3}>
                   <div className="d-flex flex-column h-100">
-                    {/* Icon Above Card with Generous Breathing Space */}
+
                     <div className="d-flex align-items-center mb-3 ps-2">
                       <div
                         style={{
@@ -214,7 +211,6 @@ export default function IsoProcessPage() {
                       </div>
                     </div>
 
-                    {/* Elevated Metric Card */}
                     <div
                       style={{
                         backgroundColor: '#FFFFFF',
@@ -263,7 +259,6 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      {/* 3. 5-Phase Closed-Loop Architecture (Spacious & Breathable SOP Manifest) */}
       <section className="py-4 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div className="d-flex align-items-center justify-content-between mb-4">
@@ -389,7 +384,6 @@ export default function IsoProcessPage() {
         </Container>
       </section>
 
-      {/* 4. Quality Governance & Regulatory Framework */}
       <section className="py-3 pb-5 mb-5">
         <Container style={{ maxWidth: '1400px' }}>
           <div

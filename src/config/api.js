@@ -83,10 +83,8 @@ const api = axios.create({
     },
 });
 
-// Request interceptor: attach bearer token and normalize duplicate /api prefixes
 api.interceptors.request.use(
     (config) => {
-        // Prevent accidental '/api/api/' path doubling when baseUrl already ends with '/api'
         if (config.url && config.url.startsWith('/api/')) {
             config.url = config.url.substring(4);
         }
@@ -134,7 +132,6 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
-// Response interceptor: automatically refresh expired access tokens (BR-IAM-02)
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -221,7 +218,6 @@ export async function apiRequest(
 ) {
     const token = getToken();
 
-    // Normalize path to avoid /api/api/ if API_URL ends with /api
     let normalizedPath = path;
     if (normalizedPath.startsWith('/api/')) {
         normalizedPath = normalizedPath.substring(4);
@@ -254,7 +250,6 @@ export async function apiRequest(
         );
     }
 
-    // Handle 204 No Content (typically returned by DELETE or empty operations)
     const contentType = response.headers.get("content-type") || "";
 
     let data = null;

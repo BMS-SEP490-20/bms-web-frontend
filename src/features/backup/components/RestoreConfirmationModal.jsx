@@ -14,7 +14,7 @@ export default function RestoreConfirmationModal({
     backup,
     onRestoreSuccess
 }) {
-    const [step, setStep] = useState(1); // 1: Pre-flight dry run, 2: Final confirmation
+    const [step, setStep] = useState(1);
     const [validating, setValidating] = useState(false);
     const [validationResult, setValidationResult] = useState(null);
     const [confirmationPhrase, setConfirmationPhrase] = useState("");
@@ -108,7 +108,6 @@ export default function RestoreConfirmationModal({
                             </div>
                         )}
 
-                        {/* Backup Summary Banner */}
                         <div className="p-3 mb-4" style={{ background: '#EEF2F6', borderRadius: 14 }}>
                             <div className="d-flex justify-content-between align-items-start">
                                 <div>
@@ -125,7 +124,6 @@ export default function RestoreConfirmationModal({
                             </div>
                         </div>
 
-                        {/* Step 1: Pre-flight Dry Run Results */}
                         {step === 1 && (
                             <div>
                                 <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
@@ -189,7 +187,6 @@ export default function RestoreConfirmationModal({
                             </div>
                         )}
 
-                        {/* Step 2: Final Authorization Confirmation */}
                         {step === 2 && (
                             <div>
                                 <div className="p-3 bg-danger-subtle border border-danger rounded mb-4">

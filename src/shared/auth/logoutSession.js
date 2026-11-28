@@ -14,6 +14,5 @@ export async function logoutSession() {
       signal: AbortSignal.timeout(5000),
     });
   } catch {
-    // Losing connectivity must not leave credentials or an authenticated UI on this device.
   }
 }

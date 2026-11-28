@@ -29,7 +29,6 @@ export default function SampleTimelineDrawer({ code, onClose }) {
   const [rfidRefresh, setRfidRefresh] = useState(0);
   const [showRfid, setShowRfid] = useState(false);
   useEffect(() => {
-    // Poll recorded evidence while visible; UC71 does not synthesize or write tracking events.
     const timer = setInterval(() => { if (document.visibilityState === 'visible') setRefresh((v) => v + 1); }, 30000);
     return () => clearInterval(timer);
   }, []);

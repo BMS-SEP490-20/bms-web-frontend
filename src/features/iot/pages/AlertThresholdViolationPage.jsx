@@ -23,7 +23,6 @@ import {
 import { subscribeIotRealtime } from "../services/iotSignalRClient";
 
 export default function AlertThresholdViolationPage() {
-    // Alert state
     const [alerts, setAlerts] = useState([]);
     const [summary, setSummary] = useState({
         activeAlertsCount: 0,
@@ -36,15 +35,13 @@ export default function AlertThresholdViolationPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [loadError, setLoadError] = useState(null);
 
-    // Filter states
-    const [selectedStatus, setSelectedStatus] = useState("All"); // All, Active, Acknowledged, Resolved
-    const [selectedSeverity, setSelectedSeverity] = useState("All"); // All, Warning, Critical, Danger_Emergency
+    const [selectedStatus, setSelectedStatus] = useState("All");
+    const [selectedSeverity, setSelectedSeverity] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [soundEnabled, setSoundEnabled] = useState(false);
 
-    // Modal states
     const [selectedAlertForAction, setSelectedAlertForAction] = useState(null);
-    const [actionType, setActionType] = useState(null); // 'ACKNOWLEDGE' | 'RESOLVE' | 'SIMULATE'
+    const [actionType, setActionType] = useState(null);
     const [operatorName, setOperatorName] = useState(() => {
         const u = getStoredUser();
         return u?.fullName || u?.name || u?.username || "";
@@ -53,12 +50,10 @@ export default function AlertThresholdViolationPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [actionFeedback, setActionFeedback] = useState(null);
 
-    // Simulation states
     const [simDeviceId, setSimDeviceId] = useState("TEMP-001");
     const [simSensorType, setSimSensorType] = useState("Temperature");
     const [simValue, setSimValue] = useState(8.6);
 
-    // Play alert audio buzzer synthesized using Web Audio API
     const playAlarmBuzzer = useCallback(() => {
         if (!soundEnabled) return;
         try {
@@ -69,7 +64,7 @@ export default function AlertThresholdViolationPage() {
             const gain = ctx.createGain();
 
             osc.type = "sawtooth";
-            osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 alert tone
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
 
             gain.gain.setValueAtTime(0.3, ctx.currentTime);
@@ -81,7 +76,6 @@ export default function AlertThresholdViolationPage() {
             osc.start();
             osc.stop(ctx.currentTime + 0.3);
         } catch {
-            // Audio not allowed without user interaction
         }
     }, [soundEnabled]);
 
@@ -114,7 +108,6 @@ export default function AlertThresholdViolationPage() {
         loadData();
     }, [loadData]);
 
-    // Real-time SignalR subscription so new violations, recovery flags, and CAPA updates appear immediately
     useEffect(() => {
         const unsubscribe = subscribeIotRealtime({
             onAlertUpdated: () => {
@@ -124,7 +117,6 @@ export default function AlertThresholdViolationPage() {
         return () => unsubscribe();
     }, [loadData]);
 
-    // Filter by search query
     const filteredAlerts = useMemo(() => {
         if (!searchQuery.trim()) return alerts;
         const q = searchQuery.toLowerCase();
@@ -138,7 +130,6 @@ export default function AlertThresholdViolationPage() {
 
     const alertsPag = usePagination(filteredAlerts, 10);
 
-    // Handle Acknowledge submit
     const handleAcknowledge = async () => {
         if (!selectedAlertForAction) return;
         setIsSubmitting(true);
@@ -160,7 +151,6 @@ export default function AlertThresholdViolationPage() {
         }
     };
 
-    // Handle Resolve submit
     const handleResolve = async () => {
         if (!selectedAlertForAction) return;
         if (!actionNotes.trim() || actionNotes.trim().length < 10) {
@@ -185,7 +175,6 @@ export default function AlertThresholdViolationPage() {
         }
     };
 
-    // Handle Simulation submit
     const handleSimulate = async () => {
         setIsSubmitting(true);
         setActionFeedback(null);
@@ -217,7 +206,7 @@ export default function AlertThresholdViolationPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header Card FIRST, then IotNavigationTabs below */}
+
             <div className="bms-page-header-card mb-3">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -276,7 +265,6 @@ export default function AlertThresholdViolationPage() {
                 </Alert>
             )}
 
-            {/* System Health Status Banner */}
             <div
                 className="d-flex align-items-center justify-content-between rounded-4 mb-4 p-3 border"
                 style={{
@@ -317,7 +305,6 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
@@ -372,7 +359,6 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
                     <Search className="bms-search-icon" size="1em" />
@@ -443,7 +429,6 @@ export default function AlertThresholdViolationPage() {
                 </span>
             </div>
 
-            {/* Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
             <div className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>
@@ -628,7 +613,6 @@ export default function AlertThresholdViolationPage() {
                 </div>
             </div>
 
-            {/* Modal for Acknowledge / Resolve Actions */}
             {selectedAlertForAction && (actionType === "ACKNOWLEDGE" || actionType === "RESOLVE") && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", backdropFilter: 'blur(4px)' }}>
                     <div className="modal-dialog modal-dialog-centered">
@@ -723,7 +707,6 @@ export default function AlertThresholdViolationPage() {
                 </div>
             )}
 
-            {/* Modal for Simulated Alert Drill */}
             {actionType === "SIMULATE" && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.6)", backdropFilter: 'blur(4px)' }}>
                     <div className="modal-dialog modal-dialog-centered">

@@ -64,9 +64,9 @@ export default function TrackTestProgressPage() {
     const location = useLocation();
     const storedUser = getStoredUser();
     const isPatient = Boolean(storedUser && resolveRoleId(storedUser) === ROLES.PATIENT);
-    // Chỉ ẩn PortalNavbar/MegaFooter khi đã nằm trong PatientPortalLayout (/patient/*)
+
     const isEmbedded = location.pathname.startsWith("/patient/");
-    // BN đã login: không hiện ô tìm đơn — chọn từ danh sách mẫu của mình
+
     const hideManualSearch = isPatient;
 
     const [searchInput, setSearchInput] = useState("");
@@ -131,7 +131,6 @@ export default function TrackTestProgressPage() {
         }
     };
 
-    // Tự động nạp danh sách mẫu xét nghiệm của chính bệnh nhân đang đăng nhập
     useEffect(() => {
         const user = getStoredUser();
         if (!user || resolveRoleId(user) !== ROLES.PATIENT) return;
@@ -147,12 +146,10 @@ export default function TrackTestProgressPage() {
                 return tB - tA;
             });
             setMyTrackings(sorted);
-            // BN: chỉ hiện list — chi tiết mở modal khi bấm "Xem tiến trình"
         });
         return () => { active = false; };
     }, []);
 
-    // Initialize search from route param or query string
     useEffect(() => {
         const queryCode = searchParams.get("code") || searchParams.get("barcode") || routeIdentifier || "";
         if (queryCode) {
@@ -280,7 +277,6 @@ export default function TrackTestProgressPage() {
             <main className={`bms-tracking-main bms-page-directional-content ${pageTransitionClass}`}>
                 <div className="container" style={{ maxWidth: 1320 }}>
 
-                    {/* 1. HERO — BN: gộp tiêu đề "Mẫu xét nghiệm của tôi" vào card trắng; khách: form tra mã */}
                     <div className="bms-tracking-hero mb-4">
                         <div className="row align-items-center g-4">
                             <div className={hideManualSearch ? 'col-12' : 'col-lg-6'}>
@@ -381,7 +377,6 @@ export default function TrackTestProgressPage() {
                         </div>
                     </div>
 
-                    {/* 1.5. DANH SÁCH MẪU — Bảng trực quan đầy đủ thông tin + lọc + phân trang */}
                     {myTrackings.length > 0 && (
                         <div className="bms-tracking-table-card mb-4">
                             <div className="bms-tracking-table-toolbar">
@@ -581,7 +576,6 @@ export default function TrackTestProgressPage() {
                                 </table>
                             </div>
 
-                            {/* Pagination Footer */}
                             <div className="bms-tracking-table-pager">
                                 <div className="small text-muted tabular-nums">
                                     {filteredTrackings.length === 0
@@ -640,7 +634,6 @@ export default function TrackTestProgressPage() {
                         </div>
                     )}
 
-                    {/* 2. ERROR NOTIFICATION */}
                     {errorMessage && (
                         <div className="alert alert-warning border-0 rounded-3 p-3 mb-3 d-flex align-items-center gap-3" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
                             <AlertTriangle className="fs-5 flex-shrink-0" style={{ color: '#D97706' }} size="1em" />
@@ -651,10 +644,9 @@ export default function TrackTestProgressPage() {
                         </div>
                     )}
 
-                    {/* 3. DEFAULT GUIDE — chỉ khách / BN chưa có mẫu (BN có list thì không hướng dẫn nhập mã) */}
                     {!trackingData && !loading && !(hideManualSearch && myTrackings.length > 0) && (
                         <div className="bms-guide-container">
-                            {/* 3 Step Guide Cards */}
+
                             <div className="bms-steps">
                                 <div className="bms-step-card-box text-start">
                                     <div className="w-100 text-center mb-2">
@@ -690,7 +682,6 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* 6-Stage Workflow Strip with Custom Designed Flow Connectors */}
                             <div className="bms-stages-overview my-4" style={{ padding: '28px 32px' }}>
                                 <div className="text-center mb-3">
                                     <h4 className="bms-stages-overview-title mb-1" style={{ fontSize: '16px' }}>Chu Trình Khép Kín 6 Chặng Chuẩn Y Tế Quốc Tế</h4>
@@ -762,7 +753,6 @@ export default function TrackTestProgressPage() {
                                 </div>
                             </div>
 
-                            {/* Explainer Patient Journey Row (Guest / public tracking) */}
                             {!hideManualSearch && (
                                 <div className="bms-stages-overview my-3 text-center" style={{ padding: '24px' }}>
                                     <h4 className="bms-stages-overview-title mb-1">Hành Trình Xét Nghiệm Khép Kín Chuẩn Y Tế BMS</h4>
@@ -777,7 +767,6 @@ export default function TrackTestProgressPage() {
                                 </div>
                             )}
 
-                            {/* Trust & Support Strip */}
                             <div className="bms-trust-box">
                                 <div className="bms-trust-item">
                                     <span>Bảo mật thông tin y tế theo Nghị định 13/2023/NĐ-CP (Thông tin cá nhân của người bệnh được bảo vệ và ẩn danh khi tra cứu trực tuyến).</span>
@@ -792,7 +781,6 @@ export default function TrackTestProgressPage() {
                 </div>
             </main>
 
-            {/* Chi tiết tiến trình — modal khi xem từ list / tra cứu */}
             <Modal
                 show={showDetailModal && Boolean(trackingData)}
                 onHide={closeTrackingDetail}

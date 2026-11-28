@@ -24,13 +24,11 @@ export default function PublicQueueBoardPage() {
   const [audioEnabled, setAudioEnabled] = useState(false);
   const lastCalledIdRef = useRef(null);
 
-  // Digital clock tick
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Web Audio API Ding-Dong Chime
   const playChime = useCallback(() => {
     if (!audioEnabled) return;
     try {
@@ -38,7 +36,6 @@ export default function PublicQueueBoardPage() {
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
 
-      // First tone (D5)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = 'sine';
@@ -50,7 +47,6 @@ export default function PublicQueueBoardPage() {
       osc1.start();
       osc1.stop(ctx.currentTime + 0.4);
 
-      // Second tone (A5)
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.type = 'sine';
@@ -66,7 +62,6 @@ export default function PublicQueueBoardPage() {
     }
   }, [audioEnabled]);
 
-  // Vietnamese Voice Announcement
   const speakVoice = useCallback((patientName, queueNumber, room) => {
     if (!audioEnabled || !('speechSynthesis' in window)) return;
     try {
@@ -79,14 +74,12 @@ export default function PublicQueueBoardPage() {
     } catch (_) {}
   }, [audioEnabled]);
 
-  // Fetch queue from backend
   const fetchQueue = useCallback(async () => {
     try {
       const res = await receptionApi.getQueueStatus();
       if (res) {
         setQueueData(res);
 
-        // Check if new patient was called
         if (res.currentServing && res.currentServing.appointmentId !== lastCalledIdRef.current) {
           lastCalledIdRef.current = res.currentServing.appointmentId;
           playChime();
@@ -110,7 +103,6 @@ export default function PublicQueueBoardPage() {
     return () => clearInterval(interval);
   }, [fetchQueue]);
 
-  // Fullscreen toggle
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
@@ -131,7 +123,7 @@ export default function PublicQueueBoardPage() {
         fontFamily: "'Segoe UI', Roboto, sans-serif",
       }}
     >
-      {/* Top Header Bar */}
+
       <div
         className="px-3 py-3 d-flex justify-content-between align-items-center border-bottom"
         style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#1C2541' }}
@@ -154,7 +146,7 @@ export default function PublicQueueBoardPage() {
         </div>
 
         <div className="d-flex align-items-center gap-4">
-          {/* Clock Display */}
+
           <div className="text-end d-flex align-items-center gap-2">
             <LucideClock className="fs-4" style={{ color: '#B45309' }}  size="1em"/>
             <div>
@@ -167,7 +159,6 @@ export default function PublicQueueBoardPage() {
             </div>
           </div>
 
-          {/* Controls: Audio & Fullscreen */}
           <div className="d-flex gap-2">
             <Button
               variant={audioEnabled ? 'success' : 'outline-light'}
@@ -188,10 +179,9 @@ export default function PublicQueueBoardPage() {
         </div>
       </div>
 
-      {/* Main Board Body */}
       <Container fluid className="flex-grow-1 p-2">
         <Row className="g-4 h-100">
-          {/* Left Column: Currently Serving Highlight */}
+
           <Col lg={7}>
             <Card
               className="h-100 border-0 rounded-4 shadow-lg overflow-hidden d-flex flex-column"
@@ -259,7 +249,6 @@ export default function PublicQueueBoardPage() {
             </Card>
           </Col>
 
-          {/* Right Column: Upcoming Queue Waiting List */}
           <Col lg={5}>
             <Card
               className="h-100 border-0 rounded-4 shadow-lg overflow-hidden d-flex flex-column"
@@ -330,7 +319,6 @@ export default function PublicQueueBoardPage() {
         </Row>
       </Container>
 
-      {/* Bottom Ticker Notice */}
       <div
         className="px-3 py-2 border-top text-center text-white-50 small"
         style={{ borderColor: 'rgba(255,255,255,0.1)', backgroundColor: '#0B132B' }}

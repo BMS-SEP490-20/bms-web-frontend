@@ -19,7 +19,7 @@ const LabRoomManagementPage = () => {
     const { user, userRoleId, userRole } = useAuth();
     const { showSuccess, showError } = useNotificationContext();
     const isAdmin = userRoleId === 1 || userRole === 'admin' || user?.role === 'Administrator';
-    // Admin manages rooms (add/edit/delete); Manager views read-only
+
     const isManagerOrAdmin = isAdmin;
 
     const [rooms, setRooms] = useState([]);
@@ -405,7 +405,6 @@ const LabRoomManagementPage = () => {
                 </div>
             </div>
 
-            {/* Modal Thiết lập / Chỉnh sửa phòng xét nghiệm */}
             <Modal show={showModal} onHide={handleCloseModal} centered backdrop="static">
                 <Modal.Header closeButton className="bg-light">
                     <Modal.Title className="fw-bold fs-5 text-dark">

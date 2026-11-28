@@ -17,7 +17,6 @@ export default function ForgotPassword({
   onRegister,
   onOtpSent,
   showBrandLogo = false }) {
-  // 1: email · 2: verify OTP · 3: new password
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");

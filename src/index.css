@@ -1,69 +1,53 @@
-/* ==========================================================================
-   BMS Design System — Modern Flat Healthcare SaaS (Big Tech Clean Grade)
-   Typography: Plus Jakarta Sans & Be Vietnam Pro (Flawless Vietnamese Support)
-   Palette: Clinical Medical Blue #1E60E6 & Emerald #10B981
-   Pure Flat Architecture: Zero Sến Súa Glow / Shadows / Blurry Hover / 2D Flat Only
-   ========================================================================== */
-
 @import './styles/bms-kit-tokens.css';
 @import './features/home/landing-sections.css';
 
 :root {
-  /* Canvas & Pure Flat Surfaces */
-  --bg-page: #F8FAFC;          /* crisp light slate canvas */
-  --bg-card: #FFFFFF;          /* solid pure white surface */
-  --bg-muted: #F1F5F9;         /* crisp flat track / inset */
-  --bg-nav-idle: #FFFFFF;      /* idle pill segments */
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F1F5F9;
+  --bg-nav-idle: #FFFFFF;
 
-  /* Ink & High-Contrast Typography */
-  --ink: #0F172A;              /* deep slate ink — crisp readability */
-  --ink-secondary: #475569;    /* authoritative metadata & labels */
-  --ink-tertiary: #94A3B8;     /* placeholders & hints */
+  --ink: #0F172A;
+  --ink-secondary: #475569;
+  --ink-tertiary: #94A3B8;
   --ink-on-blue: #FFFFFF;
-  --ink-on-green: #064E3B;     /* deep forest ink on emerald */
+  --ink-on-green: #064E3B;
 
-  /* Brand: True Clinical Medical Blue (Zero purple / violet tint) */
-  --primary: #1E60E6;          /* crisp authoritative clinical blue */
+  --primary: #1E60E6;
   --primary-hover: #1550C4;
-  --primary-soft: #EEF4FD;     /* clean ice blue tint */
+  --primary-soft: #EEF4FD;
   --primary-border: #D1E1FA;
   --primary-grad-end: #1E60E6;
 
-  /* Semantic */
-  --success: #10B981;          /* crisp medical emerald */
+  --success: #10B981;
   --success-hover: #059669;
   --success-ink: #064E3B;
-  --warn: #F59E0B;             /* clean amber */
+  --warn: #F59E0B;
   --warn-soft: #FEF3C7;
-  --danger: #EF4444;           /* clean destructive red */
+  --danger: #EF4444;
   --danger-soft: #FEE2E2;
 
-  /* Gauge */
   --gauge-start: #FBBF24;
   --gauge-end: #10B981;
 
-  /* Pure Flat Chrome: NO Blurry Glow / Heavy Shadows */
   --shadow-card: none;
-  --shadow-float: 0 4px 20px rgba(15, 23, 42, 0.08); /* only for floating dropdown/modals */
+  --shadow-float: 0 4px 20px rgba(15, 23, 42, 0.08);
   --shadow-soft: none;
   --shadow-pill: none;
   --ring-focus: 0 0 0 3px rgba(30, 96, 230, 0.18);
 
-  /* Geometry & Large Corner Radii */
   --radius-card: 24px;
   --radius-panel: 20px;
-  --radius-control: 9999px;    /* clean pills */
+  --radius-control: 9999px;
   --radius-btn: 9999px;
   --radius-chip: 8px;
   --radius-media: 18px;
   --radius-avatar: 9999px;
 
-  /* Distinctive Typography: Plus Jakarta Sans & Be Vietnam Pro */
   --font-sans: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
   --bms-font-family: var(--font-sans);
 
-  /* Semantic bridges */
   --bms-primary: var(--primary);
   --bms-primary-hover: var(--primary-hover);
   --bms-primary-light: var(--primary-soft);
@@ -91,7 +75,6 @@
   --bms-shadow-focus: var(--ring-focus);
 }
 
-/* --- Global Reset & Anti-aliasing --- */
 *,
 *::before,
 *::after {
@@ -105,7 +88,7 @@
 }
 
 html {
-  font-size: 13.5px !important; /* Scaled down 10-15% for compact, spacious Big-SaaS layout */
+  font-size: 13.5px !important;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -118,7 +101,6 @@ body {
   font-size: 13.5px !important;
 }
 
-/* Global Navbar: Zero Shadow & Zero Border at top; bottom border only when sticky */
 header:not(.is-sticky),
 .navbar:not(.is-sticky),
 .bms-header:not(.is-sticky),
@@ -140,7 +122,6 @@ header.is-sticky,
   border-bottom: none !important;
 }
 
-/* Expanded Max-Width for Spacious Layout */
 .container,
 .container-xl,
 .container-xxl,
@@ -148,16 +129,14 @@ header.is-sticky,
   max-width: 1400px !important;
 }
 
-/* --- Compact Precision Typography Scale --- */
 h1:not(.bms-hero-heading), .h1:not(.bms-hero-heading) {
-  font-size: 1.65rem !important; /* ~22-23px */
+  font-size: 1.65rem !important;
   font-weight: 750;
   color: var(--ink);
   letter-spacing: -0.025em;
   line-height: 1.25;
 }
 
-/* Home Hero Heading: Compact Authority */
 .bms-hero-heading,
 h1.bms-hero-heading {
   font-size: clamp(30px, 3.2vw, 40px) !important;
@@ -168,7 +147,7 @@ h1.bms-hero-heading {
 }
 
 h2, .h2 {
-  font-size: 1.3rem !important; /* ~17-18px */
+  font-size: 1.3rem !important;
   font-weight: 700;
   color: var(--ink);
   letter-spacing: -0.02em;
@@ -176,7 +155,7 @@ h2, .h2 {
 }
 
 h3, .h3 {
-  font-size: 1.05rem !important; /* ~14-15px */
+  font-size: 1.05rem !important;
   font-weight: 650;
   color: var(--ink);
   letter-spacing: -0.015em;
@@ -195,20 +174,17 @@ p {
   font-size: 13.5px;
 }
 
-/* Tabular numbers for clinical data */
 .tabular-nums,
 .bms-num {
   font-variant-numeric: tabular-nums !important;
   letter-spacing: -0.01em;
 }
 
-/* Focus outline */
 :focus-visible {
   outline: none !important;
   box-shadow: var(--ring-focus) !important;
 }
 
-/* --- Compact Flat Cards (Zero Shadow, Zero Border) --- */
 .card {
   background-color: var(--bg-card) !important;
   border-radius: var(--radius-card) !important;
@@ -233,7 +209,6 @@ p {
   padding: 16px 20px !important;
 }
 
-/* --- Compact Pill & Clean Action Buttons --- */
 .btn {
   font-family: var(--font-sans) !important;
   font-size: 13px !important;
@@ -317,7 +292,6 @@ p {
   color: var(--primary) !important;
 }
 
-/* --- Compact Form Controls --- */
 .form-control, .form-select {
   background-color: #FFFFFF !important;
   border: 1px solid rgba(15, 23, 42, 0.08) !important;
@@ -342,7 +316,6 @@ p {
   color: var(--ink-tertiary) !important;
 }
 
-/* --- Badges & Micro Chips --- */
 .badge {
   font-family: var(--font-sans) !important;
   font-size: 12px !important;
@@ -378,9 +351,6 @@ p {
   color: var(--ink-secondary) !important;
 }
 
-/* Dashboard tables are styled only in bms-workbench.css. */
-
-/* Fractional spacing utilities (Bootstrap 5 ships none of these; several pages rely on them) */
 .mt-0\.5 { margin-top: 0.125rem !important; }
 .mb-2\.5 { margin-bottom: 0.625rem !important; }
 .p-3\.5 { padding: 0.875rem !important; }

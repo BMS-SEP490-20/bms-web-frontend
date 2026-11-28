@@ -30,7 +30,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   const { register, loading, error, result, reset } = useRegisterWalkIn();
 
   const [form, setForm] = useState(emptyForm);
-  const [lookupStatus, setLookupStatus] = useState('idle'); // 'idle' | 'checking' | 'found' | 'not_found' | 'error'
+  const [lookupStatus, setLookupStatus] = useState('idle');
   const [lookupMsg, setLookupMsg] = useState(null);
   const [existingPatient, setExistingPatient] = useState(null);
   const [phoneLookup, setPhoneLookup] = useState({ status: 'idle', patient: null });
@@ -112,7 +112,7 @@ export function RegisterWalkInPage({ onSuccess }) {
   const set = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setFieldErrors((prev) => (prev && prev[key] ? { ...prev, [key]: null } : prev));
-    // Reset lookup state if identityNumber changes
+
     if (key === 'identityNumber') {
       setLookupStatus('idle');
       setLookupMsg(null);
@@ -133,7 +133,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     gender: res.gender || res.Gender || 'Male',
   });
 
-  // Tra cứu & Đối soát CCCD với hệ thống định danh y tế (gọi tự động real-time hoặc thủ công)
   const onLookupCccd = useCallback(async (overrideCccd) => {
     const cccd = (typeof overrideCccd === 'string' ? overrideCccd : form.identityNumber || '').trim();
     if (!cccd) {
@@ -174,7 +173,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   }, [form.identityNumber]);
 
-  // Real-time auto-validate CCCD as Receptionist types (no manual click required)
   useEffect(() => {
     const cccd = (form.identityNumber || '').trim();
     if (!cccd) {
@@ -197,7 +195,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     return () => clearTimeout(timer);
   }, [form.identityNumber, onLookupCccd]);
 
-  // Real-time auto-validate Phone binding against DB
   useEffect(() => {
     const phone = (form.phone || '').trim();
     if (!phone || !/^0[35789]\d{8}$/.test(phone)) {
@@ -225,7 +222,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     return () => clearTimeout(timer);
   }, [form.phone, form.identityNumber]);
 
-  // Real-time auto-validate Email binding against DB
   useEffect(() => {
     const email = (form.email || '').trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -258,7 +254,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     phoneLookup.status === 'conflict' ||
     emailLookup.status === 'conflict';
 
-  // Nạp thông tin bệnh nhân đã có vào biểu mẫu
   const handleLoadExistingIntoForm = () => {
     if (!existingPatient) return;
     let formattedDob = '';
@@ -282,7 +277,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }));
   };
 
-  // Cấp STT trực tiếp cho bệnh nhân đã có hồ sơ cũ (không cần tạo mới)
   const handleIssueTicketForExisting = async () => {
     if (!existingPatient) return;
     try {
@@ -316,7 +310,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   };
 
-  // Lưu hồ sơ khách vãng lai mới
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!checks.identity || !checks.consent) {
@@ -325,7 +318,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
     setCheckError(null);
 
-    // 1. Chặn tạo trùng lặp nếu CCCD / SĐT / Email đang gắn với bệnh nhân đã có trong DB
     if (lookupStatus === 'found' && existingPatient) {
       setFieldErrors({
         identityNumber: `CCCD ${existingPatient.identityNumber} đã gắn với bệnh nhân ${existingPatient.fullName} (${existingPatient.patientCode || existingPatient.patientId}). Vui lòng dùng hồ sơ sẵn có thay vì tạo mới.`
@@ -348,7 +340,6 @@ export function RegisterWalkInPage({ onSuccess }) {
       return;
     }
 
-    // 2. Kiểm tra tính hợp lệ dữ liệu ngay tại Client
     const errs = validateForm();
     const activeErrKeys = Object.keys(errs).filter((k) => !!errs[k]);
     if (activeErrKeys.length > 0) {
@@ -358,14 +349,13 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
     setFieldErrors({});
 
-    // 2. Chuẩn hóa họ tên in hoa theo chuẩn y tế
     const payload = {
       ...form,
       fullName: form.fullName.trim().toUpperCase(),
       phone: form.phone.trim(),
       identityNumber: form.identityNumber.trim(),
       address: (form.address || '').trim(),
-      // BE [EmailAddress] reject chuỗi rỗng — bỏ trống khi không nhập
+
       email: (form.email || '').trim() || null,
       medicalHistory: [
         form.medicalHistory,
@@ -395,7 +385,6 @@ export function RegisterWalkInPage({ onSuccess }) {
       });
       onSuccess?.(res.patientId);
     } catch (err) {
-      /* handled by useRegisterWalkIn */
       window.scrollTo({ top: 0, behavior: 'smooth' });
       if (err?.errors && typeof err.errors === 'object') {
         const beErrors = {};
@@ -412,7 +401,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   };
 
-  // Cấp STT cho bệnh nhân vừa tạo mới thành công
   const handleIssueWalkInTicket = async () => {
     const pt = activePatientData || result;
     if (!pt) return;
@@ -436,7 +424,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     }
   };
 
-  // Reset toàn bộ để tiếp nhận người tiếp theo
   const handleResetAll = () => {
     reset();
     cccdSeqRef.current += 1;
@@ -453,9 +440,6 @@ export function RegisterWalkInPage({ onSuccess }) {
     setReceptionNotes('');
   };
 
-  // =========================================================================
-  // MÀN HÌNH HOÀN TẤT TIẾP NHẬN & CẤP SỐ THỨ TỰ (SUCCESS VIEW)
-  // =========================================================================
   if (activePatientData || result) {
     const pt = activePatientData || result;
     return (
@@ -488,7 +472,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             </div>
 
             <Card.Body className="p-4">
-              {/* Thẻ tóm tắt thông tin hành chính */}
+
               <div className="p-3 bg-light rounded-4 mb-4 border">
                 <Row className="g-3">
                   <Col md={6}>
@@ -514,7 +498,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </Row>
               </div>
 
-              {/* Tài khoản Cổng Bệnh Nhân tự động cấp cho khách vãng lai */}
               {pt.portalUsername && (
                 <div
                   className="p-3 rounded-4 mb-4"
@@ -548,7 +531,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </div>
               )}
 
-              {/* Box Cấp STT Lấy Mẫu */}
               {issuedTicket ? (
                 <div
                   className="p-4 text-center rounded-4 mb-4"
@@ -618,7 +600,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </div>
               )}
 
-              {/* Các thao tác chuyển tiếp */}
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top">
                 <Button variant="outline-secondary" className="rounded-pill px-3" onClick={handleResetAll}>
                   <Undo2 className="me-1"  size="1em"/> Tiếp nhận người bệnh tiếp theo
@@ -644,7 +625,6 @@ export function RegisterWalkInPage({ onSuccess }) {
           </Card>
         </div>
 
-        {/* Unified POS K80 Walk-in STT Slip Modal */}
         <PosThermalModal
           show={showK80Modal}
           onClose={() => setShowK80Modal(false)}
@@ -703,12 +683,9 @@ export function RegisterWalkInPage({ onSuccess }) {
     );
   }
 
-  // =========================================================================
-  // MÀN HÌNH CHÍNH: BIỂU MẪU TIẾP ĐÓN & ĐĂNG KÝ KHÁCH VÃNG LAI
-  // =========================================================================
   return (
     <div className="walkin-page w-100 py-1">
-      {/* Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <div className="bms-page-title-row">
@@ -729,7 +706,7 @@ export function RegisterWalkInPage({ onSuccess }) {
       </div>
 
       <Row className="g-4">
-        {/* Cột trái: Biểu mẫu tiếp nhận */}
+
         <Col lg={8}>
           <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
             <Card.Header className="bg-white border-bottom py-3 px-4">
@@ -740,7 +717,7 @@ export function RegisterWalkInPage({ onSuccess }) {
             </Card.Header>
 
             <Card.Body className="p-4">
-              {/* Alert lỗi trực quan ngay cạnh nút bấm */}
+
               {error && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
                   <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
@@ -750,7 +727,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </Alert>
               )}
 
-              {/* Thông báo kết quả đối soát CCCD real-time */}
               {lookupStatus === 'found' && existingPatient && (
                 <div
                   className="p-3 rounded-4 mb-4"
@@ -841,7 +817,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                 </Alert>
               )}
 
-              {/* Alert lỗi bỏ trống thông tin bắt buộc */}
               {Object.values(fieldErrors).some(Boolean) && (
                 <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-start gap-2">
                   <AlertTriangle className="text-danger mt-1 flex-shrink-0"  size="1em"/>
@@ -857,7 +832,7 @@ export function RegisterWalkInPage({ onSuccess }) {
               )}
 
               <Form onSubmit={onSubmit} noValidate>
-                {/* 1. THÔNG TIN ĐỊNH DANH (ĐỀ ÁN 06 BYT) */}
+
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
                     <IdCard size="1em"/> 1. Thông Tin Định Danh Người Bệnh
@@ -935,7 +910,7 @@ export function RegisterWalkInPage({ onSuccess }) {
                           )}
                         </Button>
                       </div>
-                      {/* Live real-time CCCD feedback */}
+
                       {form.identityNumber && form.identityNumber.length < 12 && !fieldErrors.identityNumber && (
                         <div className="small mt-1" style={{ color: '#64748b' }}>
                           Đã nhập <strong className="font-monospace">{form.identityNumber.length}/12</strong> chữ số — hệ thống sẽ tự động đối soát CSDL khi đủ 12 số.
@@ -1061,7 +1036,6 @@ export function RegisterWalkInPage({ onSuccess }) {
 
                 <hr className="my-4 text-muted opacity-25" />
 
-                {/* 2. SÀNG LỌC TIỀN PHÂN TÍCH (ISO 15189:2022) */}
                 <div className="mb-4">
                   <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
                     <ShieldCheck size="1em"/> 2. Sàng Lọc Trước Lấy Mẫu
@@ -1123,7 +1097,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                   </Row>
                 </div>
 
-                                {/* Alert lỗi trực quan ngay cạnh nút bấm */}
                 {error && (
                   <Alert variant="danger" className="rounded-3 py-2 px-3 mb-3 d-flex align-items-center gap-2">
                     <AlertTriangle className="text-danger flex-shrink-0"  size="1em"/>
@@ -1133,7 +1106,6 @@ export function RegisterWalkInPage({ onSuccess }) {
                   </Alert>
                 )}
 
-                {/* Footer form buttons */}
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top">
                   <span className="small" style={{ color: hasIdentityConflict ? '#dc2626' : '#64748b' }}>
                     {hasIdentityConflict ? (
@@ -1169,9 +1141,8 @@ export function RegisterWalkInPage({ onSuccess }) {
           </Card>
         </Col>
 
-        {/* Cột phải: Hướng dẫn nghiệp vụ & Quy chuẩn y tế */}
         <Col lg={4}>
-          {/* Card 1: An toàn phòng xét nghiệm */}
+
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
@@ -1189,7 +1160,6 @@ export function RegisterWalkInPage({ onSuccess }) {
             </Card.Body>
           </Card>
 
-          {/* Card 2: Quy định định danh duy nhất */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
             <Card.Body className="p-3">
               <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
@@ -1204,7 +1174,6 @@ export function RegisterWalkInPage({ onSuccess }) {
             </Card.Body>
           </Card>
 
-          {/* Card 3: Quy trình 5 bước (plain circle step badges — avoids .badge::before dot collision) */}
           <Card className="border-0 shadow-sm rounded-4 mb-3 bg-white overflow-hidden">
             <Card.Body className="p-3">
               <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">

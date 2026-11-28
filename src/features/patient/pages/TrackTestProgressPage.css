@@ -1,9 +1,3 @@
-/* ==========================================================================
-   BMS Clinical Specimen Tracking Page (UC48)
-   Clean, Professional, Non-AI Human-Centered Medical Design
-   Compliant with AGENTS-DESIGN.md, ISO 15189:2022 & 100% Pure 2D Flat Architecture
-   ========================================================================== */
-
 .bms-tracking-page {
   background-color: #F8FAFC;
   min-height: 100vh;
@@ -21,10 +15,6 @@
   flex: 1;
 }
 
-/* ==========================================================================
-   1. HERO SECTION (Compact, Integrated Search Aligned Right, 100% Borderless)
-   ========================================================================== */
-
 .bms-tracking-hero {
   background: #FFFFFF;
   border: none !important;
@@ -38,7 +28,6 @@
   width: 100%;
 }
 
-/* Dedicated Pill Search Input - Guaranteed Space & Zero Barcode Icon Collision */
 .bms-track-search-input {
   width: 100%;
   height: 46px !important;
@@ -156,10 +145,6 @@
   cursor: not-allowed;
 }
 
-/* ==========================================================================
-   2. THREE-STEP GUIDE CARDS (Compact, Airy, Borderless)
-   ========================================================================== */
-
 .bms-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -204,10 +189,6 @@
   margin-bottom: 0;
 }
 
-/* ==========================================================================
-   3. SIX-STAGE WORKFLOW OVERVIEW (Compact, Airy, Borderless)
-   ========================================================================== */
-
 .bms-stages-overview {
   background: #FFFFFF;
   border: none !important;
@@ -236,7 +217,6 @@
   margin-bottom: 12px;
 }
 
-/* Custom 6-Stage Sleek Flow Row with Arrows */
 .bms-stages-flow-row {
   display: flex;
   align-items: center;
@@ -353,10 +333,6 @@
   line-height: 1.3;
 }
 
-/* ==========================================================================
-   4. TRUST & SUPPORT STRIP (Clean Typography, Borderless)
-   ========================================================================== */
-
 .bms-trust-box {
   background: #FFFFFF;
   border: none !important;
@@ -379,10 +355,6 @@
   font-size: 11.5px;
   color: #64748B;
 }
-
-/* ==========================================================================
-   5. SEARCH RESULTS VIEW (When tracking data is active - 100% Borderless)
-   ========================================================================== */
 
 .bms-result-meta-card {
   background: #FFFFFF;
@@ -428,7 +400,6 @@
   text-align: right;
 }
 
-/* Timeline Stepper */
 .bms-stepper-container {
   background: #FFFFFF;
   border: none !important;
@@ -556,10 +527,6 @@
   gap: 4px;
 }
 
-/* ==========================================================================
-   6. TRACKING TABLE + PAGINATION + 16:9 WIDESCREEN DETAIL MODAL
-   ========================================================================== */
-
 .bms-tracking-table-card {
   background: #FFFFFF;
   border-radius: 18px;
@@ -642,7 +609,6 @@
   background: #FFFFFF;
 }
 
-/* 2-column widescreen grid for 6-stage progress inside 16:9 detail modal */
 .bms-stepper-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -681,7 +647,6 @@
   flex-shrink: 0;
 }
 
-/* Modal chi tiết tiến trình — tỷ lệ ngang rộng 16:9 thoáng */
 .bms-tracking-detail-modal {
   width: min(1420px, 95vw);
   max-width: min(1420px, 95vw);

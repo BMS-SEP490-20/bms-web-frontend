@@ -1,4 +1,3 @@
-/* BMS V3.1 HOTFIX - Scoped Hero & Landing Sections */
 .bms-kit-hero {
   display: grid;
   grid-template-columns: 1fr 1.05fr;
@@ -17,7 +16,6 @@
   justify-content: center;
 }
 
-/* 100% Pure 2D Flat - Zero Glow, Zero Blur, Zero Shadow */
 .bms-hero-art--big::before {
   display: none !important;
 }
@@ -95,7 +93,6 @@
   display: block;
 }
 
-/* 14 Landing Narrative Sections */
 .bms-landing-sections-wrap {
   display: flex;
   flex-direction: column;
@@ -169,7 +166,6 @@
   line-height: 1.7;
 }
 
-/* 4 Step Workflow */
 .bms-step-art-v3 {
   width: 100%;
   height: 130px;
@@ -178,7 +174,6 @@
   display: block;
 }
 
-/* Pricing 3-Card Trust Row */
 .bms-pricing-trust-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -206,7 +201,6 @@
   margin-bottom: 14px;
 }
 
-/* Pricing Luxury Cohesive Sheet & Rows (Unified, Non-Generic, Pure Flat) */
 .bms-pricing-sheet {
   background: #FFFFFF;
   border-radius: 22px;
@@ -294,4 +288,3 @@
     grid-template-columns: 1fr;
   }
 }
-

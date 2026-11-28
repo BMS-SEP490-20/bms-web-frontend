@@ -50,7 +50,6 @@ export default function AddMedicalAssessmentPage() {
   }, [id, queryPatientId, queryEncounterId]);
 
   const handleSuccess = (created) => {
-    // After successful creation or update, navigate back to list or detail view
     setTimeout(() => {
       navigate('/medical-assessments');
     }, 1200);
@@ -62,7 +61,7 @@ export default function AddMedicalAssessmentPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Top Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">

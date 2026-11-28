@@ -27,7 +27,6 @@ import { medicalAssessmentApi } from '../api/medicalAssessmentApi';
 import { searchPatients, getPatientById } from '../../../services/patientService';
 import { getPackages } from '../../admin/api/packageApi.jsx';
 
-// Standard WHO ICD-10 Catalog for clinical guidance
 export const COMMON_ICD10_LIST = [
   { code: 'E11.9', name: 'Đái tháo đường typ 2 không biến chứng' },
   { code: 'I10', name: 'Tăng huyết áp vô căn (nguyên phát)' },
@@ -99,7 +98,6 @@ export default function MedicalAssessmentForm({
     status: initialData?.status || 'Draft'
   });
 
-  // Patient Profile state (Database driven - Locked from manual typing)
   const [patientProfile, setPatientProfile] = useState(null);
   const [loadingPatient, setLoadingPatient] = useState(false);
   const [showPatientSelectorModal, setShowPatientSelectorModal] = useState(false);
@@ -107,7 +105,6 @@ export default function MedicalAssessmentForm({
   const [patientSearchKeyword, setPatientSearchKeyword] = useState('');
   const [searchingPatients, setSearchingPatients] = useState(false);
 
-  // Dynamic Service Packages state from DB (ServicePackages catalog)
   const [servicePackages, setServicePackages] = useState([]);
   const [loadingPackages, setLoadingPackages] = useState(false);
 
@@ -119,7 +116,6 @@ export default function MedicalAssessmentForm({
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Load patient profile from DB by ID or Code
   const loadPatientProfile = useCallback(async (identifier) => {
     if (!identifier) return;
     setLoadingPatient(true);
@@ -145,13 +141,11 @@ export default function MedicalAssessmentForm({
         }));
       }
     } catch {
-      // Non-blocking fallback
     } finally {
       setLoadingPatient(false);
     }
   }, []);
 
-  // Fetch Patient List for Search / Selection Modal
   const fetchPatientList = useCallback(async (keyword = '') => {
     setSearchingPatients(true);
     try {
@@ -166,7 +160,6 @@ export default function MedicalAssessmentForm({
     }
   }, []);
 
-  // Load Patient Encounters
   const fetchEncounters = useCallback(async (pid) => {
     if (!pid) return;
     setLoadingEncounters(true);
@@ -178,21 +171,17 @@ export default function MedicalAssessmentForm({
         setEncounters(encList);
       }
     } catch {
-      // Keep existing default
     } finally {
       setLoadingEncounters(false);
     }
   }, []);
 
-  // Initial load: Patient & Service Packages from DB
   useEffect(() => {
-    // 1. Load patient profile
     const targetPatientId = initialData?.patientId || formData.patientId;
     if (targetPatientId) {
       loadPatientProfile(targetPatientId);
       fetchEncounters(targetPatientId);
     } else {
-      // If none provided, fetch first patient from DB as initial
       searchPatients({ pageSize: 1 })
         .then((res) => {
           const rawItems = res?.items ?? res?.data ?? res;
@@ -206,7 +195,6 @@ export default function MedicalAssessmentForm({
         .catch(() => {});
     }
 
-    // 2. Load service packages from database (Service Packages catalog)
     setLoadingPackages(true);
     getPackages({ pageSize: 100 })
       .then((res) => {
@@ -223,7 +211,6 @@ export default function MedicalAssessmentForm({
       });
   }, [initialData, loadPatientProfile, fetchEncounters]);
 
-  // Auto-calculated BMI & Category
   const { bmi, bmiCategory, bmiColor } = useMemo(() => {
     const h = Number(formData.vitals.heightCm);
     const w = Number(formData.vitals.weightKg);
@@ -252,7 +239,6 @@ export default function MedicalAssessmentForm({
     return { bmi: calculated, bmiCategory: cat, bmiColor: color };
   }, [formData.vitals.heightCm, formData.vitals.weightKg]);
 
-  // Blood pressure invariant validation: Systolic > Diastolic + 15
   const bpValidation = useMemo(() => {
     const sys = Number(formData.vitals.systolicBp);
     const dia = Number(formData.vitals.diastolicBp);
@@ -267,7 +253,6 @@ export default function MedicalAssessmentForm({
     return { valid: true };
   }, [formData.vitals.systolicBp, formData.vitals.diastolicBp]);
 
-  // Filter ICD-10 list by search term
   const filteredIcd10 = useMemo(() => {
     if (!icdSearchTerm.trim()) return COMMON_ICD10_LIST;
     const kw = icdSearchTerm.toLowerCase();
@@ -313,7 +298,6 @@ export default function MedicalAssessmentForm({
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    // Front-end validations
     if (!formData.patientId?.trim()) {
       setErrorMessage('Vui lòng chọn bệnh nhân từ cơ sở dữ liệu hồ sơ bệnh nhân.');
       return;
@@ -441,7 +425,7 @@ export default function MedicalAssessmentForm({
         )}
 
         <Form onSubmit={(e) => { e.preventDefault(); handleSubmit('Draft'); }}>
-          {/* SECTION 1: Patient and Encounter Association (LOCKED READ-ONLY FROM PROFILE) */}
+
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
               <div>
@@ -547,7 +531,6 @@ export default function MedicalAssessmentForm({
               </div>
             )}
 
-            {/* Encounter Association */}
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
@@ -584,7 +567,6 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* SECTION 2: Chief Complaint & Symptoms */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <FileText  size="1em"/> 2. Diễn Biến Bệnh & Triệu Chứng Lâm Sàng
@@ -620,7 +602,6 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* SECTION 3: Vital Signs & Examination */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
@@ -752,7 +733,6 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* SECTION 4: Diagnosis & WHO ICD-10 */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <Stethoscope  size="1em"/> 4. Chẩn Đoán & Mã Bệnh ICD-10
@@ -781,7 +761,6 @@ export default function MedicalAssessmentForm({
                   </InputGroup>
                 </Form.Group>
 
-                {/* Suggestions Dropdown */}
                 {showIcdSuggestions && (
                   <Card className="position-absolute shadow-lg z-3 mt-1 w-100 border rounded-3">
                     <Card.Header className="py-2 px-3 bg-light d-flex justify-content-between align-items-center">
@@ -912,7 +891,6 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* SECTION 5: Treatment Plan & Test Orders (DYNAMIC SERVICE PACKAGES FROM DB) */}
           <div className="bg-white p-3 p-md-4 rounded-4 shadow-sm mb-4 border" style={{ borderColor: 'rgba(15, 23, 42, 0.05)' }}>
             <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#1E60E6' }}>
               <FileText  size="1em"/> 5. Kế hoạch xử trí &amp; Đề xuất chỉ định xét nghiệm
@@ -1017,7 +995,6 @@ export default function MedicalAssessmentForm({
             </Row>
           </div>
 
-          {/* Action Bar */}
           <div className="d-flex justify-content-between align-items-center pt-2">
             <div>
               {onCancel && (
@@ -1052,7 +1029,6 @@ export default function MedicalAssessmentForm({
         </Form>
       </Card.Body>
 
-      {/* Patient Selector Modal */}
       <Modal show={showPatientSelectorModal} onHide={() => setShowPatientSelectorModal(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-6 fw-bold text-primary d-flex align-items-center gap-2">

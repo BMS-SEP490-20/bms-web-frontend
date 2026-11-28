@@ -103,7 +103,6 @@ export default function ServicePackagesPage({ onBack }) {
     const [deleting, setDeleting] = useState(null);
     const [detailPkg, setDetailPkg] = useState(null);
 
-    // WHY: UC15/UC19 write = Admin + Manager (Quy trình DOT2 follow-up 2); missing user or role => read-only; the API enforces the same set.
     const canManage = useMemo(() => hasRole(getStoredUser(), ROLES.ADMIN), []);
 
     const load = useCallback(async () => {
@@ -167,7 +166,6 @@ export default function ServicePackagesPage({ onBack }) {
         });
     }, [safePackages, search, statusFilter]);
 
-    // Reset pagination when search or status filter changes
     useEffect(() => {
         setCurrentPage(1);
     }, [search, statusFilter]);
@@ -243,7 +241,7 @@ export default function ServicePackagesPage({ onBack }) {
 
     return (
         <div className="bms-roles-page">
-            {/* Page Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -295,7 +293,6 @@ export default function ServicePackagesPage({ onBack }) {
                 </Alert>
             )}
 
-            {/* Single-Line Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="bms-search-input-pill">
                     <Search className="bms-search-icon" size="1em" />
@@ -466,7 +463,6 @@ export default function ServicePackagesPage({ onBack }) {
                     </div>
                 </div>
 
-                {/* Pagination Footer */}
                 {totalPages > 1 && (
                     <div className="p-3 border-top d-flex justify-content-between align-items-center bg-light">
                         <small className="text-muted">
@@ -495,7 +491,6 @@ export default function ServicePackagesPage({ onBack }) {
                 )}
             </div>
 
-            {/* Modals */}
             <PackageDetailModal
                 pkg={detailPkg}
                 onClose={() => setDetailPkg(null)}

@@ -1,4 +1,3 @@
-/* UC26 – Walk-in / reception */
 .walkin-page {
   background: var(--bg-page, #F4F7F9);
   min-height: 100vh;
@@ -20,7 +19,6 @@
   transform: translateY(-1px);
 }
 
-/* Ensure all inputs in walkin page have solid borders and clean styling */
 .walkin-page .form-control,
 .walkin-page .form-select {
   border: 1px solid #CBD5E1 !important;
@@ -47,7 +45,6 @@
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
 }
 
-/* Fix for any input inside input-group on walkin page */
 .walkin-page .input-group > .form-control,
 .walkin-page .input-group > input {
   border: 1px solid #CBD5E1 !important;

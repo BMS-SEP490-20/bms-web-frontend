@@ -37,7 +37,6 @@ export default function SampleRerunPage() {
     const [searchParams] = useSearchParams();
     const targetSampleId = searchParams.get("sampleId") || "";
 
-    // Logged-in technician user
     const currentUser = React.useMemo(() => {
         try {
             const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user") || localStorage.getItem("user");
@@ -49,17 +48,14 @@ export default function SampleRerunPage() {
 
     const requestedBy = currentUser?.fullName || currentUser?.name || currentUser?.username || "";
 
-    // Specimen & rerun context state directly from DB
     const [sampleDetails, setSampleDetails] = useState(null);
 
-    // Form states
     const [reason, setReason] = useState("Delta check failed vs. previous result");
     const [selectedParameters, setSelectedParameters] = useState(new Set());
     const [analyzerTarget, setAnalyzerTarget] = useState("Same analyzer");
     const [priority, setPriority] = useState("Routine rerun");
     const [notes, setNotes] = useState("");
 
-    // Open reruns state
     const [openReruns, setOpenReruns] = useState([]);
     const rerunPag = usePagination(openReruns, 8);
     const [loading, setLoading] = useState(true);
@@ -67,7 +63,6 @@ export default function SampleRerunPage() {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    // Load initial data from real backend & MongoDB
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -96,7 +91,6 @@ export default function SampleRerunPage() {
         loadData();
     }, [targetSampleId]);
 
-    // Toggle parameter checkbox
     const handleToggleParam = (param) => {
         const next = new Set(selectedParameters);
         if (next.has(param)) {
@@ -107,7 +101,6 @@ export default function SampleRerunPage() {
         setSelectedParameters(next);
     };
 
-    // Submit rerun
     const handleSubmit = async (e) => {
         e?.preventDefault();
 
@@ -143,7 +136,6 @@ export default function SampleRerunPage() {
             await submitSampleRerun(sampleDetails.sampleId, payload);
             setSuccessMessage(`Đã gửi yêu cầu chạy lại cho mẫu ${sampleDetails.barcode || sampleDetails.sampleId}. Trạng thái mẫu đã chuyển sang chờ phân tích lại.`);
 
-            // Refresh open reruns list directly from DB
             const updatedReruns = await fetchOpenReruns();
             setOpenReruns(Array.isArray(updatedReruns) ? updatedReruns : []);
         } catch (err) {
@@ -156,7 +148,7 @@ export default function SampleRerunPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -183,7 +175,6 @@ export default function SampleRerunPage() {
                 </div>
             </div>
 
-            {/* Notifications */}
             {successMessage && (
                 <div className="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
                     <div className="d-flex align-items-center gap-2">
@@ -214,7 +205,7 @@ export default function SampleRerunPage() {
                 </div>
             ) : (
                 <div className="row g-4">
-                    {/* Left Column: Rerun Request Form or Empty State */}
+
                     <div className="col-lg-7">
                         {!sampleDetails ? (
                             <div className="card shadow-sm rounded-4 p-5 text-center h-100 d-flex flex-column justify-content-center" style={{ border: "1px solid #E2E8F0" }}>
@@ -239,7 +230,7 @@ export default function SampleRerunPage() {
                                     </h5>
                                 </div>
                                 <div className="card-body p-4">
-                                    {/* Specimen Key-Value Banner */}
+
                                     <div
                                         className="p-3 mb-4 rounded-4 border"
                                         style={{
@@ -272,7 +263,6 @@ export default function SampleRerunPage() {
                                         </div>
                                     </div>
 
-                                    {/* Reason for Rerun Dropdown */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold text-dark small">
                                             Lý do yêu cầu chạy lại <span className="text-danger">*</span>
@@ -291,7 +281,6 @@ export default function SampleRerunPage() {
                                         </select>
                                     </div>
 
-                                    {/* Parameters to Rerun Checkboxes */}
                                     <div className="mb-3">
                                         <label className="form-label fw-semibold text-dark small">Chỉ số cần phân tích lại</label>
                                         <div className="d-flex gap-3 flex-wrap p-3 border rounded-3 bg-light">
@@ -312,7 +301,6 @@ export default function SampleRerunPage() {
                                         </div>
                                     </div>
 
-                                    {/* Form Row: Target Analyzer & Priority */}
                                     <div className="row g-3 mb-3">
                                         <div className="col-md-6">
                                             <label className="form-label fw-semibold text-dark small">Thiết bị thực hiện chạy lại</label>
@@ -340,7 +328,6 @@ export default function SampleRerunPage() {
                                         </div>
                                     </div>
 
-                                    {/* Clinical Notes */}
                                     <div className="mb-4">
                                         <label className="form-label fw-semibold text-dark small">Ghi chú kỹ thuật cho vận hành viên</label>
                                         <textarea
@@ -352,7 +339,6 @@ export default function SampleRerunPage() {
                                         />
                                     </div>
 
-                                    {/* Actions */}
                                     <div className="d-flex gap-2">
                                         <button
                                             type="button"
@@ -376,9 +362,8 @@ export default function SampleRerunPage() {
                         )}
                     </div>
 
-                    {/* Right Column: Open Rerun Requests & Comparison Preview */}
                     <div className="col-lg-5">
-                        {/* Standalone Table 1: Open Rerun Requests */}
+
                         <section className="bms-table-standalone-section mb-4">
                             <div className="bms-table-standalone-header">
                                 <div>
@@ -446,7 +431,6 @@ export default function SampleRerunPage() {
                             </div>
                         </section>
 
-                        {/* Standalone Table 2: Original vs. Rerun Comparison */}
                         {sampleDetails && (
                             <section className="bms-table-standalone-section">
                                 <div className="bms-table-standalone-header">

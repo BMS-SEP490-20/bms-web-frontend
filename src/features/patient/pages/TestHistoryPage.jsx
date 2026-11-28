@@ -136,7 +136,7 @@ function HistoryDetail({ id, onClose }) {
                       if (!data.summary?.approvedAt) return 'Đang xử lý';
                       const created = data.summary?.createdAt ? new Date(data.summary.createdAt).getTime() : 0;
                       const approved = new Date(data.summary.approvedAt).getTime();
-                      // Không bịa thời gian: nếu approvedAt ≤ createdAt thì vẫn hiện đúng giá trị API
+
                       if (Number.isNaN(approved) || Number.isNaN(created)) return date(data.summary.approvedAt);
                       return date(data.summary.approvedAt);
                     })()}
@@ -211,7 +211,6 @@ function HistoryDetail({ id, onClose }) {
                   </Alert>
                 )}
 
-                {/* 1. Thẻ Bác Sĩ Thẩm Định & Chữ Ký Số PKI Y Tế */}
                 <div className="p-3 bg-white border rounded-3 mb-3" style={{ borderLeft: '4px solid #10b981' }}>
                   <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                     <div className="d-flex align-items-center gap-2">
@@ -240,7 +239,6 @@ function HistoryDetail({ id, onClose }) {
                   </div>
                 </div>
 
-                {/* 2. Chẩn Đoán Cuối Cùng & Kết Luận Của Bác Sĩ */}
                 {(() => {
                   const doctorNote = data.doctorConclusion || (!isLabTechnicalNote(data.conclusion) ? data.conclusion : '');
                   const labNote = !doctorNote && isLabTechnicalNote(data.conclusion) ? data.conclusion : '';
@@ -315,7 +313,6 @@ function HistoryDetail({ id, onClose }) {
                   );
                 })()}
 
-                {/* 3. Lưu ý khi có chỉ số cảnh báo (Low / High / Critical) nhưng bác sĩ chưa ghi lời khuyên riêng */}
                 {!data.treatmentAdvice && (data.items || []).some(it => {
                   const f = flag(it.flag);
                   return f === 'Thấp' || f === 'Cao' || f === 'Nguy hiểm';
@@ -330,7 +327,6 @@ function HistoryDetail({ id, onClose }) {
                   </div>
                 )}
 
-                {/* 3. CTA Action Buttons */}
                 <div className="d-flex gap-2 flex-wrap mb-3">
                   <Link
                     to={`/patient/results/export/${encodeURIComponent(data.summary.id || data.summary.sampleId)}`}
@@ -427,13 +423,13 @@ export default function TestHistoryPage() {
 
   return (
     <div className="bms-payhistory-content">
-      {/* 1. Header */}
+
       <header className="bms-page-header">
-        
+
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div>
             <h1 className="bms-payhistory-title">Lịch Sử Xét Nghiệm</h1>
-            
+
           </div>
           <Button
             variant="outline-primary"
@@ -447,7 +443,6 @@ export default function TestHistoryPage() {
         </div>
       </header>
 
-      {/* 2. Compact Inline Filter Bar */}
       <div className="bms-history-filter-strip">
         <div className="bms-history-search-box">
           <Search size={14} className="bms-history-search-icon" aria-hidden="true" />
@@ -541,7 +536,6 @@ export default function TestHistoryPage() {
         </Alert>
       )}
 
-      {/* 3. Results Table */}
       <div className="bms-pay-table-wrapper">
         <div className="table-responsive">
           <table className="bms-pay-table">

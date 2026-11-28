@@ -21,11 +21,8 @@ export const ROLE_LABELS = Object.freeze({
 /** Every role; use for screens open to any signed-in user (profile, password, own notifications). */
 export const ALL_ROLES = Object.freeze(Object.values(ROLES));
 
-// Old self-registration accounts were stored with RoleId 9; the backend now issues them as Patient (5).
 const LEGACY_PATIENT_ROLE_ID = 9;
 
-// Exact (case-insensitive) names only. WHY: the old guards used substring matching and defaulted unknown
-// roles to PATIENT, so any odd string gained patient access. Unknown now resolves to null and is denied.
 const NAME_TO_ID = Object.freeze({
   admin: ROLES.ADMIN, administrator: ROLES.ADMIN,
   manager: ROLES.MANAGER, labhead: ROLES.MANAGER, labmanager: ROLES.MANAGER, lab_manager: ROLES.MANAGER,

@@ -123,7 +123,6 @@ export default function MedicalRecordPage() {
     }
   }, []);
 
-  // Worklist states
   const [worklist, setWorklist] = useState([]);
   const [loadingWorklist, setLoadingWorklist] = useState(false);
   const [worklistError, setWorklistError] = useState(null);
@@ -131,14 +130,13 @@ export default function MedicalRecordPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [pageBanner, setPageBanner] = useState(null);
 
-  // Modal & EMR states
   const [showModal, setShowModal] = useState(false);
   const [activeEncounter, setActiveEncounter] = useState(null);
   const [patientRecords, setPatientRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [labResults, setLabResults] = useState([]);
   const [loadingModalData, setLoadingModalData] = useState(false);
-  const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit' | 'view'
+  const [modalMode, setModalMode] = useState('create');
 
   const [form, setForm] = useState(INITIAL_FORM);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -146,13 +144,11 @@ export default function MedicalRecordPage() {
   const [modalSuccess, setModalSuccess] = useState(null);
   const [bypassPendingLab, setBypassPendingLab] = useState(false);
 
-  // Soft Delete Audit Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
   const [autoOpenedQuery, setAutoOpenedQuery] = useState(false);
 
-  // Auto-calculated BMI & Category
   const { bmi, bmiCategory, bmiColor } = useMemo(() => {
     const h = Number(form.heightCm);
     const w = Number(form.weightKg);
@@ -181,7 +177,6 @@ export default function MedicalRecordPage() {
     return { bmi: calculated, bmiCategory: cat, bmiColor: color };
   }, [form.heightCm, form.weightKg]);
 
-  // Blood pressure invariant: Systolic > Diastolic + 15
   const bpValidation = useMemo(() => {
     const sys = Number(form.systolicBp);
     const dia = Number(form.diastolicBp);
@@ -195,7 +190,6 @@ export default function MedicalRecordPage() {
     return { valid: true };
   }, [form.systolicBp, form.diastolicBp]);
 
-  // Load real clinical worklist (NO synthetic patient fallback)
   const loadWorklist = useCallback(async () => {
     setLoadingWorklist(true);
     setWorklistError(null);
@@ -222,7 +216,6 @@ export default function MedicalRecordPage() {
         }
       });
 
-      // Map orders by appointmentId and patientId
       const orderByAppt = new Map();
       const orderByPatient = new Map();
       orders.forEach((o) => {
@@ -233,7 +226,6 @@ export default function MedicalRecordPage() {
         }
       });
 
-      // Map approved lab results by patientCode/patientId & orderNumber
       const labByPatient = new Map();
       labRecords.forEach((r) => {
         const pKey = String(r.patientCode || r.patientId || '').trim();
@@ -282,11 +274,10 @@ export default function MedicalRecordPage() {
           labCount: matchedLabs.length,
           hasApprovedLab,
           hasPanicOrAbnormal,
-          latestRecord: null // populated lazily or via patient records cache below
+          latestRecord: null
         });
       };
 
-      // 1. Bệnh nhân đang được gọi số tại Bàn Khám (ưu tiên cao nhất)
       if (queueRes?.currentServing) {
         const cs = queueRes.currentServing;
         const appt = apptById.get(String(cs.appointmentId || '')) || {};
@@ -303,7 +294,6 @@ export default function MedicalRecordPage() {
         );
       }
 
-      // 2. Hàng đợi đang chờ khám
       const waitingList = Array.isArray(queueRes?.waitingList) ? queueRes.waitingList : [];
       waitingList.forEach((w) => {
         const appt = apptById.get(String(w.appointmentId || '')) || {};
@@ -320,7 +310,6 @@ export default function MedicalRecordPage() {
         );
       });
 
-      // 3. Lịch hẹn hợp lệ trong luồng khám (InProgress / CheckedIn / Confirmed / Completed)
       const validStatuses = new Set(['InProgress', 'CheckedIn', 'Confirmed', 'Completed']);
       appointments.forEach((a) => {
         if (validStatuses.has(a.status)) {
@@ -328,7 +317,6 @@ export default function MedicalRecordPage() {
         }
       });
 
-      // 4. Nạp trước trạng thái EMR cho danh sách bệnh nhân thực tế trong worklist (tối đa 20 BN đầu)
       const uniquePatientIds = [...new Set(merged.map((m) => m.patientId))].slice(0, 20);
       const emrMap = new Map();
       await Promise.all(
@@ -340,7 +328,6 @@ export default function MedicalRecordPage() {
               emrMap.set(pid, list);
             }
           } catch {
-            // ignore individual lookup error
           }
         })
       );
@@ -369,7 +356,6 @@ export default function MedicalRecordPage() {
     loadWorklist();
   }, [loadWorklist]);
 
-  // Helper: fill form from an existing record
   const populateFormFromRecord = useCallback((record) => {
     if (!record) {
       setForm(INITIAL_FORM);
@@ -393,7 +379,6 @@ export default function MedicalRecordPage() {
     });
   }, []);
 
-  // Open EMR & Clinical Conclusion Modal for an encounter
   const handleOpenEncounterModal = useCallback(
     async (encounter) => {
       setActiveEncounter(encounter);
@@ -435,7 +420,6 @@ export default function MedicalRecordPage() {
     [canWriteEmr, populateFormFromRecord]
   );
 
-  // Auto-open modal if navigated directly with ?patientId=... or ?appointmentId=...
   useEffect(() => {
     if (autoOpenedQuery || loadingWorklist) return;
     if (!queryPatientId && !queryAppointmentId) return;
@@ -469,7 +453,6 @@ export default function MedicalRecordPage() {
     handleOpenEncounterModal
   ]);
 
-  // Switch between history records inside modal
   const handleSelectHistoryRecord = (record) => {
     setModalError(null);
     setModalSuccess(null);
@@ -484,7 +467,6 @@ export default function MedicalRecordPage() {
     setModalMode(record.canEdit && canWriteEmr ? 'edit' : 'view');
   };
 
-  // Explicit search for an old patient by exact PAT-... code when not in today's queue
   const handleExplicitPatientLookup = async () => {
     const term = searchKeyword.trim();
     if (term.length < 3) return;
@@ -509,7 +491,6 @@ export default function MedicalRecordPage() {
     }
   };
 
-  // Save (Create or Update) Medical Record
   const handleSubmitEmr = async (e) => {
     e.preventDefault();
     if (!activeEncounter || modalMode === 'view') return;
@@ -574,7 +555,6 @@ export default function MedicalRecordPage() {
         );
       }
 
-      // Refresh modal history & main worklist
       const recRes = await medicalRecordApi.getPatientRecords(activeEncounter.patientId).catch(() => null);
       const recs = extractArray(recRes);
       setPatientRecords(recs);
@@ -593,7 +573,6 @@ export default function MedicalRecordPage() {
     }
   };
 
-  // Soft delete confirmation
   const handleDeleteConfirm = async () => {
     if (!recordToDelete || deleteReason.trim().length < 15) {
       setModalError('Lý do xóa bắt buộc tối thiểu 15 ký tự theo quy định kiểm toán y tế.');
@@ -626,7 +605,6 @@ export default function MedicalRecordPage() {
     }
   };
 
-  // Filtered worklist
   const filteredWorklist = useMemo(() => {
     const kw = searchKeyword.trim().toLowerCase();
     return worklist.filter((item) => {
@@ -671,7 +649,7 @@ export default function MedicalRecordPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -712,7 +690,6 @@ export default function MedicalRecordPage() {
         </Alert>
       )}
 
-      {/* Filter Bar & Status Pills */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '260px' }}>
           <Search className="bms-search-icon"  size="1em"/>
@@ -760,7 +737,6 @@ export default function MedicalRecordPage() {
         </div>
       </div>
 
-      {/* Main Worklist Table */}
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
         <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">
@@ -945,7 +921,6 @@ export default function MedicalRecordPage() {
         </Card.Body>
       </Card>
 
-      {/* Clinical EMR & Diagnosis Conclusion Modal */}
       <Modal
         show={showModal}
         onHide={() => !submitLoading && setShowModal(false)}
@@ -1030,7 +1005,6 @@ export default function MedicalRecordPage() {
                 </Alert>
               )}
 
-              {/* History Switcher Bar */}
               <div className="bg-light rounded-3 p-3 mb-4 border">
                 <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                   <div className="small fw-bold text-dark d-flex align-items-center gap-2">
@@ -1065,9 +1039,9 @@ export default function MedicalRecordPage() {
               </div>
 
               <Row className="g-4">
-                {/* Left Column: Lab Results Reference + Vitals */}
+
                 <Col lg={5}>
-                  {/* Read-only Lab Results Summary */}
+
                   <Card className="border rounded-4 mb-4">
                     <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark">
@@ -1128,7 +1102,6 @@ export default function MedicalRecordPage() {
                     </Card.Body>
                   </Card>
 
-                  {/* Vitals & BMI */}
                   <Card className="border rounded-4">
                     <Card.Header className="bg-light border-bottom py-2 px-3 d-flex justify-content-between align-items-center">
                       <span className="fw-bold small text-dark">
@@ -1225,7 +1198,6 @@ export default function MedicalRecordPage() {
                   </Card>
                 </Col>
 
-                {/* Right Column: Clinical Examination + ICD-10 + Treatment Plan */}
                 <Col lg={7}>
                   <Card className="border rounded-4 h-100">
                     <Card.Header className="bg-light border-bottom py-2 px-3">
@@ -1420,7 +1392,6 @@ export default function MedicalRecordPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Soft Delete Audit Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-6 fw-bold text-danger">

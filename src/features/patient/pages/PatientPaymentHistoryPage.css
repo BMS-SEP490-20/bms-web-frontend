@@ -1,17 +1,9 @@
-/* ==========================================================================
-   BMS Patient Payment History Page (UC18 / UC55)
-   Clean, Professional, Non-AI Human-Centered Medical Design
-   High Contrast, Borderless & Pure Flat 2D, Zero Shadows, Modern Typography
-   Compliant with AGENTS-DESIGN.md, ISO 15189:2022 and Nghị định 123/2020/NĐ-CP
-   ========================================================================== */
-
 .bms-payhistory-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 8px 16px 48px;
 }
 
-/* 1. Page Header */
 .bms-payhistory-header {
   margin-bottom: 24px;
 }
@@ -49,7 +41,6 @@
   letter-spacing: -0.005em;
 }
 
-/* 2. KPI Summary Cards Grid */
 .bms-pay-kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -246,7 +237,6 @@
   letter-spacing: -0.01em;
 }
 
-/* 5. Pagination & Footer Strip */
 .bms-pay-pagination {
   margin-top: 12px;
   padding: 0;
@@ -275,7 +265,6 @@
   box-shadow: none !important;
 }
 
-/* Compact inline filter bar dedicated to TestHistoryPage */
 .bms-history-filter-strip {
   display: flex;
   align-items: center;

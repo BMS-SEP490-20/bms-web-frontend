@@ -72,7 +72,6 @@ export default function ReferenceIntervalModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    // 1. Tải danh mục chỉ số xét nghiệm từ hệ thống
     testCriterionService
       .getCriteria({ page: 1, pageSize: 100, isActive: true })
       .then((res) => {
@@ -87,10 +86,8 @@ export default function ReferenceIntervalModal({
         }
       })
       .catch(() => {
-        // Giữ danh sách mặc định COMMON_CRITERIA_LIST
       });
 
-    // 2. Tải danh sách tất cả các chỉ số đã có khoảng tham chiếu để phân loại Nam/Nữ và chặn trùng lặp
     referenceIntervalService
       .getIntervals({ page: 1, pageSize: 500, isActive: true })
       .then((res) => {
@@ -152,7 +149,6 @@ export default function ReferenceIntervalModal({
         isActive: interval.isActive !== undefined ? interval.isActive : true,
       });
     } else {
-      // Ưu tiên chọn chỉ số chưa đủ 2 khoảng (1 Nam, 1 Nữ)
       const availablePreset = criteriaOptions.find((c) => {
         const info = criterionGenderMap[c.code];
         return !(info?.hasMale && info?.hasFemale);
@@ -196,14 +192,13 @@ export default function ReferenceIntervalModal({
     setFormData((prev) => {
       const updated = { ...prev, [name]: val };
 
-      // Auto update criterion name and unit when criterionCode changes
       if (name === 'criterionCode') {
         const found = criteriaOptions.find((c) => c.code === value);
         if (found) {
           updated.criterionName = found.name;
           updated.unit = found.unit;
         }
-        // Tự động gán giới tính còn thiếu cho chỉ số được chọn
+
         const info = criterionGenderMap[value];
         if (info?.hasMale && !info?.hasFemale) {
           updated.gender = 'Female';
@@ -212,7 +207,6 @@ export default function ReferenceIntervalModal({
         }
       }
 
-      // Auto-update demographicLabel if user hasn't explicitly customized it
       if (name === 'gender' || name === 'ageMin' || name === 'ageMax' || name === 'condition') {
         const genderText =
           updated.gender === 'Male' ? 'Nam' : updated.gender === 'Female' ? 'Nữ' : 'Tất cả';
@@ -229,7 +223,7 @@ export default function ReferenceIntervalModal({
   const currentGenderInfo = criterionGenderMap[currentCode] || { hasMale: false, hasFemale: false, count: 0 };
   const hasMale = currentGenderInfo.hasMale;
   const hasFemale = currentGenderInfo.hasFemale;
-  // Cho phép phân tầng nhiều nhóm tuổi cho cùng giới tính; kiểm tra chồng lấn tuổi+giới thực hiện chuẩn ở Backend
+
   const isFullyConfigured = false;
   const isDuplicateGenderOnCreate = false;
   const isDuplicateGenderOnEdit = false;

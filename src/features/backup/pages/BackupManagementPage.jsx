@@ -33,7 +33,6 @@ export default function BackupManagementPage() {
     const currentUser = getStoredUser();
     const isAdmin = hasRole(currentUser, ROLES.ADMIN);
 
-    // States
     const [backups, setBackups] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +56,6 @@ export default function BackupManagementPage() {
     const [verifyingId, setVerifyingId] = useState(null);
     const [downloadingId, setDownloadingId] = useState(null);
 
-    // Modals
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRestoreModal, setShowRestoreModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
@@ -93,8 +91,8 @@ export default function BackupManagementPage() {
 
                 const safeBackups = Array.isArray(data)
                     ? data
-                    : (Array.isArray(data?.items) 
-                        ? data.items 
+                    : (Array.isArray(data?.items)
+                        ? data.items
                         : (Array.isArray(data?.Items) ? data.Items : (Array.isArray(data?.data) ? data.data : [])));
 
                 setBackups(safeBackups);
@@ -193,7 +191,6 @@ export default function BackupManagementPage() {
         loadData();
     };
 
-    // Safe filtered backups
     const safeBackups = useMemo(() => (Array.isArray(backups) ? backups : []), [backups]);
     const safeBackupsList = safeBackups;
 
@@ -226,7 +223,7 @@ export default function BackupManagementPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -263,7 +260,6 @@ export default function BackupManagementPage() {
                 </div>
             </div>
 
-            {/* Notification Toast */}
             {toastMessage && (
                 <div
                     className={`alert alert-${toastMessage.type} alert-dismissible fade show mb-4`}
@@ -282,7 +278,6 @@ export default function BackupManagementPage() {
                 </div>
             )}
 
-            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
@@ -345,7 +340,6 @@ export default function BackupManagementPage() {
                 </div>
             </div>
 
-            {/* External Tab Bar (separated cleanly from table container) */}
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                 <div className="d-flex flex-wrap align-items-center gap-2">
                     {TABS.map((tab) => {
@@ -375,7 +369,6 @@ export default function BackupManagementPage() {
                 </div>
             </div>
 
-            {/* Single-Line Filter Bar */}
             {activeTab !== "HISTORY" && (
                 <div className="bms-filter-bar mb-3">
                     <div className="bms-search-input-pill">
@@ -417,7 +410,6 @@ export default function BackupManagementPage() {
                     </div>
                 </div>
 
-                {/* Standalone Table Body */}
                 <div className="bms-table-standalone-body">
                     {activeTab === "HISTORY" ? (
                         <div className="table-responsive">
@@ -645,7 +637,6 @@ export default function BackupManagementPage() {
                 </div>
             </div>
 
-            {/* Modals */}
             {isAdmin && (
                 <>
                     <CreateBackupModal

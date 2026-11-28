@@ -29,14 +29,11 @@ export const OtpInputGroup = ({
   disabled = false,
   autoFocus = true,
 }) => {
-  // Input elements refs array
   const inputRefs = useRef([]);
   const [isShaking, setIsShaking] = useState(false);
 
-  // Initialize array of digits from incoming value string
   const digits = Array.from({ length }, (_, i) => value[i] || '');
 
-  // Trigger shake animation whenever hasError changes to true
   useEffect(() => {
     if (hasError) {
       setIsShaking(true);
@@ -45,7 +42,6 @@ export const OtpInputGroup = ({
     }
   }, [hasError]);
 
-  // Focus first input box on mount
   useEffect(() => {
     if (autoFocus && inputRefs.current[0] && !disabled) {
       inputRefs.current[0].focus();
@@ -63,12 +59,10 @@ export const OtpInputGroup = ({
 
     onChange?.(combinedOtp);
 
-    // Auto-advance to next input field
     if (cleanDigit && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Trigger onComplete when all digits are filled
     if (combinedOtp.length === length && !newDigits.includes('')) {
       onComplete?.(combinedOtp);
     }
@@ -83,10 +77,8 @@ export const OtpInputGroup = ({
     if (e.key === 'Backspace') {
       e.preventDefault();
       if (digits[index]) {
-        // Clear current box if it has a value
         handleDigitChange(index, '');
       } else if (index > 0) {
-        // Move backward and clear preceding box
         inputRefs.current[index - 1]?.focus();
         handleDigitChange(index - 1, '');
       }

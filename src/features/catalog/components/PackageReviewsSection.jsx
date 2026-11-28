@@ -112,7 +112,7 @@ export default function PackageReviewsSection({ pkg, onCloseModal }) {
         </div>
       ) : (
         <div>
-          {/* Summary header box */}
+
           <div
             className="p-3 rounded-3 mb-3 d-flex flex-column flex-md-row align-items-md-center gap-3"
             style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}
@@ -152,7 +152,6 @@ export default function PackageReviewsSection({ pkg, onCloseModal }) {
             </div>
           </div>
 
-          {/* Reviews list */}
           <div className="d-flex flex-column gap-2.5" style={{ maxHeight: '260px', overflowY: 'auto' }}>
             {reviews.map((rev) => (
               <div

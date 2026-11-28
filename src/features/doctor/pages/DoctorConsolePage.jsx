@@ -30,7 +30,6 @@ import BarcodePrinterModal, { AntiCollisionRackVisualizer } from '../../laborato
 export default function DoctorConsolePage() {
   const navigate = useNavigate();
 
-  // Current user / doctor context from storage
   const [currentUser] = useState(() => {
     try {
       const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user') || localStorage.getItem('user');
@@ -47,7 +46,6 @@ export default function DoctorConsolePage() {
   const rawLicense = currentUser?.licenseNumber || currentUser?.employeeCode || currentUser?.username || '';
   const doctorLicenseLabel = (!rawLicense || /^[0-9a-f]{24}$/i.test(rawLicense)) ? '—' : rawLicense;
 
-  // Auto-filled from ca trực hôm nay — BS đã được phân phòng, không bắt chọn tay.
   const [roomId, setRoomId] = useState('');
   const [shiftRoomId, setShiftRoomId] = useState('');
   const [shiftLabel, setShiftLabel] = useState('Đang tải ca trực…');
@@ -60,7 +58,7 @@ export default function DoctorConsolePage() {
       currentUser?.accountId ||
       '';
     if (fromUser) return String(fromUser);
-    // JWT `sub` is the stable Mongo account id used on appointments.doctorId
+
     try {
       const token =
         sessionStorage.getItem('bms_access_token') ||
@@ -74,7 +72,6 @@ export default function DoctorConsolePage() {
     }
   });
 
-  // Danh sách kết quả xét nghiệm từ CSDL (chờ duyệt & đã duyệt) để Bác sĩ luôn xem lại / thẩm định / ký duyệt
   const [approvedResultsList, setApprovedResultsList] = useState([]);
   const [approvedResultsLoading, setApprovedResultsLoading] = useState(false);
   const [approvedSearch, setApprovedSearch] = useState('');
@@ -87,7 +84,6 @@ export default function DoctorConsolePage() {
     }
   });
 
-  // Queue state
   const [currentServing, setCurrentServing] = useState(null);
   const [waitingList, setWaitingList] = useState([]);
   const waitingPag = usePagination(waitingList, 8);
@@ -108,7 +104,6 @@ export default function DoctorConsolePage() {
     );
   }, [roomId, currentServing, shiftRoomId, waitingList]);
 
-  // Lab/tech verify event — clinical publish still requires Doctor approve + signature
   const [verifiedAlert, setVerifiedAlert] = useState(() => {
     try {
       const raw = localStorage.getItem('bms_last_verified_specimen');
@@ -134,19 +129,15 @@ export default function DoctorConsolePage() {
     return () => window.removeEventListener('bms:test-result-verified', handleVerified);
   }, []);
 
-  // Skip Modal state
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [skipReason, setSkipReason] = useState('Không có mặt sau 3 lần gọi loa');
 
-  // Complete Modal state
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeNotes, setCompleteNotes] = useState('');
 
-  // Consultation elapsed timer
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef(null);
 
-  // Fetch queue data from API with multi-tiered defensive checks
   const fetchQueue = useCallback(async () => {
     setLoading(true);
     try {
@@ -155,13 +146,11 @@ export default function DoctorConsolePage() {
         const serving = res.currentServing ?? res.data?.currentServing ?? null;
         setCurrentServing(serving);
 
-        // Multi-tiered defensive check for waiting list
         const rawList = res.waitingList ?? res.data?.waitingList ?? res.data ?? [];
         const safeList = Array.isArray(rawList)
           ? rawList
           : (Array.isArray(rawList?.items) ? rawList.items : []);
 
-        // Filter: Doctor only calls checked-in / waiting patients (API may return CheckedIn / checked_in)
         const validWaitingList = safeList.filter((item) => {
           if (!item) return false;
           const status = String(item.status || '').toLowerCase().replace(/[_\s]/g, '');
@@ -201,7 +190,6 @@ export default function DoctorConsolePage() {
     }
   }, [roomId, doctorId]);
 
-  // Initial fetch and auto-polling every 4 seconds
   const fetchApprovedResults = useCallback(async () => {
     setApprovedResultsLoading(true);
     try {
@@ -237,7 +225,6 @@ export default function DoctorConsolePage() {
       const isHexObjectId = (val) => /^[0-9a-f]{24}$/i.test(String(val || '').trim());
       const isUuid = (val) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(val || '').trim());
 
-      // Lọc kết quả Lab sẵn sàng cho Bác sĩ thẩm định / đã ký duyệt và khử trùng theo sampleId (lấy bản mới nhất)
       const bySample = new Map();
       (Array.isArray(rawResults) ? rawResults : [])
         .filter((r) => {
@@ -305,11 +292,10 @@ export default function DoctorConsolePage() {
   useEffect(() => {
     fetchQueue();
     fetchApprovedResults();
-    const interval = setInterval(fetchQueue, 8000); // Auto-sync every 8s
+    const interval = setInterval(fetchQueue, 8000);
     return () => clearInterval(interval);
   }, [fetchQueue, fetchApprovedResults]);
 
-  // Timer effect for current consultation
   useEffect(() => {
     if (currentServing && currentServing.consultationStartTime) {
       const startMs = new Date(currentServing.consultationStartTime).getTime();
@@ -328,7 +314,6 @@ export default function DoctorConsolePage() {
     };
   }, [currentServing]);
 
-  // Load phòng + nhãn ca từ phân công ca trực hôm nay (doctor đã được gán phòng)
   useEffect(() => {
     if (!doctorId) return;
     let cancelled = false;
@@ -364,10 +349,9 @@ export default function DoctorConsolePage() {
     return () => { cancelled = true; };
   }, [doctorId]);
 
-  // Call Next Patient (Only checked-in patients)
   const handleCallNext = useCallback(async () => {
     if (actionLoading) return;
-    // Phòng lấy từ ca phân công / BN đang chờ — không bắt BS chọn tay.
+
     const targetRoom = resolveCallRoom();
     if (!roomId && targetRoom) setRoomId(targetRoom);
     setActionLoading(true);
@@ -392,7 +376,6 @@ export default function DoctorConsolePage() {
     }
   }, [actionLoading, resolveCallRoom, roomId, doctorId, fetchQueue]);
 
-  // Recall Current Patient
   const handleRecall = useCallback(async () => {
     if (!currentServing || actionLoading) return;
     const targetRoom = resolveCallRoom();
@@ -415,7 +398,6 @@ export default function DoctorConsolePage() {
     }
   }, [currentServing, actionLoading, resolveCallRoom, fetchQueue]);
 
-  // Skip Patient (No-show / Absent)
   const handleSkipConfirm = async () => {
     if (!currentServing || actionLoading) return;
     setActionLoading(true);
@@ -435,7 +417,6 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // Complete Patient
   const handleCompleteConfirm = async () => {
     if (!currentServing || actionLoading) return;
     setActionLoading(true);
@@ -456,9 +437,6 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // =========================================================================
-  // SÀNG LỌC TIỀN PHÂN TÍCH & DỜI LỊCH HẸN (PRE-ANALYTICAL & RESCHEDULE)
-  // =========================================================================
   const [showPreAnalyticsModal, setShowPreAnalyticsModal] = useState(false);
   const [preAnalyticsForm, setPreAnalyticsForm] = useState({
     isFasting8h: true,
@@ -474,7 +452,6 @@ export default function DoctorConsolePage() {
   });
   const [rescheduleSuccess, setRescheduleSuccess] = useState(null);
 
-  // Xử lý Dời Lịch Xét Nghiệm (Hoãn Lấy Mẫu)
   const handleRescheduleConfirm = async () => {
     if (!currentServing || actionLoading) return;
     setActionLoading(true);
@@ -489,7 +466,6 @@ export default function DoctorConsolePage() {
         doctorId: doctorId,
       });
 
-      // Cập nhật lượt khám hiện tại hoàn tất trạng thái hoãn
       await receptionApi.completePatient(
         currentServing.appointmentId,
         `[HOÃN LẤY MẪU & DỜI LỊCH]: ${preAnalyticsForm.rescheduleReason}. Hẹn lại: ${preAnalyticsForm.newAppointmentDate} (${preAnalyticsForm.newSlotTime})`
@@ -520,11 +496,8 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // =========================================================================
-  // THẨM ĐỊNH KẾT QUẢ & TƯ VẤN BỆNH NHÂN (DOCTOR CONSULTATION & DELIVERY)
-  // =========================================================================
   const [showConsultationModal, setShowConsultationModal] = useState(false);
-  const [consultationStep, setConsultationStep] = useState('review'); // 'review' | 'consult' | 'delivered'
+  const [consultationStep, setConsultationStep] = useState('review');
   const [consultationData, setConsultationData] = useState(null);
   const [consultationResult, setConsultationResult] = useState(null);
   const [consultationParams, setConsultationParams] = useState([]);
@@ -540,7 +513,6 @@ export default function DoctorConsolePage() {
   const [returnReason, setReturnReason] = useState('');
   const [liveTestResults, setLiveTestResults] = useState([]);
 
-  // Mở modal thẩm định kết quả và tải KẾT QUẢ THẬT từ CSDL (không dùng dữ liệu ảo)
   const handleOpenConsultationModal = async (customAlert = null) => {
     const pt = customAlert || currentServing;
     if (!pt) {
@@ -673,12 +645,10 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // Bác sĩ chuyển sang bước tư vấn bệnh nhân
   const handleCallPatientConsultation = () => {
     setConsultationStep('consult');
   };
 
-  // Bác sĩ yêu cầu Lab chạy lại — gọi API thật (không localStorage)
   const handleDoctorRequestRerun = async () => {
     if (!returnReason.trim()) return;
     const specimenId =
@@ -713,14 +683,12 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // GATE (step 4→5): ICD + kết luận lâm sàng ≥10 ký tự + có KQ Lab; chỉ khi đủ mới publish Cổng BN.
   const canDoctorApproveResults =
     Boolean(clinicalIcdCode?.trim()) &&
     (clinicalConclusion?.trim()?.length || 0) >= 10 &&
     (liveTestResults.length > 0 || Boolean(consultationResult)) &&
     !isDeliverySuccess;
 
-  // Bác sĩ ký duyệt và trả kết quả cho người bệnh (Email / Portal / PDF) hoặc cập nhật kết luận lâm sàng
   const handleApproveAndDeliverToPatient = async () => {
     if (!clinicalIcdCode?.trim()) {
       setErrorMsg('Thiếu mã ICD-10 trước khi ký duyệt kết quả cho bệnh nhân.');
@@ -796,7 +764,7 @@ export default function DoctorConsolePage() {
           const next = { ...prev, [consultKey]: entry };
           try {
             localStorage.setItem('bms_doctor_consultations_v1', JSON.stringify(next));
-          } catch { /* ignore storage quota */ }
+          } catch {  }
           return next;
         });
       }
@@ -813,10 +781,8 @@ export default function DoctorConsolePage() {
     }
   };
 
-  // Barcode Printer Modal state
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
 
-  // Keyboard Shortcuts: F2 (Gọi số tiếp), F3 (Gọi lại), F4 (Bỏ qua)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'F2') {
@@ -835,7 +801,6 @@ export default function DoctorConsolePage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleCallNext, handleRecall, currentServing]);
 
-  // Format seconds to mm:ss
   const formatTimer = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -844,7 +809,7 @@ export default function DoctorConsolePage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card đồng bộ toàn hệ thống */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row d-flex align-items-center gap-2 flex-wrap">
@@ -878,7 +843,6 @@ export default function DoctorConsolePage() {
         </div>
       </div>
 
-      {/* Alerts */}
       {verifiedAlert && (
         <Alert
           variant="success"
@@ -955,7 +919,7 @@ export default function DoctorConsolePage() {
       )}
 
       <Row className="g-3 mb-4">
-        {/* Left Column: Active Patient Console */}
+
         <Col lg={7}>
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
             <Card.Header className="text-white py-3 px-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#0284c7' }}>
@@ -981,7 +945,6 @@ export default function DoctorConsolePage() {
                       </div>
                     </div>
 
-                    {/* Consultation Stopwatch */}
                     <div className="text-end">
                       <div className="small text-secondary fw-semibold">Thời gian khám</div>
                       <div className="fs-3 fw-bold text-dark font-monospace d-flex align-items-center gap-1 justify-content-end">
@@ -996,7 +959,6 @@ export default function DoctorConsolePage() {
                     </div>
                   </div>
 
-                  {/* Patient Info Card */}
                   <div className="p-3 bg-light rounded-3 mb-4 border" style={{ borderColor: '#e2e8f0' }}>
                     <Row className="g-3">
                       <Col sm={6}>
@@ -1020,7 +982,6 @@ export default function DoctorConsolePage() {
                     </Row>
                   </div>
 
-                  {/* Operational Action Buttons */}
                   <div className="d-flex flex-wrap gap-2 mb-3">
                     <Button
                       variant="warning"
@@ -1114,7 +1075,6 @@ export default function DoctorConsolePage() {
           </Card>
         </Col>
 
-        {/* Right Column: Waiting Queue List */}
         <Col lg={5}>
           <Card className="border-0 shadow-sm rounded-3 h-100 overflow-hidden" style={{ borderColor: '#e2e8f0' }}>
             <Card.Header className="bg-white py-3 px-3 border-bottom d-flex justify-content-between align-items-center" style={{ borderColor: '#e2e8f0' }}>
@@ -1189,7 +1149,6 @@ export default function DoctorConsolePage() {
         </Col>
       </Row>
 
-      {/* Skip (No-Show / Absent) Modal */}
       <Modal show={showSkipModal} onHide={() => setShowSkipModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="h5 fw-bold" style={{ color: '#dc2626' }}>Bỏ Qua Lượt Khám (Vắng Mặt)</Modal.Title>
@@ -1221,7 +1180,6 @@ export default function DoctorConsolePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Complete Modal */}
       <Modal show={showCompleteModal} onHide={() => setShowCompleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="h5 fw-bold" style={{ color: '#059669' }}>Hoàn Tất Lượt Khám Lâm Sàng</Modal.Title>
@@ -1251,7 +1209,6 @@ export default function DoctorConsolePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Sàng Lọc Tiền Phân Tích & Dời Lịch Hẹn (Pre-analytical & Reschedule) */}
       <Modal show={showPreAnalyticsModal} onHide={() => setShowPreAnalyticsModal(false)} size="lg" centered>
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
@@ -1260,7 +1217,7 @@ export default function DoctorConsolePage() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
-          {/* Thông tin bệnh nhân */}
+
           <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
             <Row className="g-2">
               <Col sm={6}>
@@ -1282,7 +1239,6 @@ export default function DoctorConsolePage() {
             </Row>
           </div>
 
-          {/* Checklist Tiêu Chuẩn Tiền Phân Tích (Circular 01/2013/TT-BYT) */}
           <Card className="border-0 shadow-sm rounded-3 mb-3 bg-white">
             <Card.Header className="bg-white py-2 border-bottom">
               <span className="fw-bold small text-uppercase text-secondary">
@@ -1375,7 +1331,6 @@ export default function DoctorConsolePage() {
             </Card.Body>
           </Card>
 
-          {/* Form Hoãn Lấy Máu & Dời Lịch */}
           <Card className="border-0 shadow-sm rounded-3 bg-white">
             <Card.Header className="bg-white py-2 border-bottom d-flex justify-content-between align-items-center">
               <span className="fw-bold small text-uppercase text-secondary">
@@ -1484,7 +1439,6 @@ export default function DoctorConsolePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Thẩm Định Kết Quả Xét Nghiệm & Tư Vấn Bệnh Nhân (Doctor Consultation Modal) */}
       <Modal show={showConsultationModal} onHide={() => setShowConsultationModal(false)} size="xl" centered>
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
@@ -1494,7 +1448,7 @@ export default function DoctorConsolePage() {
         </Modal.Header>
 
         <Modal.Body className="p-3" style={{ backgroundColor: "#f8fafc" }}>
-          {/* Banner Bệnh Nhân & Đơn Xét Nghiệm */}
+
           <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
             <Row className="g-2">
               <Col sm={6}>
@@ -1517,7 +1471,6 @@ export default function DoctorConsolePage() {
             </Row>
           </div>
 
-          {/* BẢNG KẾT QUẢ XÉT NGHIỆM THỰC TẾ TỪ CSDL */}
           <Card className="border-0 shadow-sm rounded-3 mb-3 bg-white">
             <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
               <span className="fw-bold small text-uppercase text-dark">
@@ -1590,7 +1543,6 @@ export default function DoctorConsolePage() {
             </Card.Body>
           </Card>
 
-          {/* Form Tư Vấn Lâm Sàng Khi Bác Sĩ Đồng Thuận Kết Quả */}
           <Card className="border-0 shadow-sm rounded-3 bg-white mb-3">
             <Card.Header className="bg-white py-2.5 border-bottom d-flex justify-content-between align-items-center">
               <span className="fw-bold small text-uppercase text-dark d-flex align-items-center gap-1.5">
@@ -1737,7 +1689,6 @@ export default function DoctorConsolePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Bác Sĩ Trả Kết Quả Về Lab Yêu Cầu Chạy Lại */}
       <Modal show={showReturnRerunModal} onHide={() => setShowReturnRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger text-white">
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
@@ -1778,7 +1729,6 @@ export default function DoctorConsolePage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Barcode Printer Modal */}
       <BarcodePrinterModal
         show={showBarcodeModal}
         onHide={() => setShowBarcodeModal(false)}

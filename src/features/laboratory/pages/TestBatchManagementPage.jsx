@@ -41,17 +41,15 @@ export default function TestBatchManagementPage() {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  // Chế độ xem: 'list' | 'create' | 'detail'
   const [activeTab, setActiveTab] = useState('list');
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [batchSearch, setBatchSearch] = useState('');
   const [batchStatusFilter, setBatchStatusFilter] = useState('ALL');
 
-  // Form tạo mẻ mới
   const [selectedAnalyzer, setSelectedAnalyzer] = useState(ANALYZERS[0]);
   const [batchNotes, setBatchNotes] = useState('');
   const [iqcLotNumber, setIqcLotNumber] = useState('LOT-2026-OCT-09');
-  const [assignedWells, setAssignedWells] = useState({}); // { "A3": sample, ... }
+  const [assignedWells, setAssignedWells] = useState({});
   const [selectedWell, setSelectedWell] = useState('A3');
 
   useEffect(() => {
@@ -110,7 +108,6 @@ export default function TestBatchManagementPage() {
     });
   };
 
-  // Tự động xếp mẫu theo thứ tự ưu tiên ISO 15189 (STAT đi trước)
   const handleAutoFill = () => {
     const rows = ['A','B','C','D','E','F','G','H'].slice(0, selectedAnalyzer.rows);
     const cols = Array.from({ length: selectedAnalyzer.cols }, (_, i) => i + 1);
@@ -131,7 +128,6 @@ export default function TestBatchManagementPage() {
       !Object.values(assignedWells).some(a => a?.id === s?.id || a?.barcode === s?.barcode)
     );
 
-    // Ưu tiên mẫu cấp cứu STAT
     const sorted = [...unassignedSamples].sort((a, b) => {
       if (a?.priority === 'STAT' && b?.priority !== 'STAT') return -1;
       if (b?.priority === 'STAT' && a?.priority !== 'STAT') return 1;
@@ -260,7 +256,7 @@ export default function TestBatchManagementPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -291,7 +287,6 @@ export default function TestBatchManagementPage() {
         </div>
       </div>
 
-      {/* Thông báo Alert */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError(null)} className="rounded-3 shadow-sm mb-3">
           <AlertTriangle className="me-2"  size="1em"/>
@@ -305,7 +300,6 @@ export default function TestBatchManagementPage() {
         </Alert>
       )}
 
-      {/* TAB 1: DANH SÁCH MẺ XÉT NGHIỆM */}
       {activeTab === 'list' && (
         <>
           <div className="bms-filter-bar mb-3">
@@ -506,10 +500,9 @@ export default function TestBatchManagementPage() {
         </>
       )}
 
-      {/* TAB 2: TẠO MẺ CHẠY MỚI */}
       {activeTab === 'create' && (
         <div>
-          {/* Card chọn máy và thiết lập */}
+
           <Card className="border-0 shadow-sm rounded-3 mb-4 bg-white">
             <Card.Header className="bg-white py-3 border-bottom">
               <h5 className="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
@@ -568,9 +561,8 @@ export default function TestBatchManagementPage() {
             </Card.Body>
           </Card>
 
-          {/* Sơ đồ khay giếng (Well Plate Grid) */}
           <Row className="g-4 mb-4">
-            {/* Khay giếng */}
+
             <Col lg={8}>
               <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
                 <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
@@ -686,7 +678,6 @@ export default function TestBatchManagementPage() {
               </Card>
             </Col>
 
-            {/* Danh sách mẫu chờ xếp vào giếng */}
             <Col lg={4}>
               <Card className="border-0 shadow-sm rounded-3 bg-white h-100">
                 <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
@@ -753,7 +744,6 @@ export default function TestBatchManagementPage() {
         </div>
       )}
 
-      {/* TAB 3: CHI TIẾT MẺ */}
       {activeTab === 'detail' && selectedBatch && (
         <Card className="border-0 shadow-sm rounded-3 bg-white">
           <Card.Header className="bg-white py-3 border-bottom d-flex justify-content-between align-items-center">

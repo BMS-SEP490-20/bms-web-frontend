@@ -39,23 +39,19 @@ export default function MedicalAssessmentListPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
 
-  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
   const pageSize = 15;
 
-  // Detail Modal
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Delete Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteReason, setDeleteReason] = useState('');
   const [deleting, setDeleting] = useState(false);
 
-  // Fetch assessments from API with multi-tiered defensive checks
   const fetchAssessments = useCallback(async () => {
     setLoading(true);
     setErrorMsg(null);
@@ -153,7 +149,7 @@ export default function MedicalAssessmentListPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Header bar */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -186,7 +182,6 @@ export default function MedicalAssessmentListPage() {
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <LucideSearch className="bms-search-icon"  size="1em"/>
@@ -237,14 +232,12 @@ export default function MedicalAssessmentListPage() {
         </span>
       </div>
 
-      {/* Error alert */}
       {errorMsg && (
         <Alert variant="danger" dismissible onClose={() => setErrorMsg(null)} className="shadow-sm">
           {errorMsg}
         </Alert>
       )}
 
-      {/* Standalone Data Table */}
       <section className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -403,7 +396,6 @@ export default function MedicalAssessmentListPage() {
         </div>
       </section>
 
-      {/* DETAIL INSPECTION MODAL */}
       <Modal show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg" centered>
         {selectedAssessment && (
           <>
@@ -430,7 +422,6 @@ export default function MedicalAssessmentListPage() {
                 </div>
               </div>
 
-              {/* Vitals Summary */}
               <div className="bg-light p-3 rounded-3 mb-3 border">
                 <h6 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: '#0284c7' }}>
                   <HeartPulse  size="1em"/> Dấu Hiệu Sinh Tồn & Thể Trạng
@@ -463,7 +454,6 @@ export default function MedicalAssessmentListPage() {
                 </Row>
               </div>
 
-              {/* Chief Complaint & Symptoms */}
               <div className="mb-3">
                 <div className="fw-bold text-secondary small">LÝ DO ĐẾN KHÁM:</div>
                 <p className="mb-2 fw-semibold text-dark">{selectedAssessment.chiefComplaint}</p>
@@ -483,7 +473,6 @@ export default function MedicalAssessmentListPage() {
                 )}
               </div>
 
-              {/* Diagnosis and ICD-10 */}
               <div className="p-3 rounded-4 mb-3 border" style={{ backgroundColor: 'var(--bms-surface-card, #EEF2F6)', borderColor: 'var(--bms-border, rgba(15, 23, 42, 0.05))' }}>
                 <div className="d-flex justify-content-between align-items-center mb-1">
                   <span className="fw-bold" style={{ color: '#1E60E6' }}>CHẨN ĐOÁN XÁC ĐỊNH & MÃ WHO ICD-10:</span>
@@ -496,7 +485,6 @@ export default function MedicalAssessmentListPage() {
                 )}
               </div>
 
-              {/* Plan and Recommendations */}
               <div className="mb-3">
                 {Array.isArray(selectedAssessment.recommendedTestPackages) && selectedAssessment.recommendedTestPackages.length > 0 && (
                   <div className="mb-2">
@@ -549,7 +537,6 @@ export default function MedicalAssessmentListPage() {
         )}
       </Modal>
 
-      {/* SOFT DELETE MODAL */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-5 fw-bold" style={{ color: '#dc2626' }}>Xác Nhận Xóa Mềm Đánh Giá Y Khoa</Modal.Title>

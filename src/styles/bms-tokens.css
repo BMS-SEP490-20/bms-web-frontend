@@ -1,59 +1,45 @@
-/**
- * BMS Design Tokens — Modern Flat Healthcare SaaS (Big Tech Clean Grade)
- * Typography: Geist | Palette: Clinical Medical Blue #1E60E6 & Emerald
- * Pure Flat Architecture: Zero Sến Súa Glow / Shadows / Blurry Hover
- */
-
 :root {
-  /* Canvas & Pure Flat Surfaces */
-  --bg-page: #F8FAFC;          /* crisp light slate canvas */
-  --bg-card: #FFFFFF;          /* solid pure white surface */
-  --bg-muted: #F1F5F9;         /* crisp flat track / inset */
-  --bg-nav-idle: #FFFFFF;      /* idle pill segments */
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-muted: #F1F5F9;
+  --bg-nav-idle: #FFFFFF;
 
-  /* Ink & High-Contrast Typography */
-  --ink: #0F172A;              /* deep slate ink — crisp readability */
-  --ink-secondary: #475569;    /* authoritative metadata & labels */
-  --ink-tertiary: #94A3B8;     /* placeholders & hints */
+  --ink: #0F172A;
+  --ink-secondary: #475569;
+  --ink-tertiary: #94A3B8;
   --ink-on-blue: #FFFFFF;
-  --ink-on-green: #064E3B;     /* deep forest ink on emerald */
+  --ink-on-green: #064E3B;
 
-  /* Brand: True Clinical Medical Blue (Zero purple / violet tint) */
-  --primary: #1E60E6;          /* crisp authoritative clinical blue */
-  --primary-hover: #1550C4;    /* interactive hover state */
-  --primary-soft: #EEF4FD;     /* clean ice blue tint */
+  --primary: #1E60E6;
+  --primary-hover: #1550C4;
+  --primary-soft: #EEF4FD;
   --primary-grad-end: #1E60E6;
 
-  /* Semantic */
-  --success: #10B981;          /* crisp medical emerald */
+  --success: #10B981;
   --success-hover: #059669;
   --success-ink: #064E3B;
-  --warn: #F59E0B;             /* clean amber */
+  --warn: #F59E0B;
   --warn-soft: #FEF3C7;
-  --danger: #EF4444;           /* clean destructive red */
+  --danger: #EF4444;
   --danger-soft: #FEE2E2;
 
-  /* Gauge */
   --gauge-start: #FBBF24;
   --gauge-end: #10B981;
 
-  /* Pure Flat Chrome: NO Blurry Glow / Heavy Shadows */
   --shadow-card: none;
-  --shadow-float: 0 4px 20px rgba(15, 23, 42, 0.08); /* only for floating dropdown/modals */
+  --shadow-float: 0 4px 20px rgba(15, 23, 42, 0.08);
   --shadow-soft: none;
   --shadow-pill: none;
   --ring-focus: 0 0 0 3px rgba(30, 96, 230, 0.18);
 
-  /* Geometry & Large Corner Radii */
   --radius-card: 24px;
   --radius-panel: 20px;
-  --radius-control: 9999px;    /* clean pills */
+  --radius-control: 9999px;
   --radius-btn: 9999px;
   --radius-chip: 8px;
   --radius-media: 18px;
   --radius-avatar: 9999px;
 
-  /* Bridges for existing token consumers */
   --bms-primary: var(--primary);
   --bms-primary-hover: var(--primary-hover);
   --bms-primary-subtle: var(--primary-soft);
@@ -79,12 +65,10 @@
   --bms-focus: var(--ring-focus);
   --bms-transition: all 0.15s ease-out;
 
-  /* Distinctive Typography: Plus Jakarta Sans & Be Vietnam Pro */
   --font-sans: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 
-/* Global Typography Anti-Aliasing & Enforcement */
 *,
 *::before,
 *::after {
@@ -103,20 +87,17 @@ body {
   line-height: 1.5;
 }
 
-/* Clinical & Financial Tabular Numbers */
 .tabular-nums,
 .bms-num {
   font-variant-numeric: tabular-nums !important;
   letter-spacing: -0.01em;
 }
 
-/* Accessible Soft Focus Ring */
 :focus-visible {
   outline: none !important;
   box-shadow: var(--ring-focus) !important;
 }
 
-/* High Contrast Pill Buttons (Flat, Zero Sến Glow) */
 .btn-pill-primary,
 .bms-btn-primary {
   background-color: var(--primary) !important;
@@ -148,7 +129,6 @@ body {
   opacity: 0.92;
 }
 
-/* Mint Positive CTA Button (Flat) */
 .btn-pill-success,
 .bms-btn-mint-cta {
   background-color: var(--success) !important;
@@ -175,7 +155,6 @@ body {
   box-shadow: none !important;
 }
 
-/* Pure Flat Native Cards */
 .bms-soft-card {
   background: var(--bg-card);
   border-radius: var(--radius-card);
@@ -225,7 +204,6 @@ body {
   box-shadow: 0 8px 24px rgba(163, 230, 135, 0.45) !important;
 }
 
-/* Neutral White Pill Button */
 .btn-pill-neutral,
 .bms-btn-neutral,
 .bms-btn-outline {
@@ -253,7 +231,6 @@ body {
   box-shadow: var(--shadow-card) !important;
 }
 
-/* Soft Floating Card */
 .bms-soft-card {
   background: var(--bg-card);
   border-radius: var(--radius-card);
@@ -277,9 +254,6 @@ body {
   transition: all 0.2s ease;
 }
 
-/* Dashboard tables are styled only in bms-workbench.css. */
-
-/* Soft Form Controls */
 .bms-soft-input {
   height: 46px;
   padding: 10px 18px;
@@ -298,7 +272,6 @@ body {
   box-shadow: var(--ring-focus);
 }
 
-/* Soft Pastel Chips & Pills */
 .bms-soft-chip {
   display: inline-flex;
   align-items: center;
@@ -334,11 +307,9 @@ body {
   color: var(--warn);
 }
 
-/* Granular Micro-Alignment Spacing Utilities (Cross-framework bridge) */
 .px-2\.5 { padding-left: 0.625rem !important; padding-right: 0.625rem !important; }
 .py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
 .px-3\.5 { padding-left: 0.875rem !important; padding-right: 0.875rem !important; }
 .py-3\.5 { padding-top: 0.875rem !important; padding-bottom: 0.875rem !important; }
 .p-3\.5  { padding: 0.875rem !important; }
 .gap-1\.5 { gap: 0.375rem !important; }
-

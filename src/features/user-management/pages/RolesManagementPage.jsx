@@ -26,14 +26,12 @@ export const RolesManagementPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Modals state
   const [permissionMatrix, setPermissionMatrix] = useState({});
   const [showFormModal, setShowFormModal] = useState(false);
   const [roleToEdit, setRoleToEdit] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState(null);
 
-  // Load permission matrix once
   useEffect(() => {
     getPermissionMatrix().then((res) => {
       if (res && res.isSuccess && res.data) {
@@ -42,7 +40,6 @@ export const RolesManagementPage = () => {
     });
   }, []);
 
-  // Fetch paginated roles
   const loadRoles = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage('');
@@ -74,7 +71,6 @@ export const RolesManagementPage = () => {
     }
   }, [currentPage, pageSize, searchTerm, statusFilter]);
 
-  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       loadRoles();
@@ -100,7 +96,6 @@ export const RolesManagementPage = () => {
   const safeRoles = useMemo(() => (Array.isArray(roles) ? roles : []), [roles]);
   const totalPages = Math.ceil(totalCount / pageSize) || 1;
 
-  // KPI Metrics
   const activeRolesCount = useMemo(() => safeRoles.filter((r) => r.isActive).length, [safeRoles]);
   const systemRolesCount = useMemo(() => safeRoles.filter((r) => r.isSystemRole).length, [safeRoles]);
   const totalPermissionsAssigned = useMemo(() => {
@@ -109,7 +104,7 @@ export const RolesManagementPage = () => {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">
@@ -138,14 +133,12 @@ export const RolesManagementPage = () => {
         </div>
       </div>
 
-      {/* Error alert */}
       {errorMessage && (
         <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 shadow-sm" style={{ borderRadius: 14 }}>
           {errorMessage}
         </Alert>
       )}
 
-      {/* 2. KPI Summary Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
           <div className="bms-kpi-quad-card">
@@ -197,7 +190,6 @@ export const RolesManagementPage = () => {
         </Col>
       </Row>
 
-      {/* 3. Standalone Independent Table Section (ZERO TABLE IN CARDS) */}
       <section className="bms-filter-bar mb-3 p-3 bg-white rounded-3 border" style={{ borderColor: '#E2E8F0' }}>
         <div className="d-flex align-items-center flex-wrap gap-2 w-100">
           <div className="bms-search-input-pill flex-grow-1" style={{ maxWidth: '420px', minWidth: '240px', height: '40px' }}>
@@ -331,7 +323,6 @@ export const RolesManagementPage = () => {
           </div>
         </div>
 
-        {/* Pagination Footer */}
         {totalPages > 1 && (
           <div className="p-3 border-top d-flex justify-content-between align-items-center bg-white">
             <small className="text-muted">
@@ -360,7 +351,6 @@ export const RolesManagementPage = () => {
         )}
       </div>
 
-      {/* Form Modal */}
       <RoleFormModal
         show={showFormModal}
         onHide={() => setShowFormModal(false)}
@@ -369,7 +359,6 @@ export const RolesManagementPage = () => {
         onSaved={loadRoles}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteRoleConfirmModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}

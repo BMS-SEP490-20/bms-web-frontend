@@ -46,8 +46,6 @@
   color: #ffffff;
 }
 
-/* Filters use the shared bar in bms-workbench.css. */
-
 .bms-table-responsive {
   width: 100%;
   overflow-x: auto;

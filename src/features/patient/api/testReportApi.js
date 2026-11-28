@@ -21,7 +21,6 @@ export const fetchReportByOrder = async (orderId) => {
             return data;
         }
     } catch {
-        // Fallback to /test-results/patient/order/{encoded} below
     }
 
     try {
@@ -68,8 +67,8 @@ export const fetchReportByOrder = async (orderId) => {
 
 /**
  * Trigger backend report generation and PDF compile for an approved sample.
- * @param {string} orderId 
- * @param {Object} data 
+ * @param {string} orderId
+ * @param {Object} data
  * @returns {Promise<Object>} Created report.
  */
 export const generateReport = async (orderId, data = {}) => {
@@ -87,7 +86,7 @@ export const generateReport = async (orderId, data = {}) => {
 
 /**
  * Download signed PDF document byte stream metadata.
- * @param {string} orderId 
+ * @param {string} orderId
  * @returns {Promise<Object>} PDF export metadata.
  */
 export const fetchReportPdf = async (orderId) => {

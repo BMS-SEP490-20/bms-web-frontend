@@ -11,7 +11,7 @@ export default function MegaFooter() {
     <footer className="bms-ft">
       <div className="bms-ft-inner">
         <div className="bms-ft-grid">
-          {/* Brand & accreditation */}
+
           <div>
             <img src="/assets/bms-logo.png" alt="BMS Clinical Laboratory" className="bms-ft-brand-logo" />
             <p className="bms-ft-about">
@@ -30,7 +30,6 @@ export default function MegaFooter() {
             </div>
           </div>
 
-          {/* Services */}
           <div>
             <h4 className="bms-ft-title">Dịch vụ</h4>
             <ul className="bms-ft-list">
@@ -42,7 +41,6 @@ export default function MegaFooter() {
             </ul>
           </div>
 
-          {/* Facilities */}
           <div>
             <h4 className="bms-ft-title">Cơ sở tiếp nhận</h4>
             <div className="bms-ft-block">
@@ -59,7 +57,6 @@ export default function MegaFooter() {
             </div>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="bms-ft-title">Hỗ trợ 24/7</h4>
             <div className="bms-ft-block">

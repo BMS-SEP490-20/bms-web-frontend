@@ -23,7 +23,6 @@ export default function VerifyTestResultsPage() {
 
     const initialSpecimenId = routeSpecimenId || searchParams.get("specimenId") || "";
 
-    // Người dùng đăng nhập hiện tại
     const currentUser = useMemo(() => {
         try {
             const raw = localStorage.getItem("bms_user") || localStorage.getItem("user");
@@ -33,7 +32,6 @@ export default function VerifyTestResultsPage() {
         }
     }, []);
 
-    // State
     const [queue, setQueue] = useState([]);
     const queuePag = usePagination(queue, 8);
     const [queueLoading, setQueueLoading] = useState(true);
@@ -43,17 +41,14 @@ export default function VerifyTestResultsPage() {
     const [submitting, setSubmitting] = useState(false);
     const [alertMessage, setAlertMessage] = useState(null);
 
-    // Form thẩm định
     const [verifierComment, setVerifierComment] = useState(
         "Kết quả xét nghiệm đã được kiểm tra kỹ thuật và chuyển Bác sĩ phụ trách duyệt."
     );
 
-    // Modal trả mẫu yêu cầu hiệu chỉnh
     const [showReturnModal, setShowReturnModal] = useState(false);
     const [returnReason, setReturnReason] = useState("");
     const [returnError, setReturnError] = useState("");
 
-    // Tải danh sách hàng đợi chờ thẩm định từ CSDL thực (test_results trạng thái waiting_review)
     const loadQueue = useCallback(async () => {
         setQueueLoading(true);
         try {
@@ -72,7 +67,6 @@ export default function VerifyTestResultsPage() {
         }
     }, []);
 
-    // Tải chi tiết gói thẩm định theo mã mẫu
     const loadVerificationDetails = useCallback(async (specimenId) => {
         if (!specimenId) {
             setVerificationData(null);
@@ -140,7 +134,6 @@ export default function VerifyTestResultsPage() {
         }
     };
 
-    // GATE: Manager tech-verify only → chuyển BS. Không công bố Cổng BN (chỉ BS duyệt mới mở KQ).
     const handleVerify = async () => {
         if (!selectedSpecimenId) return;
         if (!verifierComment || verifierComment.trim().length < 10) {
@@ -157,7 +150,6 @@ export default function VerifyTestResultsPage() {
             const res = await verifyTestResult(selectedSpecimenId, {
                 verifierComment: verifierComment.trim()
             });
-            // Thông báo tới Bác sĩ đã được Backend ghi nhận vào collection `notifications` (ROLE_DOCTOR) & phát SignalR — không gọi /notifications/test-results/dispatch vì bệnh nhân chưa được trả KQ trước khi BS duyệt.
 
             if (typeof window !== "undefined") {
                 const eventPayload = {
@@ -196,7 +188,6 @@ export default function VerifyTestResultsPage() {
         }
     };
 
-    // Xử lý Trả mẫu yêu cầu KTV hiệu chỉnh
     const handleReturnSubmit = async (e) => {
         e.preventDefault();
         if (!selectedSpecimenId) return;
@@ -233,7 +224,6 @@ export default function VerifyTestResultsPage() {
         }
     };
 
-    // Định dạng huy hiệu trạng thái của từng tiêu chí checklist
     const renderStatusBadge = (status, statusType) => {
         const s = (status || "").toLowerCase();
         if (s === "flag" || statusType === "warn" || s === "cảnh báo") {
@@ -295,7 +285,6 @@ export default function VerifyTestResultsPage() {
         return verificationData.testResultItems;
     }, [verificationData]);
 
-    // Danh sách dropdown bao gồm hàng đợi hiện tại + mẫu đang xem (nếu vừa ký duyệt xong không còn trong queue chờ)
     const selectableOptions = useMemo(() => {
         const list = Array.isArray(queue) ? [...queue] : [];
         if (selectedSpecimenId && !list.some((q) => q?.specimenId === selectedSpecimenId)) {
@@ -311,7 +300,7 @@ export default function VerifyTestResultsPage() {
 
     return (
         <div className="container-fluid py-2 px-md-5" style={{ maxWidth: 1400 }}>
-            {/* Tiêu đề & Chọn mẫu xét nghiệm */}
+
             <header className="bms-page-header">
                 <div className="bms-page-header-content">
                     <h1 className="bms-page-title">Thẩm định kết quả</h1>
@@ -351,7 +340,6 @@ export default function VerifyTestResultsPage() {
                 </div>
             </header>
 
-            {/* Hàng đợi các mẫu đang chờ thẩm định (click chọn nhanh) */}
             {queue.length > 0 && (
                 <div className="card border-0 shadow-sm mb-4 rounded-4 bg-white">
                     <div className="card-body p-3">
@@ -408,7 +396,6 @@ export default function VerifyTestResultsPage() {
                 </div>
             )}
 
-            {/* Thông báo Alert */}
             {alertMessage && (
                 <div className={`alert alert-${alertMessage.type} alert-dismissible fade show d-flex align-items-center gap-2 mb-4 shadow-sm rounded-3`} role="alert">
                     {alertMessage.type === "success" ? <CheckCircle2 className="fs-5 flex-shrink-0"  size="1em"/> : <AlertTriangle className="fs-5 flex-shrink-0"  size="1em"/>}
@@ -417,7 +404,6 @@ export default function VerifyTestResultsPage() {
                 </div>
             )}
 
-            {/* Trạng thái trống khi chưa có kết quả nào chờ duyệt */}
             {!queueLoading && !selectedSpecimenId && (
                 <div className="card border-0 shadow-sm rounded-4 bg-white text-center py-5 px-3">
                     <CheckCircle2 className="fs-1 text-success opacity-75 mx-auto mb-3"  size="1em"/>
@@ -435,7 +421,7 @@ export default function VerifyTestResultsPage() {
 
             {selectedSpecimenId && (
                 <>
-                    {/* Banner Thông Tin Mẫu Bệnh Phẩm */}
+
                     <div className="card shadow-sm border-0 mb-4 rounded-4" style={{ backgroundColor: '#EEF2F6' }}>
                         <div className="card-body p-3">
                             <div className="row g-3 align-items-center">
@@ -481,7 +467,6 @@ export default function VerifyTestResultsPage() {
                         </div>
                     </div>
 
-                    {/* Bảng kết quả đo thực tế do KTV nhập */}
                     {resultItems.length > 0 && (
                         <div className="bms-table-standalone-section mb-4">
                             <div className="bms-table-standalone-header">
@@ -535,7 +520,6 @@ export default function VerifyTestResultsPage() {
                         </div>
                     )}
 
-                    {/* Bảng kiểm thẩm định kỹ thuật */}
                     <div className="bms-table-standalone-section mb-3">
                         <div className="bms-table-standalone-header">
                             <h2 className="bms-table-standalone-title">
@@ -653,7 +637,6 @@ export default function VerifyTestResultsPage() {
                 </>
             )}
 
-            {/* Modal: Trả mẫu về KTV */}
             {showReturnModal && (
                 <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog modal-dialog-centered">

@@ -22,8 +22,6 @@ export default function HomePage() {
     return resolveRoleId(user);
   }, [user]);
 
-  // If user is logged in as Staff (Receptionist, Doctor, Lab, Manager, Admin):
-  // Immediately redirect to their operational workstation!
   if (user && roleId && roleId !== ROLES.PATIENT) {
     switch (roleId) {
       case ROLES.RECEPTIONIST:
@@ -39,11 +37,9 @@ export default function HomePage() {
     }
   }
 
-  // Signed-in patient: always open PatientHomePage when navigating to "/" or "/home".
   if (user && roleId === ROLES.PATIENT) {
     return <PatientHomePage user={user} />;
   }
 
-  // If unauthenticated guest
   return <GuestHomePage user={null} isStaff={false} />;
 }

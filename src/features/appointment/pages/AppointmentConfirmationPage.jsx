@@ -68,8 +68,8 @@ export default function AppointmentConfirmationPage() {
       setResending(true);
       setResendStatus(null);
       await appointmentApi.sendAppointmentNotification(data?.appointmentId || targetId, {
-        channel: 1, // Email
-        type: 1, // BookingConfirmed
+        channel: 1,
+        type: 1,
       });
       setResendStatus("Email xác nhận đã được gửi lại thành công!");
     } catch (err) {
@@ -152,10 +152,9 @@ export default function AppointmentConfirmationPage() {
         </div>
       )}
 
-      {/* Main Confirmation Card */}
       <div className="card border mb-4 rounded-4 overflow-hidden shadow-none" style={{ borderColor: "#EAEEF4" }}>
         <div className="card-body p-3 p-md-5 text-center">
-          {/* Green Circle Checkmark */}
+
           <div
             className="d-inline-flex align-items-center justify-content-center mb-3"
             style={{
@@ -176,7 +175,6 @@ export default function AppointmentConfirmationPage() {
             <strong className="text-dark">{maskedEmail}</strong> và ứng dụng di động BMS.
           </p>
 
-          {/* Key-Value Details Grid */}
           <div
             className="p-3 p-md-4 rounded-3 mb-4 text-start"
             style={{ backgroundColor: "#F8FAFC", border: "1px solid #EAEEF4" }}
@@ -228,7 +226,6 @@ export default function AppointmentConfirmationPage() {
             </div>
           </div>
 
-          {/* Fasting Reminder Box */}
           {data?.fastingInstructions && (
             <div
               className="alert d-flex align-items-start text-start mb-4 rounded-3 border-0"
@@ -246,7 +243,6 @@ export default function AppointmentConfirmationPage() {
 
           <hr className="my-4 text-muted opacity-25" />
 
-          {/* Check-in QR code */}
           <div className="my-4">
             {isPaidOrConfirmed(data?.status) ? (
               <>
@@ -294,7 +290,6 @@ export default function AppointmentConfirmationPage() {
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="d-flex flex-wrap justify-content-center gap-2 mt-4">
             <button
               onClick={handleDownloadPdf}
@@ -319,7 +314,6 @@ export default function AppointmentConfirmationPage() {
           </div>
         </div>
 
-        {/* Card Footer: Delivery Status */}
         <div
           className="card-footer py-3 text-center"
           style={{ backgroundColor: "#F8FAFC", borderTop: "1px solid #EAEEF4" }}
@@ -337,7 +331,6 @@ export default function AppointmentConfirmationPage() {
         </div>
       </div>
 
-      {/* Reminder Schedule Timeline Card */}
       {Array.isArray(data?.reminderSchedule) && data.reminderSchedule.length > 0 && (
         <div className="card border rounded-4 shadow-none" style={{ borderColor: "#EAEEF4" }}>
           <div className="card-header bg-white py-3 px-4 border-bottom">
@@ -369,7 +362,7 @@ export default function AppointmentConfirmationPage() {
           </div>
         </div>
       )}
-      {/* Unified POS K80 Appointment Confirmation Slip */}
+
       <PosThermalModal
         show={showPosSlip}
         onClose={() => setShowPosSlip(false)}

@@ -108,7 +108,7 @@ export default function ProcessPaymentPage() {
       const res = await api.post(`/payments/sepay/simulate/${encodeURIComponent(appointmentId)}`);
       if (res.data?.success) {
         setPaidNotice(true);
-        // Refresh checkout immediately
+
         const full = await api.get(`/payments/sepay/checkout/${encodeURIComponent(appointmentId)}`);
         setCheckout(full.data?.data || null);
       }
@@ -164,7 +164,6 @@ export default function ProcessPaymentPage() {
           setCheckout(full.data?.data || null);
         }
       } catch {
-        // Keep the QR on screen while the status call retries.
       }
     }, 3000);
 

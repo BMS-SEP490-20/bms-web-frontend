@@ -27,7 +27,6 @@ const ChangePassword = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Password strength score
   const getPasswordStrength = (pwd) => {
     if (!pwd) return { score: 0, label: '', variant: 'danger' };
     let score = 0;

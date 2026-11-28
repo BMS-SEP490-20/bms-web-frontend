@@ -27,13 +27,13 @@ export function PosThermalSlip({
   title,
   subtitle = '',
   statusBadge = '',
-  highlight = null, // { label, value, isCode?: boolean, sub?: string }
-  metaRows = [], // [{ label, value, mono?: boolean }]
-  sections = [], // [{ title?: string, rows: [{ label, value, mono?: boolean }] }]
-  items = [], // [{ name, quantity, unitPrice, totalPrice, unit? }]
-  totals = null, // { subTotal, discountAmount?, totalAmount, amountInWords?, paymentMethod?, transactionCode? }
-  notice = null, // { title?: string, lines: string[] }
-  qr = null, // { value, caption?, codeText?, size? }
+  highlight = null,
+  metaRows = [],
+  sections = [],
+  items = [],
+  totals = null,
+  notice = null,
+  qr = null,
   footerNote = 'Vui lòng giữ lại phiếu để đối chiếu tại phòng khám.',
   printedAt = null,
 }) {
@@ -49,7 +49,6 @@ export function PosThermalSlip({
         <div className="bms-pos-reprint-banner">{reprintWarning}</div>
       )}
 
-      {/* 1. UNIFIED CLINIC HEADER */}
       <div className="bms-pos-clinic-header">
         <div className="bms-pos-clinic-name">{clinicName}</div>
         <div className="bms-pos-clinic-sub">{clinicAddress}</div>
@@ -60,14 +59,12 @@ export function PosThermalSlip({
 
       <hr className="bms-pos-divider" />
 
-      {/* 2. SLIP TITLE & STATUS */}
       <div className="bms-pos-title-block">
         <div className="bms-pos-title">{title}</div>
         {subtitle && <div className="bms-pos-subtitle">{subtitle}</div>}
         {statusBadge && <div className="bms-pos-status-pill">{statusBadge}</div>}
       </div>
 
-      {/* 3. BIG HIGHLIGHT BOX (STT NUMBER OR APPOINTMENT CODE) */}
       {highlight && highlight.value && (
         <div className="bms-pos-highlight">
           {highlight.label && (
@@ -82,7 +79,6 @@ export function PosThermalSlip({
         </div>
       )}
 
-      {/* 4. PRIMARY METADATA ROWS */}
       {validMetaRows.length > 0 && (
         <>
           <hr className="bms-pos-divider" />
@@ -99,7 +95,6 @@ export function PosThermalSlip({
         </>
       )}
 
-      {/* 5. EXTRA GROUPED SECTIONS (e.g. Patient Info / Appointment Details) */}
       {(sections || []).map((sec, sIdx) => {
         const rows = (sec?.rows || []).filter(
           (r) => r && r.value !== undefined && r.value !== null && String(r.value).trim() !== ''
@@ -123,7 +118,6 @@ export function PosThermalSlip({
         );
       })}
 
-      {/* 6. ITEMIZED SERVICES (FOR FEE RECEIPTS) */}
       {items && items.length > 0 && (
         <>
           <hr className="bms-pos-divider" />
@@ -156,7 +150,6 @@ export function PosThermalSlip({
         </>
       )}
 
-      {/* 7. FINANCIAL TOTALS (FOR FEE RECEIPTS) */}
       {totals && (
         <>
           <hr className="bms-pos-divider" />
@@ -204,7 +197,6 @@ export function PosThermalSlip({
         </>
       )}
 
-      {/* 8. NOTICE / INSTRUCTIONS */}
       {notice && Array.isArray(notice.lines) && notice.lines.length > 0 && (
         <div className="bms-pos-notice">
           {notice.title && <div className="bms-pos-notice-title">{notice.title}</div>}
@@ -214,7 +206,6 @@ export function PosThermalSlip({
         </div>
       )}
 
-      {/* 9. SCANNABLE QR CODE */}
       {qr && qr.value && (
         <>
           <hr className="bms-pos-divider" />
@@ -233,7 +224,6 @@ export function PosThermalSlip({
         </>
       )}
 
-      {/* 10. UNIFIED FOOTER */}
       <hr className="bms-pos-divider" />
       <div className="bms-pos-footer">
         <div className="bms-pos-footer-thanks">Cảm ơn Quý khách đã tin tưởng BMS!</div>
@@ -285,7 +275,7 @@ export function PosThermalModal({
         if (e.target === e.currentTarget && onClose) onClose();
       }}
     >
-      {/* Top Toolbar */}
+
       <div className="bms-pos-modal-toolbar">
         <div className="bms-pos-modal-title-group">
           <div className="bms-pos-modal-icon">
@@ -335,7 +325,6 @@ export function PosThermalModal({
         </div>
       </div>
 
-      {/* Centered 80mm POS Paper Roll Stage */}
       <div
         className="bms-pos-modal-stage"
         onClick={(e) => {

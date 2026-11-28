@@ -26,7 +26,6 @@ import { getAppointments } from "../../appointment/api/appointmentApi";
 import { medicalRecordApi } from "../api/medicalRecordApi";
 import { getPatientById } from "../../../services/patientService";
 
-// Danh mục mã bệnh quốc tế WHO ICD-10 chuẩn Bộ Y tế (tối ưu cho Phòng Xét Nghiệm Máu)
 const CLINICAL_ICD10_LIST = [
   { code: "E11.9", name: "Đái tháo đường typ 2 không biến chứng" },
   { code: "E10.9", name: "Đái tháo đường typ 1 không biến chứng" },
@@ -114,13 +113,11 @@ export default function CreateTestOrderPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Query params khi điều hướng trực tiếp từ Bàn Khám / EMR
   const queryAppointmentId = searchParams.get("appointmentId") || searchParams.get("encounterId") || "";
   const queryPatientId = searchParams.get("patientId") || "";
   const queryPatientName = searchParams.get("patientName") || "";
   const queryPackageId = searchParams.get("packageId") || "";
 
-  // Thông tin Bác sĩ đăng nhập
   const currentUser = useMemo(() => {
     try {
       const raw = localStorage.getItem("bms_user") || sessionStorage.getItem("bms_user") || localStorage.getItem("user");
@@ -133,19 +130,16 @@ export default function CreateTestOrderPage() {
   const doctorName = (!rawDocName || /^[0-9a-f]{24}$/i.test(rawDocName)) ? "Bác sĩ đang trực" : rawDocName;
   const doctorId = currentUser?.id || currentUser?.doctorId || currentUser?._id || "";
 
-  // Worklist State (Bảng lịch hẹn đã gọi số & chờ khám)
   const [encounters, setEncounters] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loadingWorklist, setLoadingWorklist] = useState(false);
   const [worklistError, setWorklistError] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL"); // 'ALL' | 'READY' | 'DRAFT' | 'DISPATCHED'
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
-  // Catalog State
   const [catalog, setCatalog] = useState([]);
   const [loadingCatalog, setLoadingCatalog] = useState(false);
 
-  // Modal Khám Lâm Sàng & Chỉ Định Xét Nghiệm
   const [activeModalEncounter, setActiveModalEncounter] = useState(null);
   const [modalPatientDetail, setModalPatientDetail] = useState(null);
   const [loadingPatientDetail, setLoadingPatientDetail] = useState(false);
@@ -153,7 +147,6 @@ export default function CreateTestOrderPage() {
   const [lockedCodes, setLockedCodes] = useState(new Set());
   const [editingDraftId, setEditingDraftId] = useState(null);
 
-  // Form Khám Lâm Sàng trong Modal
   const [vitals, setVitals] = useState({
     heartRate: 76,
     systolicBp: 120,
@@ -171,18 +164,15 @@ export default function CreateTestOrderPage() {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [fastingConfirmed, setFastingConfirmed] = useState(true);
 
-  // Trạng thái Submit & Khóa nút Chuyển một chiều trong Modal
   const [submitting, setSubmitting] = useState(false);
   const [modalError, setModalError] = useState("");
   const [dispatchedOrderResult, setDispatchedOrderResult] = useState(null);
   const [autoOpenedFromUrl, setAutoOpenedFromUrl] = useState(false);
 
-  // Modal Hủy Y Lệnh (chỉ trước khi Lab lấy mẫu)
   const [cancelTargetOrder, setCancelTargetOrder] = useState(null);
   const [cancelReason, setCancelReason] = useState("Bác sĩ điều chỉnh chỉ định trước khi lấy mẫu");
   const [cancelBusy, setCancelBusy] = useState(false);
 
-  // 1. Nạp Catalog Gói & Chỉ số thật từ Backend
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -245,7 +235,6 @@ export default function CreateTestOrderPage() {
     return () => { cancelled = true; };
   }, []);
 
-  // 2. Nạp danh sách Lịch hẹn đã Gọi Số (currentServing) + Hàng đợi (CheckedIn/InProgress) + Y lệnh hiện có
   const loadWorklist = useCallback(async () => {
     setLoadingWorklist(true);
     setWorklistError("");
@@ -263,7 +252,6 @@ export default function CreateTestOrderPage() {
       const waitingList = queueRes?.waitingList || queueRes?.data?.waitingList || [];
       const rawApts = aptRes?.data || aptRes?.items || (Array.isArray(aptRes) ? aptRes : []);
 
-      // Map kết nối AppointmentId -> Orders
       const orderByKey = new Map();
       orderList.forEach((ord) => {
         if (String(ord.status || "").toLowerCase() === "cancelled") return;
@@ -279,7 +267,6 @@ export default function CreateTestOrderPage() {
 
       const encounterMap = new Map();
 
-      // Bước A: Thêm bệnh nhân ĐANG ĐƯỢC GỌI SỐ tại Bàn Khám (currentServing) lên đầu tiên
       if (serving && (serving.appointmentId || serving.patientId)) {
         const key = String(serving.appointmentCode || serving.appointmentId || serving.patientId).toLowerCase();
         const rawQ = serving.queueNumberFormatted && serving.queueNumberFormatted !== "N/A"
@@ -304,7 +291,6 @@ export default function CreateTestOrderPage() {
         });
       }
 
-      // Bước B: Thêm các bệnh nhân trong Hàng đợi phòng khám (waitingList)
       if (Array.isArray(waitingList)) {
         waitingList.forEach((w) => {
           if (!w || (!w.appointmentId && !w.patientId)) return;
@@ -334,11 +320,10 @@ export default function CreateTestOrderPage() {
         });
       }
 
-      // Bước C: Hợp nhất thông tin đầy đủ từ Appointments (tên gói đã đặt, SĐT, giới tính, tuổi, trạng thái gọi số)
       if (Array.isArray(rawApts)) {
         rawApts.forEach((a) => {
           const st = String(a.status || "").toLowerCase();
-          // Chỉ lấy các lịch hẹn đã Check-in / Đang gọi khám (InProgress) / Hoặc đã có y lệnh liên kết (Completed)
+
           if (st === "cancelled" || st === "noshow" || st === "pending") return;
 
           const keyCode = String(a.appointmentCode || "").toLowerCase();
@@ -385,7 +370,6 @@ export default function CreateTestOrderPage() {
         });
       }
 
-      // Gắn trạng thái Y lệnh (Order) thực tế vào từng Lịch hẹn
       const usedOrderIds = new Set();
       const list = Array.from(encounterMap.values()).map((enc) => {
         let matchedOrder =
@@ -400,7 +384,6 @@ export default function CreateTestOrderPage() {
           ) ||
           null;
 
-        // Fallback cho các đơn vừa tạo trong ngày của cùng bệnh nhân khi bản ghi cũ chưa lưu appointmentId
         if (!matchedOrder) {
           matchedOrder =
             orderList.find((o) => {
@@ -411,7 +394,7 @@ export default function CreateTestOrderPage() {
                 (enc.patientId && String(o.patientId || "").toLowerCase() === String(enc.patientId).toLowerCase()) ||
                 (enc.patientName && String(o.patientName || "").toLowerCase() === String(enc.patientName).toLowerCase());
               if (!samePatient) return false;
-              // Ưu tiên gắn cho ca đang gọi khám hoặc khớp mã gói xét nghiệm
+
               const pkgCode = String(enc.packageCode || "").toUpperCase();
               const hasSamePkg = !pkgCode || (Array.isArray(o.items) && o.items.some((it) => String(it.testCode || "").toUpperCase() === pkgCode));
               return enc.isCurrentServing || hasSamePkg;
@@ -428,7 +411,6 @@ export default function CreateTestOrderPage() {
         };
       });
 
-      // Sắp xếp: Ca đang gọi trong phòng -> Ca chưa chỉ định -> mới nhất lên đầu
       list.sort((a, b) => {
         if (a.isCurrentServing !== b.isCurrentServing) return a.isCurrentServing ? -1 : 1;
         const aDisp = isOrderDispatched(a.linkedOrder) ? 1 : 0;
@@ -451,7 +433,6 @@ export default function CreateTestOrderPage() {
     loadWorklist();
   }, [loadWorklist]);
 
-  // Helper đối chiếu gói đã đặt trong Catalog
   const resolveBookedPackageInCatalog = useCallback(
     (pkgCode, pkgName) => {
       if (!pkgCode && !pkgName) return null;
@@ -468,10 +449,8 @@ export default function CreateTestOrderPage() {
     [catalog]
   );
 
-  // 3. Mở Modal Khám Lâm Sàng & Chỉ Định cho 1 Lịch hẹn
   const handleOpenClinicalModal = useCallback(
     async (enc) => {
-      // Nếu lịch hẹn này đã chuyển xuống Lab rồi -> không cho mở form tạo mới (chống phá nghiệp vụ)
       if (isOrderDispatched(enc.linkedOrder)) {
         return;
       }
@@ -486,7 +465,6 @@ export default function CreateTestOrderPage() {
       setSpecialInstructions("");
       setFastingConfirmed(true);
 
-      // Chỉ nạp đúng gói bệnh nhân đã đặt tại quầy/lịch hẹn và khóa cứng không cho chọn thêm gói/dịch vụ khác
       const preSet = new Set();
       const lockSet = new Set();
       const matchedPkg = resolveBookedPackageInCatalog(enc.packageCode, enc.packageName);
@@ -502,7 +480,6 @@ export default function CreateTestOrderPage() {
         lockSet.add(fallbackCode);
       }
 
-      // Nếu lịch hẹn đang có Bản nháp (Draft) -> chỉ giữ đúng gói đã đặt, nạp lại ICD-10 & chẩn đoán từ bản nháp
       if (isOrderDraft(enc.linkedOrder)) {
         const draft = enc.linkedOrder;
         setEditingDraftId(draft.orderNumber || draft.id);
@@ -529,7 +506,6 @@ export default function CreateTestOrderPage() {
       setSelectedCodes(preSet);
       setLockedCodes(lockSet);
 
-      // Nạp đồng thời hồ sơ chi tiết bệnh nhân (SĐT, Email, Ngày sinh, CCCD, Nhóm máu, Địa chỉ) & EMR gần nhất
       if (enc.patientId) {
         setLoadingPatientDetail(true);
         try {
@@ -570,7 +546,6 @@ export default function CreateTestOrderPage() {
             }
           }
         } catch {
-          // ignore preload error
         } finally {
           setLoadingPatientDetail(false);
         }
@@ -579,7 +554,6 @@ export default function CreateTestOrderPage() {
     [resolveBookedPackageInCatalog]
   );
 
-  // Auto-open modal nếu điều hướng từ Bàn Khám với ?appointmentId=... (chỉ 1 lần và chỉ khi chưa chuyển Lab)
   useEffect(() => {
     if (autoOpenedFromUrl || loadingWorklist || loadingCatalog) return;
     if (!queryAppointmentId && !queryPatientId) return;
@@ -596,7 +570,6 @@ export default function CreateTestOrderPage() {
       setAutoOpenedFromUrl(true);
       handleOpenClinicalModal(target);
     } else if (!target && queryAppointmentId && queryPatientId) {
-      // Nếu điều hướng trực tiếp từ Bàn Khám mà chưa có trong list fetched, dựng encounter trực tiếp từ query params (không mock)
       setAutoOpenedFromUrl(true);
       handleOpenClinicalModal({
         key: queryAppointmentId.toLowerCase(),
@@ -628,7 +601,6 @@ export default function CreateTestOrderPage() {
     handleOpenClinicalModal
   ]);
 
-  // Kiểm tra bất biến Huyết áp (Tâm thu > Tâm trương + 15)
   const bpValid = useMemo(() => {
     const sys = Number(vitals.systolicBp);
     const dia = Number(vitals.diastolicBp);
@@ -636,13 +608,12 @@ export default function CreateTestOrderPage() {
     return sys > dia + 15;
   }, [vitals.systolicBp, vitals.diastolicBp]);
 
-  // Các xét nghiệm đang chọn trong Modal (bao gồm gói đã đặt trước nếu chưa có trong catalog)
   const selectedTests = useMemo(() => {
     const map = new Map();
     catalog.forEach((c) => {
       if (selectedCodes.has(c.code)) map.set(c.code, c);
     });
-    // Nếu gói đã đặt chưa kịp match với catalog (ví dụ tên khác), giữ nguyên thông tin gói thật từ appointment
+
     if (activeModalEncounter) {
       lockedCodes.forEach((code) => {
         if (!map.has(code) && selectedCodes.has(code)) {
@@ -745,7 +716,6 @@ export default function CreateTestOrderPage() {
     setSelectedIcdCodes(selectedIcdCodes.filter((c) => c !== code));
   };
 
-  // 4. Hành động Ký & Chuyển Xuống Phòng Lab (Một chiều — Sau khi ấn sẽ ẨN nút Chuyển)
   const handleDispatchToLab = async (isDraft = false) => {
     if (!activeModalEncounter || dispatchedOrderResult) return;
 
@@ -814,7 +784,6 @@ export default function CreateTestOrderPage() {
         resData = res?.data || res;
       }
 
-      // Lưu kèm sinh hiệu & chẩn đoán khám lâm sàng vào EMR nếu Bác sĩ bật tùy chọn (không làm fail đơn nếu EMR lỗi nhẹ)
       if (!isDraft && saveToEmr && activeModalEncounter.patientId) {
         const firstIcd = selectedIcdCodes[0] || "Z00.0";
         const icdObj = CLINICAL_ICD10_LIST.find((x) => x.code === firstIcd);
@@ -841,7 +810,6 @@ export default function CreateTestOrderPage() {
       }
 
       if (isDraft) {
-        // Nếu lưu bản nháp: tải lại bảng và đóng modal
         await loadWorklist();
         setActiveModalEncounter(null);
       } else {
@@ -856,7 +824,6 @@ export default function CreateTestOrderPage() {
     }
   };
 
-  // Hủy Y Lệnh (chỉ khi chưa lấy mẫu)
   const handleConfirmCancelOrder = async () => {
     if (!cancelTargetOrder) return;
     setCancelBusy(true);
@@ -875,7 +842,6 @@ export default function CreateTestOrderPage() {
     }
   };
 
-  // Thống kê & Lọc Table List
   const worklistStats = useMemo(() => {
     const total = encounters.length;
     const dispatched = encounters.filter((e) => isOrderDispatched(e.linkedOrder)).length;
@@ -908,7 +874,7 @@ export default function CreateTestOrderPage() {
 
   return (
     <div size="1em" className="w-100 py-1">
-      {/* Header Card */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -931,8 +897,6 @@ export default function CreateTestOrderPage() {
         </div>
       </div>
 
-
-      {/* Thanh Lọc 1 Dòng & Pills Trạng Thái */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: "260px" }}>
           <Search className="bms-search-icon"  size="1em"/>
@@ -984,7 +948,6 @@ export default function CreateTestOrderPage() {
         </Alert>
       )}
 
-      {/* BẢNG DANH SÁCH LỊCH HẸN ĐÃ GỌI SỐ / CHỜ KHÁM (WORKLIST TABLE) */}
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
         <Card.Header className="bg-white py-2.5 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div className="d-flex align-items-center gap-2">
@@ -1104,7 +1067,7 @@ export default function CreateTestOrderPage() {
                       </td>
 
                       <td className="text-end pe-3">
-                        {/* CƠ CHẾ CHẶN ẨN NÚT SAU KHI CHUYỂN LAB */}
+
                         {dispatched ? (
                           <div className="d-inline-flex align-items-center gap-1.5">
                             <span className="badge bg-success text-white rounded-pill px-2.5 py-1.5 small fw-semibold">
@@ -1154,9 +1117,6 @@ export default function CreateTestOrderPage() {
         />
       </Card>
 
-      {/* =========================================================================================
-          MODAL KHÁM LÂM SÀNG & CHỈ ĐỊNH XÉT NGHIỆM (WIDE BREATHABLE FLAT 2-COLUMN)
-         ========================================================================================= */}
       <style>{`
         .bms-wide-order-modal {
           max-width: min(1360px, 95vw) !important;
@@ -1261,7 +1221,7 @@ export default function CreateTestOrderPage() {
 
           {activeModalEncounter && resolvedModalPatient && (
             <>
-              {/* SECTION 1: THÔNG TIN BỆNH NHÂN */}
+
               <div
                 className="mb-3"
                 style={{
@@ -1384,7 +1344,7 @@ export default function CreateTestOrderPage() {
                   alignItems: "start",
                 }}
               >
-                {/* CỘT TRÁI: 2. KHÁM LÂM SÀNG & CHẨN ĐOÁN */}
+
                 <div
                   style={{
                     backgroundColor: "#FFFFFF",
@@ -1413,7 +1373,6 @@ export default function CreateTestOrderPage() {
                   />
                 </div>
 
-                {/* Sinh hiệu: 4 ô đều nhau thoáng mắt */}
                 <div
                   style={{
                     display: "grid",
@@ -1525,16 +1484,14 @@ export default function CreateTestOrderPage() {
                   </div>
                 )}
 
-                {/* Chẩn đoán mã bệnh ICD-10 */}
                 <div style={{ marginBottom: "14px" }}>
-                  {/* Hàng 1: Label */}
+
                   <div className="d-flex justify-content-between align-items-baseline flex-wrap gap-1 mb-1.5">
                     <label style={{ fontSize: "12.5px", fontWeight: 700, color: "#1E293B", margin: 0 }}>
                       Chẩn đoán mã bệnh ICD-10 <span className="text-danger">*</span>
                     </label>
                   </div>
 
-                  {/* Hàng 2: 1 ô Searchable Combobox duy nhất */}
                   {!dispatchedOrderResult && (
                     <div style={{ position: "relative", marginBottom: "8px" }}>
                       <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -1718,7 +1675,6 @@ export default function CreateTestOrderPage() {
 
                   {icdError && <div className="text-danger small mb-1.5 fw-medium">{icdError}</div>}
 
-                  {/* Hàng 3: Danh sách mã đã chọn (mã ICD-10 + tên bệnh đầy đủ) */}
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     {selectedIcdCodes.map((code) => {
                       const diseaseName = ICD10_BY_CODE[code] || "Mã chẩn đoán ICD-10 bổ sung";
@@ -1790,7 +1746,6 @@ export default function CreateTestOrderPage() {
                   </div>
                 </div>
 
-                {/* Triệu chứng & Chẩn đoán lâm sàng */}
                 <div style={{ marginBottom: "14px" }}>
                   <label style={{ display: "block", fontSize: "12px", fontWeight: 700, color: "#334155", marginBottom: "5px" }}>
                     Triệu chứng &amp; Chẩn đoán lâm sàng <span className="text-danger">*</span>
@@ -1806,7 +1761,6 @@ export default function CreateTestOrderPage() {
                   />
                 </div>
 
-                {/* Độ ưu tiên & Ghi chú cho Lab */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "10px" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#64748B", marginBottom: "5px" }}>
@@ -1841,7 +1795,6 @@ export default function CreateTestOrderPage() {
                 </div>
               </div>
 
-              {/* CỘT PHẢI: 3. GÓI DỊCH VỤ BỆNH NHÂN ĐÃ ĐẶT (KHÓA CỨNG THEO LỊCH HẸN, KHÔNG CHỌN THÊM GÓI KHÁC) */}
               <div style={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
                 <div
                   style={{
@@ -2080,7 +2033,6 @@ export default function CreateTestOrderPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* MODAL XÁC NHẬN HỦY CHỈ ĐỊNH TRƯỚC KHI LẤY MẪU */}
       <Modal show={Boolean(cancelTargetOrder)} onHide={() => setCancelTargetOrder(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="h6 fw-bold text-danger">

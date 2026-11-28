@@ -86,7 +86,6 @@ export default function NotificationDetailModal({
                             </div>
                         )}
 
-                        {/* Critical Banner */}
                         {isPanic && (
                             <div className="p-3 rounded-3 mb-4 d-flex align-items-start gap-3 border" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}>
                                 <AlertTriangle className="fs-2 text-danger flex-shrink-0 mt-1"  size="1em"/>
@@ -99,7 +98,6 @@ export default function NotificationDetailModal({
                             </div>
                         )}
 
-                        {/* Master Info Header */}
                         <div className="d-flex flex-wrap justify-content-between align-items-center p-3 bg-light rounded border mb-4 gap-2">
                             <div>
                                 <span className="text-secondary small fw-bold text-uppercase d-block">Mã Thông Báo</span>
@@ -124,7 +122,6 @@ export default function NotificationDetailModal({
                             </div>
                         </div>
 
-                        {/* Patient & Order Details */}
                         <div className="row g-3 mb-4">
                             <div className="col-12 col-md-6">
                                 <div className="p-3 border rounded bg-white h-100 shadow-xs">
@@ -163,7 +160,6 @@ export default function NotificationDetailModal({
                             </div>
                         </div>
 
-                        {/* Critical Parameters Alert Box */}
                         {notification.criticalParameters && notification.criticalParameters.length > 0 && (
                             <div className="p-3 bg-danger-subtle rounded border border-danger mb-4">
                                 <h6 className="fw-bold text-danger mb-2 d-flex align-items-center gap-1">
@@ -184,7 +180,6 @@ export default function NotificationDetailModal({
                             </div>
                         )}
 
-                        {/* Title and Message */}
                         <div className="mb-4">
                             <h6 className="fw-bold text-dark mb-2">{notification.title}</h6>
                             <div className="p-3 bg-light rounded border text-secondary small">
@@ -192,7 +187,6 @@ export default function NotificationDetailModal({
                             </div>
                         </div>
 
-                        {/* Timestamps & Audit Trail */}
                         <div className="row g-2 text-muted small p-2 bg-light rounded border">
                             <div className="col-6 col-md-3">
                                 <Clock className="me-1"  size="1em"/> Tạo lúc:

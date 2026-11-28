@@ -10,7 +10,6 @@
  */
 
 export const CLINICAL_MEASUREMENT_RULES = Object.freeze({
-  // --- Huyết học (CBC-01) ---
   RBC: { min: 0.5, max: 12.0, allowZero: false, unit: 'T/L' },
   HGB: { min: 15, max: 260, allowZero: false, unit: 'g/L' },
   HCT: { min: 5, max: 85, allowZero: false, unit: '%' },
@@ -26,7 +25,6 @@ export const CLINICAL_MEASUREMENT_RULES = Object.freeze({
   BASO_PCT: { min: 0, max: 100, allowZero: true, unit: '%' },
   PLT: { min: 1, max: 3000, allowZero: false, unit: 'G/L' },
 
-  // --- Sinh hóa gan – thận – đường huyết (BIOCHEM-01, PKG-DIAB-01, PKG-LIVER-01, PKG-GEN-01) ---
   GLU: { min: 0.5, max: 60, allowZero: false, unit: 'mmol/L' },
   GLUCOSE: { min: 0.5, max: 60, allowZero: false, unit: 'mmol/L' },
   HBA1C: { min: 2.0, max: 25.0, allowZero: false, unit: '%' },
@@ -45,26 +43,22 @@ export const CLINICAL_MEASUREMENT_RULES = Object.freeze({
   CRP_HS: { min: 0, max: 500, allowZero: true, unit: 'mg/L' },
   CRP: { min: 0, max: 500, allowZero: true, unit: 'mg/L' },
 
-  // --- Mỡ máu (LIPID-01) ---
   CHOL: { min: 0.5, max: 30, allowZero: false, unit: 'mmol/L' },
   CHOL_T: { min: 0.5, max: 30, allowZero: false, unit: 'mmol/L' },
   TRIG: { min: 0.1, max: 60, allowZero: false, unit: 'mmol/L' },
   HDL_C: { min: 0.1, max: 6, allowZero: false, unit: 'mmol/L' },
   LDL_C: { min: 0.1, max: 20, allowZero: false, unit: 'mmol/L' },
 
-  // --- Điện giải ---
   NA: { min: 90, max: 200, allowZero: false, unit: 'mmol/L' },
   K: { min: 1.0, max: 12.0, allowZero: false, unit: 'mmol/L' },
   CL: { min: 60, max: 150, allowZero: false, unit: 'mmol/L' },
   CA_ION: { min: 0.3, max: 3.5, allowZero: false, unit: 'mmol/L' },
 
-  // --- Đông máu (COAG-01) ---
   PT_SEC: { min: 5, max: 150, allowZero: false, unit: 's' },
   PT_INR: { min: 0.5, max: 15.0, allowZero: false, unit: 'INR' },
   APTT: { min: 10, max: 200, allowZero: false, unit: 's' },
   FIBRIN: { min: 0.3, max: 15.0, allowZero: false, unit: 'g/L' },
 
-  // --- Viêm gan (HEPA-01) ---
   HBS_AB: { min: 0, max: 50000, allowZero: true, unit: 'mIU/mL' },
 });
 
@@ -178,7 +172,6 @@ export function validateAllParameters(params, { requireAll = false } = {}) {
 
   const crossErrors = [];
 
-  // 1. WBC differential sum check (NEU% + LYM% + MONO% + EOS% + BASO% <= 100.5%)
   const wbcPresent = WBC_DIFF_CODES.filter((c) => numericByCode[c] !== undefined);
   if (wbcPresent.length >= 2) {
     const sum = wbcPresent.reduce((acc, c) => acc + numericByCode[c], 0);
@@ -189,14 +182,12 @@ export function validateAllParameters(params, { requireAll = false } = {}) {
     }
   }
 
-  // 2. Direct Bilirubin <= Total Bilirubin
   if (numericByCode.BILI_D !== undefined && numericByCode.BILI_T !== undefined && numericByCode.BILI_D > numericByCode.BILI_T) {
     crossErrors.push(
       `Bilirubin trực tiếp (BILI_D = ${numericByCode.BILI_D}) không thể lớn hơn Bilirubin toàn phần (BILI_T = ${numericByCode.BILI_T}).`
     );
   }
 
-  // 3. Albumin <= Total Protein
   if (numericByCode.ALB !== undefined && numericByCode.TP !== undefined && numericByCode.ALB > numericByCode.TP) {
     crossErrors.push(
       `Albumin (ALB = ${numericByCode.ALB} g/L) không thể lớn hơn Protein toàn phần (TP = ${numericByCode.TP} g/L).`

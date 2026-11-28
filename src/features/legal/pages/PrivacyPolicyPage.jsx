@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
       <PortalNavbar />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Header Banner */}
+
         <section className="pt-4 pb-3 mb-4">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -48,7 +48,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
 
-        {/* 2. Content Body */}
         <section className="pb-5 mb-5">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -60,7 +59,7 @@ export default function PrivacyPolicyPage() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
               }}
             >
-              {/* Mục 1: Cam kết chung */}
+
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   1. Cam Kết Tối Thượng Về Bí Mật Y Khoa
@@ -70,7 +69,6 @@ export default function PrivacyPolicyPage() {
                 </p>
               </div>
 
-              {/* Mục 2: Phân loại dữ liệu */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   2. Danh Mục Dữ Liệu Chúng Tôi Thu Thập
@@ -108,7 +106,6 @@ export default function PrivacyPolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 3: Mục đích sử dụng */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   3. Mục Đích Xử Lý Dữ Liệu
@@ -141,7 +138,6 @@ export default function PrivacyPolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 4: Công nghệ bảo mật & Ẩn danh hóa */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   4. Công Nghệ Bảo Mật &amp; Cơ Chế Ẩn Danh Ống Máu
@@ -177,7 +173,6 @@ export default function PrivacyPolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 5: Tuyệt đối không bán dữ liệu */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   5. Cam Kết Không Bán Hoặc Cho Thuê Dữ Liệu
@@ -189,7 +184,6 @@ export default function PrivacyPolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 6: Quyền của người bệnh */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   6. Quyền Hạn Của Bạn Đối Với Dữ Liệu Cá Nhân
@@ -205,7 +199,6 @@ export default function PrivacyPolicyPage() {
                 </ul>
               </div>
 
-              {/* Mục 7: Đầu mối liên hệ DPO */}
               <div>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   7. Thông Tin Liên Hệ Bộ Phận Bảo Vệ Dữ Liệu (DPO)
@@ -231,7 +224,6 @@ export default function PrivacyPolicyPage() {
 
             </div>
 
-            {/* Quick Links Footer */}
             <div className="d-flex justify-content-between align-items-center mt-4 px-2">
               <Link to="/terms" style={{ color: '#1E60E6', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>
                 ← Xem Điều khoản dịch vụ
@@ -248,4 +240,3 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
-

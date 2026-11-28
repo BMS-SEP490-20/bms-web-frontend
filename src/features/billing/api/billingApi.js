@@ -48,7 +48,6 @@ export async function getInvoicesByPatient(patientId, params = {}, signal) {
   if (params.page) query.set('page', params.page);
   if (params.pageSize) query.set('pageSize', params.pageSize);
 
-  // Try /invoices with query first
   try {
     const res = await fetch(`${BASE_URL}/invoices?${query.toString()}`, {
       headers: authHeaders(),
@@ -61,7 +60,6 @@ export async function getInvoicesByPatient(patientId, params = {}, signal) {
     if (signal?.aborted) throw err;
   }
 
-  // Fallback to /payments/patient/{patientId}
   const fallbackRes = await fetch(`${BASE_URL}/payments/patient/${encodeURIComponent(patientId)}`, {
     headers: authHeaders(),
     signal,

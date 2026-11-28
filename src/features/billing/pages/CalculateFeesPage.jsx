@@ -3,7 +3,7 @@
  * @description Bàn tính dự toán viện phí & chiết tính quyền lợi BHYT tự động (MOH & ISO 15189 Grade).
  * Hỗ trợ Lễ tân: Nạp Y lệnh Bác sĩ chỉ định, tra cứu gói xét nghiệm theo nhu cầu,
  * chiết tính đồng chi trả BHYT (80% - 100% theo Thông tư 22/2023/TT-BYT & QĐ 3618/QĐ-BHXH).
- * 
+ *
  * Tuân thủ: Clean Medical UI (Rule 19), Nghị định 123/2020/NĐ-CP (Hóa đơn điện tử),
  * Luật Khám bệnh, chữa bệnh 2023, ISO 15189:2022.
  */
@@ -32,38 +32,32 @@ export default function CalculateFeesPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Dynamic packages from Database
   const [packages, setPackages] = useState([]);
   const [loadingPackages, setLoadingPackages] = useState(true);
   const [catalogSearch, setCatalogSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
-  // Form states
   const [selectedPackageCodes, setSelectedPackageCodes] = useState([]);
-  const [serviceType, setServiceType] = useState("Clinic"); // Clinic | HomeCollection
+  const [serviceType, setServiceType] = useState("Clinic");
   const [insuranceCard, setInsuranceCard] = useState("");
   const [voucherInput, setVoucherInput] = useState("");
   const [appliedVoucher, setAppliedVoucher] = useState(null);
   const [isPriority, setIsPriority] = useState(false);
 
-  // Doctor Order / Appointment Import
   const [orderSearchCode, setOrderSearchCode] = useState("");
   const [searchingOrder, setSearchingOrder] = useState(false);
   const [loadedOrderInfo, setLoadedOrderInfo] = useState(null);
 
-  // Results state
   const [calculation, setCalculation] = useState(null);
   const [calculating, setCalculating] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Helper: Normalize demo prices to realistic hospital pricing
   const normalizePrice = (pkg) => {
     let price = Number(pkg.price || pkg.Price || 0);
     const code = String(pkg.code || pkg.package_code || pkg.Code || pkg.id || '').toUpperCase();
     const name = String(pkg.name || pkg.package_name || pkg.Name || '').toLowerCase();
-    
-    // Replace unrealistic demo seed prices like 2.000đ with official hospital tariffs
+
     if (price > 0 && price < 50000) {
       if (code.includes('LIVER') || name.includes('gan')) price = 280000;
       else if (code.includes('DIAB') || name.includes('đường') || name.includes('tiểu')) price = 380000;
@@ -78,7 +72,6 @@ export default function CalculateFeesPage() {
     return price;
   };
 
-  // 1. Fetch dynamic packages from database on mount
   useEffect(() => {
     let isMounted = true;
     const fetchCatalog = async () => {
@@ -92,12 +85,11 @@ export default function CalculateFeesPage() {
               price: normalizePrice(p)
             }));
             setPackages(normalized);
-            // Default selection
+
             const defaultCode = normalized[0].code || normalized[0].package_code || normalized[0].id;
             setSelectedPackageCodes([defaultCode]);
           }
         } else {
-          // Standard hospital fallback catalog
           const fallback = [
             { id: "PKG-CBC-01", code: "CBC-01", name: "Tổng Phân Tích Tế Bào Máu Ngoại Vi (CBC 24 Thông Số)", category: "Huyết học", price: 180000, tube: "EDTA (Tím)" },
             { id: "PKG-BIOCHEM-01", code: "BIOCHEM-01", name: "Sinh Hóa Máu Cơ Bản (Glucose, AST/ALT, Ure, Creatinine)", category: "Sinh hóa", price: 250000, tube: "SST (Vàng)" },
@@ -121,7 +113,6 @@ export default function CalculateFeesPage() {
     return () => { isMounted = false; };
   }, []);
 
-  // 2. Initial query params parsing
   useEffect(() => {
     const pkgParam = searchParams.get("packages");
     if (pkgParam) {
@@ -143,7 +134,6 @@ export default function CalculateFeesPage() {
     }
   }, [searchParams]);
 
-  // 3. Calculation engine call
   const performCalculation = async (voucherCodeToUse = appliedVoucher?.code || voucherInput) => {
     if (selectedPackageCodes.length === 0) {
       setCalculation(null);
@@ -177,7 +167,6 @@ export default function CalculateFeesPage() {
     }
   }, [selectedPackageCodes, serviceType, insuranceCard, isPriority]);
 
-  // Fast Import: Doctor Order or Appointment Lookup
   const handleLookupDoctorOrder = async (overrideCode) => {
     const code = (overrideCode || orderSearchCode || "").trim();
     if (!code) {
@@ -191,13 +180,11 @@ export default function CalculateFeesPage() {
     try {
       let found = null;
 
-      // 1. Try direct lookup by code
       try {
         const resp = await appointmentService.getAppointmentByCode(code);
         if (resp && resp.data) found = resp.data;
       } catch (e) {}
 
-      // 2. Try lookup by appointment ID or search from all
       if (!found) {
         try {
           const resp = await appointmentService.getAppointmentById(code);
@@ -205,12 +192,11 @@ export default function CalculateFeesPage() {
         } catch (e) {}
       }
 
-      // 3. Search in all active appointments
       if (!found) {
         const allResp = await appointmentService.getAllAppointments();
         if (allResp && allResp.data) {
           const list = Array.isArray(allResp.data) ? allResp.data : (allResp.data.items || []);
-          found = list.find(a => 
+          found = list.find(a =>
             String(a.appointmentCode || a.code || a.id).toLowerCase() === code.toLowerCase() ||
             String(a.patientId || '').toLowerCase() === code.toLowerCase() ||
             String(a.patientName || '').toLowerCase().includes(code.toLowerCase())
@@ -222,12 +208,11 @@ export default function CalculateFeesPage() {
         setLoadedOrderInfo(found);
         setSuccessMsg(`Đã nạp thành công Y lệnh khám của bệnh nhân: ${found.patientName || "Khách hàng"} (Mã: ${found.appointmentCode || found.id})`);
 
-        // Auto-select prescribed package
         const pkgId = found.TestPackageId || found.testPackageId || found.packageCode || found.PackageCode;
         if (pkgId && packages.some(p => (p.code || p.id) === pkgId)) {
           setSelectedPackageCodes([pkgId]);
         } else if (packages.length > 0) {
-          const matched = packages.find(p => 
+          const matched = packages.find(p =>
             p.name?.toLowerCase() === found.packageName?.toLowerCase() ||
             p.name?.toLowerCase().includes("huyết học")
           );
@@ -236,7 +221,6 @@ export default function CalculateFeesPage() {
           }
         }
 
-        // Auto-populate BHYT if available
         if (found.insuranceCardNumber || found.bhytNumber) {
           setInsuranceCard(found.insuranceCardNumber || found.bhytNumber);
         }
@@ -256,18 +240,16 @@ export default function CalculateFeesPage() {
     setSuccessMsg("");
   };
 
-  // Package toggle handler
   const handleTogglePackage = (code) => {
     setSelectedPackageCodes((prev) =>
       prev.includes(code)
         ? prev.length > 1
           ? prev.filter((p) => p !== code)
-          : prev // keep at least 1 package selected
+          : prev
         : [...prev, code]
     );
   };
 
-  // Voucher handler
   const handleApplyVoucher = async () => {
     if (!voucherInput.trim()) return;
     try {
@@ -314,7 +296,6 @@ export default function CalculateFeesPage() {
     return (num || 0).toLocaleString("vi-VN") + " ₫";
   };
 
-  // Filtered packages by category & search
   const filteredPackages = packages.filter(pkg => {
     const code = String(pkg.code || pkg.package_code || pkg.Code || pkg.id || '').toLowerCase();
     const name = String(pkg.name || pkg.package_name || pkg.Name || '').toLowerCase();
@@ -330,7 +311,7 @@ export default function CalculateFeesPage() {
   return (
     <div className="calc-fees-page w-100 py-1">
       <div className="container-fluid px-0">
-        {/* Top Page Header Card */}
+
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content">
             <div className="bms-page-title-row">
@@ -354,7 +335,6 @@ export default function CalculateFeesPage() {
           </div>
         </div>
 
-        {/* 1. Fast Importer: Doctor Order & Patient Lookup */}
         <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
           <Card.Header className="bg-white border-bottom py-3 px-4">
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -472,11 +452,10 @@ export default function CalculateFeesPage() {
           </Alert>
         )}
 
-        {/* Main 2-Column Grid */}
         <Row className="g-4">
-          {/* Left Column: Selection Controls */}
+
           <Col xs={12} lg={7}>
-            {/* 2. Package Catalog Selection */}
+
             <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
               <Card.Header className="bg-white border-bottom py-3 px-4">
                 <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -494,7 +473,7 @@ export default function CalculateFeesPage() {
                 </div>
               </Card.Header>
               <Card.Body className="p-3">
-                {/* Search & Category Filter Strip */}
+
                 <div className="d-flex flex-wrap gap-2 mb-3">
                   <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
                     <LucideSearch className="bms-search-icon"  size="1em"/>
@@ -600,7 +579,6 @@ export default function CalculateFeesPage() {
               </Card.Body>
             </Card>
 
-            {/* 3. Reception Modality (Discreet Segmented Control) */}
             <div className="p-3 bg-white rounded-4 border shadow-sm mb-4">
               <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
@@ -628,7 +606,6 @@ export default function CalculateFeesPage() {
               </div>
             </div>
 
-            {/* 4. BHYT & Priority Policy */}
             <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
               <Card.Header className="bg-white border-bottom py-3 px-4">
                 <div className="d-flex align-items-center gap-2">
@@ -708,7 +685,6 @@ export default function CalculateFeesPage() {
               </Card.Body>
             </Card>
 
-            {/* 5. Voucher Code */}
             <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
               <Card.Header className="bg-white border-bottom py-3 px-4">
                 <div className="d-flex align-items-center gap-2">
@@ -775,7 +751,6 @@ export default function CalculateFeesPage() {
             </Card>
           </Col>
 
-          {/* Right Column: Official 3-Tier MOH/BHXH Cost Breakdown */}
           <Col xs={12} lg={5}>
             <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden sticky-top" style={{ top: 20 }}>
               <Card.Header className="bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
@@ -798,7 +773,7 @@ export default function CalculateFeesPage() {
                   </div>
                 ) : (
                   <>
-                    {/* Itemized Line Items */}
+
                     <div className="mb-3">
                       <div className="text-muted small fw-bold text-uppercase mb-2">
                         Danh Mục Dịch Vụ Chỉ Định ({calculation?.items?.length || selectedPackageCodes.length})
@@ -828,7 +803,6 @@ export default function CalculateFeesPage() {
                       </div>
                     </div>
 
-                    {/* Official MOH 3-Tier Summary Breakdown */}
                     <div className="p-3 bg-light rounded-3 border mb-3 small">
                       <div className="d-flex justify-content-between py-1.5 text-muted">
                         <span>1. Tổng giá viện phí niêm yết (BYT):</span>
@@ -873,7 +847,6 @@ export default function CalculateFeesPage() {
                       )}
                     </div>
 
-                    {/* Grand Total Card */}
                     <div
                       style={{
                         background: "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
@@ -898,7 +871,6 @@ export default function CalculateFeesPage() {
                       </div>
                     </div>
 
-                    {/* Direct Actions */}
                     <div className="d-grid gap-2">
                       <Button
                         variant="primary"

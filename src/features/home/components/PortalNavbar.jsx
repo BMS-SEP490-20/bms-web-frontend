@@ -12,7 +12,6 @@ import React, { useMemo, useRef, useState, useLayoutEffect, useEffect } from 're
 import { Link, useLocation } from 'react-router-dom';
 import { ROLES, ROLE_LABELS, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
-// Module-level persistent cache across route transitions
 let lastKnownPillPos = { left: 0, width: 0, initialized: false };
 
 export default function PortalNavbar({ user: propUser = null }) {
@@ -34,7 +33,6 @@ export default function PortalNavbar({ user: propUser = null }) {
   const currentPath = location.pathname;
   const [isSticky, setIsSticky] = useState(false);
 
-  // Check if current page corresponds to any of the navbar capsule navigation links
   const hasActiveItem = useMemo(() => {
     if (currentPath === '/' || currentPath === '/home') return true;
     if (currentPath === '/services' || (currentPath.startsWith('/services/') && !currentPath.startsWith('/services/pricing'))) return true;
@@ -58,7 +56,6 @@ export default function PortalNavbar({ user: propUser = null }) {
     animate: hasActiveItem && lastKnownPillPos.initialized
   }));
 
-  // Dynamic sticky scroll detection to reveal bottom border only when scrolled
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 8;
@@ -70,7 +67,6 @@ export default function PortalNavbar({ user: propUser = null }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Quantum slider position calculation with persistent start position
   useLayoutEffect(() => {
     const updateSlider = () => {
       if (!trackRef.current) return;
@@ -99,7 +95,7 @@ export default function PortalNavbar({ user: propUser = null }) {
     };
 
     updateSlider();
-    // Run an additional micro-delay measurement in case fonts/styles shift
+
     const t = setTimeout(updateSlider, 40);
     window.addEventListener('resize', updateSlider);
     return () => {
@@ -138,7 +134,7 @@ export default function PortalNavbar({ user: propUser = null }) {
     <>
       <header className={`bms-telehealth-header ${isSticky ? 'is-sticky' : ''}`}>
         <div className="bms-telehealth-header-inner">
-        {/* 1. Left: Brand Logo & Title */}
+
         <Link className="bms-brand-cluster" to={isPatient ? "/home" : "/"}>
           <img
             src="/assets/bms-logo.png"
@@ -154,14 +150,13 @@ export default function PortalNavbar({ user: propUser = null }) {
           />
         </Link>
 
-        {/* 2. Center: Capsule Pill Track Navigation (Quantum Smooth Glide) */}
         <nav
           className="bms-nav-capsule-track"
           ref={trackRef}
           aria-label="Main Navigation"
           style={{ position: 'relative' }}
         >
-          {/* Quantum Sliding Indicator Pill */}
+
           <div
             className="bms-quantum-slider"
             style={{
@@ -255,7 +250,6 @@ export default function PortalNavbar({ user: propUser = null }) {
           )}
         </nav>
 
-        {/* 3. Right: Identity & Positive CTA Cluster */}
         <div className="bms-identity-cluster">
           {isPatient ? (
             <div className="bms-user-dock">

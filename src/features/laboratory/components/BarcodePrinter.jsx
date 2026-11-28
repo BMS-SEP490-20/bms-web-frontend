@@ -19,13 +19,12 @@ import { Modal, Button, Card, Row, Col, Badge, Table, Alert, Form } from "react-
 import { Barcode as LucideBarcode, Printer, CheckCircle2, TestTube2, User, LayoutGrid, Download, Info } from 'lucide-react';
 import Code128Barcode from "../../../shared/components/Code128Barcode";
 
-// Định nghĩa chuẩn 3 loại ống lấy máu theo ISO 15189
 export const SPECIMEN_TUBES_CONFIG = [
   {
     typeCode: "EDTA",
     index: 1,
     name: "Ống Huyết Học (EDTA K2/K3)",
-    capColor: "#7c3aed", // Tím
+    capColor: "#7c3aed",
     capName: "Nắp Tím",
     volume: "2.0 mL",
     anticoagulant: "K2-EDTA",
@@ -37,7 +36,7 @@ export const SPECIMEN_TUBES_CONFIG = [
     typeCode: "SST",
     index: 2,
     name: "Ống Sinh Hóa & Miễn Dịch (SST Gel)",
-    capColor: "#eab308", // Vàng
+    capColor: "#eab308",
     capName: "Nắp Vàng (Gel)",
     volume: "3.5 mL",
     anticoagulant: "Clot Activator & Polymer Gel",
@@ -49,7 +48,7 @@ export const SPECIMEN_TUBES_CONFIG = [
     typeCode: "CIT",
     index: 3,
     name: "Ống Đông Máu (Sodium Citrate 3.2%)",
-    capColor: "#0284c7", // Xanh dương
+    capColor: "#0284c7",
     capName: "Nắp Xanh Dương",
     volume: "2.7 mL",
     anticoagulant: "Sodium Citrate 3.2% (1:9)",
@@ -101,7 +100,7 @@ export function TubeLabelItem({ patient, orderCode, tube, rackPosition }) {
         minHeight: "155px"
       }}
     >
-      {/* Header tem */}
+
       <div className="d-flex justify-content-between align-items-start border-bottom pb-1 mb-1.5">
         <div>
           <span className="fw-bold text-dark" style={{ fontSize: "12px" }}>
@@ -126,7 +125,6 @@ export function TubeLabelItem({ patient, orderCode, tube, rackPosition }) {
         </div>
       </div>
 
-      {/* Thông tin bệnh nhân */}
       <div className="mb-1.5">
         <div className="fw-bold text-dark d-flex align-items-center gap-1" style={{ fontSize: "13px" }}>
           <span>{patient?.name || patient?.fullName || "Bệnh nhân A"}</span>
@@ -140,12 +138,10 @@ export function TubeLabelItem({ patient, orderCode, tube, rackPosition }) {
         </div>
       </div>
 
-      {/* Render Barcode Code 128 */}
       <div className="py-1 px-2 bg-light rounded text-center border mb-1">
         <SvgBarcode value={barcodeValue} height={36} />
       </div>
 
-      {/* Footer tem */}
       <div className="d-flex justify-content-between text-muted align-items-center" style={{ fontSize: "9.5px" }}>
         <span>Chống đông: <strong>{tube.anticoagulant}</strong></span>
         <span>Lấy mẫu: {new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</span>
@@ -210,7 +206,7 @@ export function AntiCollisionRackVisualizer({ patientsData }) {
             </thead>
             <tbody>
               {samplePatients.map((pt, rIdx) => {
-                const rowLetter = String.fromCharCode(65 + rIdx); // A, B, C
+                const rowLetter = String.fromCharCode(65 + rIdx);
                 return (
                   <tr key={pt.id || rIdx} style={{ backgroundColor: rIdx % 2 === 0 ? "#f8fafc" : "#ffffff" }}>
                     <td className="text-start p-2">
@@ -305,7 +301,6 @@ export default function BarcodePrinterModal({
           </Alert>
         )}
 
-        {/* Thông tin tóm tắt bệnh nhân */}
         <div className="p-3 bg-white rounded-3 border mb-3 shadow-sm">
           <Row className="g-2">
             <Col sm={6}>
@@ -324,7 +319,6 @@ export default function BarcodePrinterModal({
           </Row>
         </div>
 
-        {/* Cảnh báo thứ tự lấy mẫu chuẩn Bộ Y Tế */}
         <div className="alert alert-info border-0 d-flex gap-2 p-2.5 mb-3 rounded-3 small">
           <Info className="flex-shrink-0 mt-0.5 text-info"  size="1em"/>
           <div>
@@ -332,7 +326,6 @@ export default function BarcodePrinterModal({
           </div>
         </div>
 
-        {/* Hiển thị 3 tem nhãn */}
         <div ref={printRef}>
           <div className="small fw-bold text-uppercase text-secondary mb-2">
             Danh Sách 3 Tem Nhãn Ống Máu Sẽ In Ra:

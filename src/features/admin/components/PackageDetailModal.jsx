@@ -28,13 +28,11 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
   const tests = Array.isArray(pkg.tests) ? pkg.tests : [];
   const highlights = Array.isArray(pkg.highlights) ? pkg.highlights : [];
 
-  // Parse lines for target audience
   const audienceLines = (pkg.targetAudience || "")
     .split("\n")
     .map((s) => s.trim())
     .filter(Boolean);
 
-  // Calculate savings
   const price = Number(pkg.price) || 0;
   const discountPrice = pkg.discountPrice ? Number(pkg.discountPrice) : null;
   const savings = discountPrice && price > discountPrice ? price - discountPrice : 0;
@@ -54,7 +52,7 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
       </Modal.Header>
 
       <Modal.Body className="p-4" style={{ maxHeight: "80vh", overflowY: "auto", background: "#FAFBFD" }}>
-        {/* 1. MASTER HEADER CARD */}
+
         <div className="p-4 rounded-4 mb-4 bg-white shadow-sm border">
           <Row className="g-3 align-items-center">
             <Col lg={8}>
@@ -82,7 +80,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
               </p>
             </Col>
 
-            {/* Price Box */}
             <Col lg={4}>
               <div
                 className="p-3 rounded-4 text-center text-lg-end"
@@ -114,7 +111,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           </Row>
         </div>
 
-        {/* 2. SHIELD HIGHLIGHTS (KEY VALUE PROPOSITIONS) */}
         {highlights.length > 0 && (
           <div className="mb-4">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
@@ -143,7 +139,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           </div>
         )}
 
-        {/* 3. TARGET AUDIENCE */}
         {audienceLines.length > 0 && (
           <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
@@ -160,7 +155,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           </div>
         )}
 
-        {/* 4. CLINICAL BIOMARKERS TABLE */}
         <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
           <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div>
@@ -216,7 +210,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           )}
         </div>
 
-        {/* 5. TURNAROUND TIME (TAT) */}
         {pkg.tat && (
           <div className="mb-4 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
@@ -234,7 +227,6 @@ export default function PackageDetailModal({ pkg, onClose, onEdit }) {
           </div>
         )}
 
-        {/* 6. PRE-ANALYTICAL PREPARATION NOTES (ISO 15189) */}
         {pkg.preparationNotes && (
           <div className="mb-2 p-4 rounded-4 bg-white border shadow-sm">
             <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">

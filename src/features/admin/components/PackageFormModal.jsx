@@ -84,7 +84,7 @@ const EMPTY_FORM = {
   description: "",
   preparationNotes: "Nên lấy mẫu vào buổi sáng sau khi nhịn ăn 8 - 12 tiếng; chỉ được uống nước lọc.\nUống khoảng 250ml nước lọc trước khi lấy mẫu, tránh cô đặc máu.\nTạm ngưng uống viên sắt, vitamin ít nhất 24 giờ trước khi lấy máu (các thuốc điều trị mạn tính vẫn uống bình thường).\nThông báo với nhân viên y tế nếu đang trong kỳ kinh nguyệt hoặc đã truyền máu trong 3 tháng gần đây.",
   testIds: [],
-  customTests: [] // Array of { code, name, sampleType, price, clinicalMeaning }
+  customTests: []
 };
 
 export default function PackageFormModal({
@@ -149,7 +149,6 @@ export default function PackageFormModal({
     }
   }, [open, pkg, criteria]);
 
-  // Group criteria by category for the selector
   const groupedCriteria = useMemo(() => {
     const q = searchCriteria.trim().toLowerCase();
     const filtered = criteria.filter((c) =>
@@ -169,7 +168,6 @@ export default function PackageFormModal({
     setForm((prev) => ({ ...prev, [field]: val }));
   };
 
-  // Toggle biomarker checkbox
   const toggleTest = (c) => {
     const critId = c._id || c.id || c.code;
     const isSelected = form.testIds.includes(critId) || form.testIds.includes(c.code);
@@ -198,7 +196,6 @@ export default function PackageFormModal({
     }
   };
 
-  // Update a test's clinical meaning or sample type
   const updateCustomTest = (idx, field, val) => {
     setForm((prev) => {
       const updated = [...prev.customTests];
@@ -207,7 +204,6 @@ export default function PackageFormModal({
     });
   };
 
-  // Add / Remove Highlights
   const handleAddHighlight = () => {
     if (!newHighlight.trim()) return;
     setForm((prev) => ({
@@ -252,7 +248,6 @@ export default function PackageFormModal({
       return;
     }
 
-    // Assemble final tests payload
     const finalTests = form.customTests.map((t) => ({
       code: t.code.trim().toUpperCase(),
       name: t.name.trim(),
@@ -319,7 +314,6 @@ export default function PackageFormModal({
           </div>
         )}
 
-        {/* Tab Navigation */}
         <div className="px-4 pt-3 bg-white border-bottom">
           <Nav variant="pills" activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="gap-2">
             <Nav.Item>
@@ -346,7 +340,7 @@ export default function PackageFormModal({
         </div>
 
         <Form id="package-rich-form" onSubmit={handleSubmit} className="p-4">
-          {/* TAB 1: THÔNG TIN CƠ BẢN & GIÁ */}
+
           {activeTab === "general" && (
             <div>
               <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
@@ -486,10 +480,9 @@ export default function PackageFormModal({
             </div>
           )}
 
-          {/* TAB 2: ĐIỂM NỔI BẬT & ĐỐI TƯỢNG CHỈ ĐỊNH */}
           {activeTab === "clinical" && (
             <div>
-              {/* Shield Highlights */}
+
               <div className="mb-4">
                 <h6 className="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
                   <ShieldCheck  size="1em"/> Điểm Nổi Bật &amp; Cam Kết Chất Lượng (Shield Icons)
@@ -544,7 +537,6 @@ export default function PackageFormModal({
                 </InputGroup>
               </div>
 
-              {/* Target Audience */}
               <div className="mb-4">
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                   <User className="text-primary"  size="1em"/> Đối Tượng Cần Làm Xét Nghiệm (Chỉ Định Lâm Sàng)
@@ -559,7 +551,6 @@ export default function PackageFormModal({
                 />
               </div>
 
-              {/* Overview & Pathology */}
               <div className="mb-3">
                 <h6 className="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                   <FileText className="text-primary"  size="1em"/> Tổng Quan Về Gói Xét Nghiệm (Diễn Giải Chuyên Môn)
@@ -576,7 +567,6 @@ export default function PackageFormModal({
             </div>
           )}
 
-          {/* TAB 3: CHỈ SỐ XÉT NGHIỆM & DIỄN GIẢI Y KHOA */}
           {activeTab === "biomarkers" && (
             <div>
               <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -590,7 +580,6 @@ export default function PackageFormModal({
                 </div>
               </div>
 
-              {/* Biomarkers Table */}
               {form.customTests.length > 0 ? (
                 <div className="table-responsive border rounded-3 mb-4 bg-white shadow-sm">
                   <Table hover size="sm" className="mb-0 align-middle">
@@ -669,7 +658,6 @@ export default function PackageFormModal({
                 </Alert>
               )}
 
-              {/* Criteria Selector Accordion/Groups */}
               <div className="p-3 rounded-3 border bg-light">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <span className="fw-bold small text-dark">
@@ -706,7 +694,7 @@ export default function PackageFormModal({
                                 <Form.Check
                                   type="checkbox"
                                   checked={checked}
-                                  onChange={() => {}} // handled by wrapper click
+                                  onChange={() => {}}
                                 />
                                 <div className="text-truncate">
                                   <strong className="text-dark me-1">{c.code}:</strong>
@@ -724,14 +712,12 @@ export default function PackageFormModal({
             </div>
           )}
 
-          {/* TAB 4: TAT & LƯU Ý TIỀN PHÂN TÍCH */}
           {activeTab === "preanalytical" && (
             <div>
               <h6 className="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
                 <Clock size="1em"/> 4. Thời Gian Trả Kết Quả (TAT) &amp; Chuẩn Bị Mẫu
               </h6>
 
-              {/* TAT Section */}
               <div className="mb-4">
                 <Form.Label className="small fw-semibold text-muted mb-1">
                   Thời Gian Có Kết Quả (Turnaround Time - TAT) &amp; Điều Kiện Nhận Mẫu
@@ -749,7 +735,6 @@ export default function PackageFormModal({
                 </Form.Text>
               </div>
 
-              {/* Preanalytical Preparation Notes */}
               <div className="mb-3">
                 <Form.Label className="small fw-semibold text-muted mb-1">
                   Lưu Ý Chuẩn Bị Trước Khi Lấy Mẫu

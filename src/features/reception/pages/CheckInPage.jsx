@@ -115,7 +115,7 @@ function formatPaymentStatusVi(status) {
 
 export default function CheckInPage() {
   const navigate = useNavigate();
-  // List & filter state
+
   const [patients, setPatients] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -124,7 +124,7 @@ export default function CheckInPage() {
 
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [guestFilter, setGuestFilter] = useState('ALL'); // 'ALL' | 'true' | 'false'
+  const [guestFilter, setGuestFilter] = useState('ALL');
   const [genderFilter, setGenderFilter] = useState('ALL');
   const [bloodTypeFilter, setBloodTypeFilter] = useState('ALL');
 
@@ -132,18 +132,15 @@ export default function CheckInPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Quick lookup by exact ID / PatientCode / CCCD
   const [quickLookupId, setQuickLookupId] = useState('');
   const [lookupLoading, setLookupLoading] = useState(false);
 
-  // View Patient Information Modal state (UC30)
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
-  const [activeDetailTab, setActiveDetailTab] = useState('summary'); // 'summary' | 'appointments' | 'records'
+  const [activeDetailTab, setActiveDetailTab] = useState('summary');
 
-  // Create Guest Profile Modal state (UC25) - Only Receptionist can create guest profiles
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [guestForm, setGuestForm] = useState(INITIAL_GUEST_FORM);
   const [createLoading, setCreateLoading] = useState(false);
@@ -151,8 +148,6 @@ export default function CheckInPage() {
   const [duplicateMatches, setDuplicateMatches] = useState([]);
   const [ignoreDuplicate, setIgnoreDuplicate] = useState(false);
 
-  // WHY: UC25 guest profiles are Receptionist-only (matrix §1.3, decision 10: Admin has no clinical access).
-  // No stored user => false (the old code returned true and also let Admin in).
   const canCreateGuest = React.useMemo(() => hasRole(getStoredUser(), ROLES.RECEPTIONIST), []);
   const canViewClinicalRecords = React.useMemo(() => hasRole(getStoredUser(), ROLES.DOCTOR), []);
 
@@ -163,11 +158,9 @@ export default function CheckInPage() {
         setShowCreateModal(true);
       }
     } catch {
-      // Ignore query parse error
     }
   }, [canCreateGuest]);
 
-  // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
@@ -176,7 +169,6 @@ export default function CheckInPage() {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  // Load patients from BE
   const loadPatients = useCallback(async () => {
     setLoading(true);
     setErrorMsg('');
@@ -212,7 +204,6 @@ export default function CheckInPage() {
     loadPatients();
   }, [loadPatients]);
 
-  // Open View Patient Information Modal (UC30)
   const handleViewPatient = async (patientOrId) => {
     const id = typeof patientOrId === 'string'
       ? patientOrId
@@ -240,7 +231,6 @@ export default function CheckInPage() {
     }
   };
 
-  // Handle Quick Lookup form submit
   const handleQuickLookupSubmit = async (e) => {
     e.preventDefault();
     if (!quickLookupId.trim()) return;
@@ -259,7 +249,6 @@ export default function CheckInPage() {
     }
   };
 
-  // Live duplicate check when typing identityNumber or phoneNumber in Create Guest Modal (UC25)
   useEffect(() => {
     if (!showCreateModal) return;
     const query = guestForm.identityNumber.trim() || guestForm.phoneNumber.trim() || guestForm.fullName.trim();
@@ -297,7 +286,6 @@ export default function CheckInPage() {
     setGuestForm(prev => ({ ...prev, [field]: value }));
   };
 
-  // Submit Create Guest Profile (POST /api/patients/guests)
   const handleCreateGuestSubmit = async (e) => {
     e.preventDefault();
     setCreateError('');
@@ -377,7 +365,7 @@ export default function CheckInPage() {
         `Đã tạo hồ sơ khách vãng lai thành công: ${created.fullName} (Mã BN: ${created.patientCode || created.id})`
       );
       await loadPatients();
-      // Open the newly created patient's detail popup immediately for verification
+
       setSelectedPatient(created);
       setActiveDetailTab('summary');
       setShowViewModal(true);
@@ -393,7 +381,7 @@ export default function CheckInPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Master Luxury Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
 
@@ -436,7 +424,6 @@ export default function CheckInPage() {
         </Alert>
       )}
 
-      {/* 2. KPI Metrics Quad Cards */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
           <div className="bms-kpi-quad-card">
@@ -480,7 +467,6 @@ export default function CheckInPage() {
         </Col>
       </Row>
 
-      {/* 3. Unified Card Section: Danh Sách Bệnh Nhân */}
       <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
         <Card.Header className="bg-white border-bottom py-3 px-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
@@ -498,7 +484,6 @@ export default function CheckInPage() {
 
         <Card.Body className="p-0">
 
-          {/* Integrated Filter Control Strip */}
           <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2">
             <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '240px' }}>
               <Search className="bms-search-icon" size="1em" />
@@ -684,9 +669,6 @@ export default function CheckInPage() {
         </Card.Body>
       </Card>
 
-      {/* =====================================================================
-          POPUP 1: CREATE GUEST PROFILE MODAL (UC25 - POST /api/patients/guests)
-         ===================================================================== */}
       <Modal
         show={showCreateModal}
         onHide={() => !createLoading && setShowCreateModal(false)}
@@ -714,7 +696,6 @@ export default function CheckInPage() {
               </Alert>
             )}
 
-            {/* Live Duplicate Check Warning (matching screens/03-receptionist.html #uc25) */}
             {duplicateMatches.length > 0 && !ignoreDuplicate && (
               <Alert variant="warning" className="mb-3 border-warning" style={{ borderRadius: '14px' }}>
                 <div className="d-flex justify-content-between align-items-start">
@@ -749,7 +730,6 @@ export default function CheckInPage() {
               </Alert>
             )}
 
-            {/* 1. Identity & Demographics */}
             <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>1. Thông Tin Định Danh Cơ Bản</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
@@ -822,7 +802,6 @@ export default function CheckInPage() {
               </Col>
             </Row>
 
-            {/* 2. Contact & Emergency */}
             <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>2. Thông Tin Liên Hệ & Khẩn Cấp</h6>
             <Row className="g-3 mb-3">
               <Col md={6}>
@@ -883,7 +862,6 @@ export default function CheckInPage() {
               </Col>
             </Row>
 
-            {/* 3. Clinical Notes & Vitals */}
             <h6 className="fw-bold border-bottom pb-2 mb-3" style={{ color: '#1E60E6', borderColor: 'rgba(30, 96, 230, 0.2)' }}>3. Chỉ Số Sinh Hiệu & Tiền Sử Y Khoa (Tùy Chọn)</h6>
             <Row className="g-2 mb-3">
               <Col xs={6} md={2}>
@@ -996,9 +974,6 @@ export default function CheckInPage() {
         </Form>
       </Modal>
 
-      {/* =====================================================================
-          POPUP 2: VIEW PATIENT INFORMATION MODAL (UC30 - GET /api/patients/{id})
-         ===================================================================== */}
       <Modal
         show={showViewModal}
         onHide={() => setShowViewModal(false)}
@@ -1027,7 +1002,7 @@ export default function CheckInPage() {
             </div>
           ) : selectedPatient ? (
             <>
-              {/* Patient Identity Banner (matching screens/04-doctor.html #uc30) */}
+
               <div className="p-2 rounded-4 border mb-4 shadow-sm" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #2e4a8a 100%)', color: '#fff', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
                 <Row className="align-items-center g-3">
                   <Col xs={12} md={6}>
@@ -1093,7 +1068,6 @@ export default function CheckInPage() {
                 </Row>
               </div>
 
-              {/* Navigation Tabs inside Modal */}
               <Nav variant="tabs" className="mb-3">
                 <Nav.Item>
                   <Nav.Link
@@ -1126,7 +1100,6 @@ export default function CheckInPage() {
                 )}
               </Nav>
 
-              {/* Tab 1: Demographics, Vitals & Medical History */}
               {activeDetailTab === 'summary' && (
                 <Row className="g-3">
                   <Col md={6}>
@@ -1217,7 +1190,6 @@ export default function CheckInPage() {
                 </Row>
               )}
 
-              {/* Tab 2: Recent Appointments */}
               {activeDetailTab === 'appointments' && (
                 <div className="table-responsive border rounded-3">
                   <Table hover size="sm" className="align-middle mb-0">
@@ -1264,7 +1236,6 @@ export default function CheckInPage() {
                 </div>
               )}
 
-              {/* Tab 3: Recent Medical Records (Doctor only) */}
               {canViewClinicalRecords && activeDetailTab === 'records' && (
                 <div className="table-responsive border rounded-3">
                   <Table hover size="sm" className="align-middle mb-0">
@@ -1319,4 +1290,3 @@ export default function CheckInPage() {
 }
 
 export { CheckInPage };
-

@@ -48,7 +48,6 @@ function readStoredUser() {
     const raw = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
-    // Corrupt JSON must not crash the whole app; treat as signed out.
     return null;
   }
 }
@@ -91,7 +90,6 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(getToken);
 
   useEffect(() => {
-    // Keep tabs in sync and react to the axios refresh-failure signal from config/api.js.
     const resync = () => {
       setUser(readStoredUser());
       setToken(getToken());

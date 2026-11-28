@@ -1,20 +1,3 @@
-/* ==========================================================================
-   BMS Modern Soft Healthcare SaaS — Patient Landing & Portal Design System
-   Specification: DESIGNRULE.md
-   Colors: #1E60E6 (Primary), #10B981 (Success), #F5A623 (Warning)
-   Surfaces: #FFFFFF (Base), #F4F7F9 (Canvas Surface), #EEF2F6 (Muted)
-   Text: #1A1D21 (Primary), #6B7280 (Secondary)
-   Typography: Geist Sans | Border Radius: 28px | Pill Buttons: 9999px
-   ========================================================================== */
-
-/* ==========================================================================
-   BMS Soft Medical Telehealth UI Specification (MEDLINE / macOS Grade)
-   Reference: User Design System Prompt & DESIGNRULE.md
-   Colors: #1E60E6 (Primary Mid-Blue), #10B981 (Mint Positive CTA), #1A1D21 (Rich Ink)
-   Surfaces: #F4F7F9 (Canvas), #FFFFFF (Floating Cards 28px), #EEF2F6 (Muted Track)
-   Typography: Geist Sans | macOS Precision & Diffuse Elevation
-   ========================================================================== */
-
 .bms-telehealth-page,
 .bms-landing-wrapper {
     min-height: 100vh;
@@ -25,9 +8,6 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* ==========================================================================
-   Centered Pill Navigation Header (Dynamic Floating Island Morph on Scroll)
-   ========================================================================== */
 .bms-telehealth-header,
 .bms-navbar {
     background: #FFFFFF;
@@ -56,7 +36,6 @@
                 padding 0.38s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Floating Dynamic Island Morph on Scroll (Apple Dynamic Island / macOS Dock Style) */
 .bms-telehealth-header.is-sticky,
 .bms-navbar.is-sticky {
     top: 12px !important;
@@ -68,8 +47,7 @@
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     border: none !important;
     border-bottom: none !important;
-    /* Pure optical floating elevation: zero dark shadow, zero dirty gray border! */
-    /* Liquid glass rim: inner specular highlight + soft diffuse aura */
+
     box-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.08),
                 0 0 0 1px rgba(255, 255, 255, 0.8) inset,
                 0 0 0 1px rgba(226, 232, 240, 0.45) !important;
@@ -112,7 +90,6 @@
     padding: 0 4px !important;
 }
 
-/* 1. Left Brand Cluster */
 .bms-brand-cluster,
 .bms-brand {
     display: flex;
@@ -164,7 +141,6 @@
     font-weight: 500;
 }
 
-/* 2. Center Capsule Pill Navigation */
 .bms-nav-capsule-track,
 .bms-nav-links {
     display: flex;
@@ -229,7 +205,6 @@
     }
 }
 
-/* 3. Right Identity & CTA Cluster */
 .bms-identity-cluster,
 .bms-header-actions {
     display: flex;
@@ -341,7 +316,6 @@
     border-color: rgba(240, 68, 56, 0.2);
 }
 
-/* User Dock */
 .bms-user-dock {
     display: flex;
     align-items: center;
@@ -397,9 +371,6 @@
     color: var(--ink-secondary);
 }
 
-/* ==========================================================================
-   Hero Section (Asymmetric Modern Telehealth Layout)
-   ========================================================================== */
 .bms-hero-container-wrap,
 .bms-hero-section {
     padding: 52px 0 68px;
@@ -462,7 +433,6 @@
     max-width: 600px;
 }
 
-/* Search Pill Capsule */
 .bms-search-pill-capsule,
 .bms-search-bar {
     display: flex;
@@ -518,7 +488,6 @@
     background: var(--primary-hover);
 }
 
-/* Metric Quad / Strip */
 .bms-metric-quad,
 .bms-hero-metrics {
     display: grid;
@@ -559,7 +528,6 @@
     font-weight: 500;
 }
 
-/* Right Utility / Fast Tracker Card */
 .bms-hero-tracker-card,
 .bms-utility-card {
     background: #FFFFFF;
@@ -646,7 +614,6 @@
     border: none;
 }
 
-/* Patient Personalized Summary Elements */
 .bms-recent-result-dock {
     background: var(--bg-muted);
     border-radius: 20px;
@@ -702,9 +669,6 @@
     text-decoration: underline;
 }
 
-/* ==========================================================================
-   Clinical Workflow & Service Packages Sections
-   ========================================================================== */
 .bms-section-wrap,
 .bms-section {
     padding: 64px 0;
@@ -741,7 +705,6 @@
     margin: 0;
 }
 
-/* 4 Steps Quad */
 .bms-steps-quad,
 .bms-steps-grid {
     display: grid;
@@ -792,7 +755,6 @@
     line-height: 1.55;
 }
 
-/* Packages Quad */
 .bms-packages-quad,
 .bms-packages-grid {
     display: grid;
@@ -876,7 +838,6 @@
     color: var(--ink-secondary);
 }
 
-/* Trust Trio */
 .bms-trust-trio,
 .bms-trust-grid {
     display: grid;
@@ -915,7 +876,6 @@
     line-height: 1.55;
 }
 
-/* Modal Styling */
 .bms-modal-backdrop {
     position: fixed;
     top: 0;
@@ -963,7 +923,6 @@
     cursor: pointer;
 }
 
-/* Mega Footer */
 .bms-footer {
     background-color: #121518;
     color: #9CA3AF;
@@ -1022,7 +981,6 @@
     color: #6B7280;
 }
 
-/* Responsive Breakpoints */
 @media (max-width: 1024px) {
     .bms-hero-grid,
     .bms-hero-container {
@@ -1080,7 +1038,6 @@
     color: #64748b;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
     .bms-hero-container {
         grid-template-columns: 1fr;
@@ -1113,10 +1070,6 @@
         grid-template-columns: 1fr;
     }
 }
-
-/* ==========================================================================
-   BMS Management Portal Layout Shell (Unified Medical Standard)
-   ========================================================================== */
 
 .bms-sidebar {
     background-color: #0f172a;
@@ -1283,7 +1236,6 @@
     color: #ffffff;
 }
 
-/* Header & Breadcrumb Styling */
 .bms-header {
     height: 64px;
     background: #ffffff;
@@ -1310,7 +1262,6 @@
     border-color: #cbd5e1;
 }
 
-/* Medical Role Badges */
 .badge-admin { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
 .badge-manager { background-color: #e0e7ff; color: #4338ca; border: 1px solid #a5b4fc; }
 .badge-doctor { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
@@ -1329,7 +1280,6 @@
     width: fit-content;
 }
 
-/* Patient & User Header Styles */
 .bms-nav-btn {
     background: none;
     border: none;
@@ -1427,7 +1377,6 @@
     color: #b91c1c;
 }
 
-/* Modal overlay and card styling */
 .bms-modal-backdrop {
     position: fixed;
     top: 0;
@@ -1502,16 +1451,12 @@
     overflow-y: auto;
 }
 
-/* ==========================================================================
-   BMS Role-Based Medical Dashboard System (Clean 2D Soft Flat & Elevated)
-   ========================================================================== */
 .bms-dashboard-wrapper {
     max-width: 1400px;
     margin: 0 auto;
     padding: 12px 16px 48px;
 }
 
-/* 1. Role Switcher Capsule Bar */
 .bms-role-nav-capsule {
     display: inline-flex;
     align-items: center;
@@ -1551,7 +1496,6 @@
     box-shadow: none;
 }
 
-/* 2. Modern 2D Floating Clean Cards */
 .bms-dash-card {
     background: #FFFFFF !important;
     border-radius: 16px !important;
@@ -1594,7 +1538,6 @@
     margin-top: 3px;
 }
 
-/* 3. Stat Quad Cards - Scaled ~30% for compact elegance */
 .bms-kpi-quad-card {
     background: #FFFFFF;
     border-radius: 14px;
@@ -1655,9 +1598,6 @@
     margin-top: 3px;
 }
 
-/* Dashboard tables are styled only in bms-workbench.css. */
-
-/* 5. Quick Shortcut Grid Tiles - Crisp White Card Surface */
 .bms-quick-tile {
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0;
@@ -1681,7 +1621,6 @@
     color: #0F172A;
 }
 
-/* 6. Pill Badges - Scaled */
 .bms-pill-badge {
     display: inline-flex;
     align-items: center;
@@ -1701,7 +1640,6 @@
 .bms-pill-info { background: rgba(6, 182, 212, 0.12); color: #0891B2; }
 .bms-pill-primary { background: rgba(30, 96, 230, 0.1); color: #1E60E6; }
 
-/* 7. Structured Clinical Blood Type Matrix (Shared across Medical Setup & User Profile) */
 .bms-blood-matrix-wrap {
   background: #F8FAFC;
   border-radius: 14px;
@@ -1824,7 +1762,6 @@
   font-weight: 600;
 }
 
-
 .bms-modal-card-sm {
     width: min(480px, 100%) !important;
 }
@@ -1846,10 +1783,6 @@
     font-size: 13px;
 }
 
-/* ==============================================================================
-   PAGE ENTRANCE ANIMATION (SMOOTH FADE-IN ON MOUNT)
-   ============================================================================== */
-
 @keyframes bmsPageFadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
@@ -1860,14 +1793,10 @@
     min-height: calc(100vh - 54px);
 }
 
-/* Single, jank-free entrance fade applied once per page mount */
 .bms-page-enter {
     animation: bmsPageFadeIn 0.25s ease-out both;
 }
 
-/* Dashboard tables are styled only in bms-workbench.css. */
-
-/* One header for every work page. */
 .bms-page-header,
 .bms-page-header-banner,
 .bms-page-header-card,
@@ -1941,9 +1870,6 @@
     gap: 8px;
 }
 
-/* Dashboard filters are styled only in bms-workbench.css. */
-
-/* Sidebar User Profile Footer */
 .bms-sidebar-footer {
     padding: 12px 14px !important;
     background: #FFFFFF !important;
@@ -1991,11 +1917,6 @@
     border: 2px solid #FFFFFF !important;
 }
 
-/* ==============================================================================
-   UNIVERSAL DASHBOARD LAYOUT & CANVAS NORMALIZATION
-   Enforces unified canvas, eliminates nested double-backgrounds, prevents
-   split search bars, and enforces standalone flat table architecture.
-   ============================================================================== */
 .bms-page-content > div,
 .bms-page-content > .container-fluid,
 .bms-page-content > .container {
@@ -2008,13 +1929,11 @@
     width: 100% !important;
 }
 
-/* Ensure any nested container inside bms-page-content also inherits clean transparent canvas */
 .bms-page-content .container-fluid {
     background: transparent !important;
     background-color: transparent !important;
 }
 
-/* Prevent broken/split input-group magnifying glass borders */
 .input-group:has(.input-group-text) .form-control {
     border-left: none !important;
 }
@@ -2025,7 +1944,6 @@
     margin-left: 0 !important;
 }
 
-/* Package detail: nearly the full 1920 screen, with room around the edges. */
 .modal-dialog.bms-package-detail-dialog {
     width: min(1840px, calc(100vw - 48px));
     max-width: min(1840px, calc(100vw - 48px));
@@ -2083,6 +2001,3 @@
 .bms-package-criteria table {
     font-size: 14px;
 }
-
-
-

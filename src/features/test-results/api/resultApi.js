@@ -8,7 +8,6 @@ import api from '../../../config/api';
 
 export const resultApi = {
   async enter(body) {
-    // Format parameters conforming to CreateFullTestResultDto
     const formattedParameters = Array.isArray(body?.parameters)
       ? body.parameters.map((p) => ({
           criteriaId: p.code || p.criteriaId || 'ANL',
@@ -19,7 +18,6 @@ export const resultApi = {
       : [];
 
     const payload = {
-      // The server resolves a missing order from the sample; batch IDs are not appointment IDs.
       appointmentId: body.appointmentId || undefined,
       sampleId: body.sampleId,
       deviceId: body.equipmentCode || body.deviceId || 'Sysmex XN-1000',

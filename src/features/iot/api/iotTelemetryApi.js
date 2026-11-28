@@ -242,7 +242,6 @@ export async function reconnectAndSyncIot(payload = {}) {
     return res;
 }
 
-
 const SELECTED_IOT_DEVICE_KEY = "bms_selected_iot_device_id";
 
 export function getSelectedIotDeviceId(fallback = "") {
@@ -260,7 +259,6 @@ export function setSelectedIotDeviceId(deviceId) {
         window.localStorage.setItem(SELECTED_IOT_DEVICE_KEY, deviceId);
         window.dispatchEvent(new CustomEvent("bms-iot-device-changed", { detail: { deviceId } }));
     } catch {
-        // Ignore storage restrictions
     }
 }
 
@@ -268,7 +266,6 @@ export async function fetchIotDevices() {
     const res = unwrap(await api.get("/iot/devices"));
     return Array.isArray(res) ? res : [];
 }
-
 
 export async function createIotDevice(payload) {
     return unwrap(await api.post("/iot/devices", payload));

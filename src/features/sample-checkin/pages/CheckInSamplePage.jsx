@@ -95,7 +95,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const [handoverStaffId, setHandoverStaffId] = useState('');
   const [receiverTechId, setReceiverTechId] = useState('');
   const [code, setCode] = useState('');
-  const [activeTab, setActiveTab] = useState('PENDING'); // 'PENDING' | 'RECEIVED'
+  const [activeTab, setActiveTab] = useState('PENDING');
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showRejectBox, setShowRejectBox] = useState(false);
   const [pending, setPending] = useState([]);
@@ -110,9 +110,8 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const [loading, setLoading] = useState(false);
   const [lookupLoading, setLookupLoading] = useState(false);
 
-  // 4 tiêu chí kiểm chuẩn tiếp nhận tiền phân tích theo ISO 15189:2022
   const [checks, setChecks] = useState({
-    idMatch: false,    // ISO: KTV phải tự xác nhận — không pre-check
+    idMatch: false,
     intact: false,
     tubeOk: false,
     labeled: false,
@@ -126,10 +125,9 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const [detailOrderInfo, setDetailOrderInfo] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Vật tư y tế tiêu hao & hóa chất phân tích nạp trực tiếp từ Kho Vật Tư (/api/inventory)
   const [inventoryItems, setInventoryItems] = useState([]);
   const [inventoryLoading, setInventoryLoading] = useState(false);
-  const [selectedSupplies, setSelectedSupplies] = useState([]); // [{ id, code, name, lotNumber, unit, stock, quantity, checked }]
+  const [selectedSupplies, setSelectedSupplies] = useState([]);
 
   const loadInventorySupplies = useCallback(async () => {
     setInventoryLoading(true);
@@ -167,7 +165,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     );
   }, [inventoryItems]);
 
-  // Tự động cập nhật thời điểm hiện tại mỗi giây
   useEffect(() => {
     const tick = setInterval(() => {
       setReceiveTime(new Date().toLocaleString('vi-VN'));
@@ -192,7 +189,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     }
   };
 
-  // Prioritize Lab/Manager staff for the receiving technician selector; fall back to full staff directory if empty.
   const labTechOptions = useMemo(() => {
     const labOnly = staffOptions.filter((s) => s.role === 'Lab' || s.role === 'Manager');
     return labOnly.length > 0 ? labOnly : staffOptions;
@@ -363,7 +359,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     loadInventorySupplies();
   }, [loadPending, loadReceivedSamples, loadLookups, loadInventorySupplies]);
 
-  // Tự động tra cứu ống mẫu khi điều hướng có ?code=...
   useEffect(() => {
     if (!initialQueryCode) return;
     let active = true;
@@ -399,7 +394,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     return () => { active = false; };
   }, [initialQueryCode]);
 
-  // Auto-align Người Bàn Giao with the sample's collector/handover staff once a specimen is loaded.
   useEffect(() => {
     if (!current || staffOptions.length === 0) return;
 
@@ -482,13 +476,12 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
   const onCheckIn = async (reject = false) => {
     setError(null);
     setSuccess(null);
-    // Bước 3 chỉ tiếp nhận mẫu ĐÃ LẤY MẪU (Collected / InTransit) — không lấy mẫu hộ Bước 2
+
     if (!reject && current && !canReceiveSample(current.status)) {
       setError('Chỉ được tiếp nhận các ống mẫu đã hoàn tất Bước 2 (Đã lấy mẫu / Đang vận chuyển). Vui lòng thực hiện Lấy Mẫu tại Hàng Đợi & Lấy Mẫu trước.');
       return;
     }
 
-    // Prefer stable sample Id over barcode — barcodes can collide after reject/recollect.
     const targetCode =
       current?.id ||
       current?.sampleId ||
@@ -569,7 +562,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     }
   };
 
-  // Chỉ cho phép tiếp nhận các mẫu ĐÃ LẤY MẪU (Collected / InTransit) và đã tick đủ 4 tiêu chí ISO 15189
   const canReceive =
     Boolean(current) &&
     canReceiveSample(current.status) &&
@@ -578,7 +570,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
     checks.tubeOk &&
     checks.labeled;
 
-  // Chỉ hiển thị các mẫu đã lấy mẫu chờ tiếp nhận vào Lab (không lẫn mẫu Chờ lấy mẫu của Bước 1)
   const safePending = (Array.isArray(pending) ? pending : []).filter((p) => canReceiveSample(p?.status));
   const filteredPending = useMemo(() => {
     const q = listFilter.trim().toLowerCase();
@@ -617,7 +608,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header Card đồng bộ toàn hệ thống */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -640,7 +631,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         </div>
       </div>
 
-      {/* Thông báo lỗi / thành công */}
       {error && (
         <div className="alert alert-danger border-0 shadow-sm d-flex align-items-center justify-content-between py-2.5 px-3 mb-3 rounded-3 small">
           <div className="d-flex align-items-center gap-2">
@@ -661,7 +651,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         </div>
       )}
 
-      {/* Thanh 1 dòng: Chuyển 2 bước xử lý + Quét / Tìm nhanh Barcode */}
       <div className="bms-filter-bar mb-3 flex-wrap">
         <div className="d-flex align-items-center gap-1.5 flex-wrap">
           <button
@@ -727,7 +716,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         </button>
       </div>
 
-      {/* BẢNG CHÍNH GỌN TRONG 1 MÀN HÌNH */}
       {activeTab === 'PENDING' ? (
         <section className="bms-table-standalone-section">
           <div className="bms-table-standalone-header">
@@ -942,7 +930,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         </section>
       )}
 
-      {/* MODAL KIỂM CHUẨN & TIẾP NHẬN ỐNG MẪU (ISO 15189) — Gọn, mở đúng lúc cần */}
       <Modal
         show={showCheckInModal && Boolean(current)}
         onHide={() => !loading && setShowCheckInModal(false)}
@@ -964,7 +951,7 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         <Modal.Body className="p-3" style={{ backgroundColor: '#F8FAFC' }}>
           {current && (
             <div className="d-flex flex-column gap-3">
-              {/* Tóm tắt ống mẫu & bệnh nhân */}
+
               <div className="p-3 rounded-3 bg-white border">
                 <div className="row g-2 small">
                   <div className="col-sm-6">
@@ -989,7 +976,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 </div>
               </div>
 
-              {/* 4 tiêu chí kiểm chuẩn tiền phân tích */}
               <div className="p-3 rounded-3 bg-white border">
                 <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2.5">
                   <span className="small fw-bold text-uppercase text-secondary">
@@ -1035,7 +1021,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 </div>
               </div>
 
-              {/* Bước 2: Xác nhận Vật tư y tế & Hóa chất sử dụng theo gói dịch vụ (Render từ Kho Vật Tư) */}
               <div className="p-3 rounded-3 bg-white border">
                 <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                   <span className="small fw-bold text-uppercase text-primary d-flex align-items-center gap-1.5">
@@ -1108,7 +1093,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                   </div>
                 )}
 
-                {/* Thêm vật tư khác từ kho thật */}
                 {(() => {
                   const selectedIds = new Set(selectedSupplies.map((s) => s.id));
                   const extraOptions = inventoryItems.filter(
@@ -1148,7 +1132,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
                 })()}
               </div>
 
-              {/* Khu vực từ chối mẫu (thu gọn mặc định cho thoáng mắt) */}
               <div className="p-3 rounded-3 bg-white border">
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="small fw-bold text-danger d-flex align-items-center gap-1.5">
@@ -1236,7 +1219,6 @@ export function CheckInSamplePage({ labRoomId = '', technicianName: initialTechN
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Xem Chi Tiết Ống Mẫu, Bệnh Nhân & Bác Sĩ Chỉ Định */}
       <Modal show={Boolean(detailSample)} onHide={() => setDetailSample(null)} centered size="lg">
         <Modal.Header closeButton className="bg-light border-bottom">
           <Modal.Title className="h6 fw-bold d-flex align-items-center gap-2">

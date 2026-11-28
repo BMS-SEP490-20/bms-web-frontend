@@ -61,7 +61,7 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                     </div>
 
                     <div className="modal-body p-2">
-                        {/* Header Profile */}
+
                         <div className="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
                             <div>
                                 <h5 className="fw-bold mb-1" style={{ color: '#0f2743' }}>{backup.backupName}</h5>
@@ -74,7 +74,6 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </span>
                         </div>
 
-                        {/* Metric Tiles */}
                         <div className="row g-3 mb-4">
                             <div className="col-6 col-md-3">
                                 <div className="p-3 text-center" style={{ background: '#EEF2F6', borderRadius: 14 }}>
@@ -106,7 +105,6 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </div>
                         </div>
 
-                        {/* Cryptographic SHA-256 Integrity Hash */}
                         <div className="p-3 bg-light rounded border mb-4">
                             <div className="d-flex justify-content-between align-items-center mb-1">
                                 <span className="small fw-bold text-dark text-uppercase d-flex align-items-center gap-1">
@@ -126,7 +124,6 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </div>
                         </div>
 
-                        {/* Collection Breakdown */}
                         {Object.keys(breakdown).length > 0 && (
                             <div className="mb-4">
                                 <span className="small fw-bold text-dark text-uppercase d-block mb-2">
@@ -165,7 +162,6 @@ export default function BackupDetailModal({ show, onHide, backup, onRestoreTrigg
                             </div>
                         )}
 
-                        {/* Audit Trail Metadata */}
                         <div className="p-3 bg-light rounded border">
                             <span className="small fw-bold text-dark text-uppercase d-block mb-2">
                                 Lịch Sử Tạo & Khôi Phục

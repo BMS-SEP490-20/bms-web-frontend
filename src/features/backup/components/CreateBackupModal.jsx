@@ -13,7 +13,7 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
     const [backupName, setBackupName] = useState(
         `Lưu trữ dữ liệu xét nghiệm bệnh nhân - ${new Date().toLocaleDateString("vi-VN")}`
     );
-    const [scope, setScope] = useState(1); // 1: PatientTestResults, 2: FullDatabase
+    const [scope, setScope] = useState(1);
     const [includeTestResults, setIncludeTestResults] = useState(true);
     const [includeBloodSamples, setIncludeBloodSamples] = useState(true);
     const [includePatientRecords, setIncludePatientRecords] = useState(true);
@@ -96,7 +96,6 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 </div>
                             )}
 
-                            {/* Scope Selector */}
                             <div className="mb-4">
                                 <label className="form-label fw-bold text-dark small text-uppercase">
                                     Phạm Vi Lưu Trữ (Backup Scope) <span className="text-danger">*</span>
@@ -166,7 +165,6 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 </div>
                             </div>
 
-                            {/* Backup Name */}
                             <div className="mb-3">
                                 <label className="form-label fw-bold text-dark small text-uppercase">
                                     Tên Bản Sao Lưu <span className="text-danger">*</span>
@@ -181,7 +179,6 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 />
                             </div>
 
-                            {/* Target Clinical Collections */}
                             {scope === 1 && (
                                 <div className="p-3 bg-light rounded border mb-3">
                                     <span className="small fw-bold text-dark text-uppercase d-block mb-2">
@@ -251,7 +248,6 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 </div>
                             )}
 
-                            {/* Cryptographic Protection Notice */}
                             <div className="p-3 bg-info-subtle border border-info rounded mb-3 d-flex align-items-center gap-3">
                                 <CheckCircle2 className="text-primary fs-3 flex-shrink-0"  size="1em"/>
                                 <div className="small text-dark">
@@ -262,7 +258,6 @@ export default function CreateBackupModal({ show, onHide, onBackupCreated }) {
                                 </div>
                             </div>
 
-                            {/* Operational Notes */}
                             <div className="mb-0">
                                 <label className="form-label fw-bold text-dark small text-uppercase">
                                     Ghi Chú Vận Hành / Mục Đích Lưu Trữ

@@ -31,7 +31,7 @@ export const calculateFee = async (payload) => {
     } catch (error) {
         console.error("Failed to calculate fee via API:", error);
     }
-    // Fallback calculations for offline demo/development
+
     return computeOfflineFee(payload);
 };
 
@@ -78,10 +78,6 @@ export const estimateOrderFee = async (orderId) => {
     }
     return null;
 };
-
-// ----------------------------------------------------
-// Offline Fallback Engines conforming to UC53 Logic
-// ----------------------------------------------------
 
 export const FallbackCatalog = {
     "PKG-CBC-01": { name: "Tổng Phân Tích Tế Bào Máu (CBC)", price: 150000, category: "Hematology" },
@@ -198,6 +194,6 @@ export function computeOfflineVoucher(code, subTotal, homeSurcharge) {
 function convertToVietnameseWords(amount) {
     if (amount <= 0) return "Không đồng chẵn";
     const digits = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
-    // Simplified client fallback representation
+
     return `${amount.toLocaleString("vi-VN")} đồng chẵn`;
 }

@@ -72,7 +72,6 @@ export function resolvePackageSupplyCodes(packageNameOrCode = '', tubeColor = ''
     return [...new Set(codes)];
   }
 
-  // Stage = 'ANALYSIS' (Tiếp nhận & Chuẩn bị chạy máy tại Lab)
   const codes = ['SUP-CUVETTE-TIP'];
   if (isHepa) {
     codes.push('TUBE-SERUM-RED', 'REA-HEPA-ARCH');

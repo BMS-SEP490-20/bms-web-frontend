@@ -162,7 +162,7 @@ function fallbackCodesForPackage(code, name) {
   for (const [key, codes] of Object.entries(PACKAGE_CRITERIA_FALLBACK)) {
     if (t.includes(key)) return codes;
   }
-  // Tên gói TV dài (API search full-name hay [] ) → nhận diện panel
+
   if (/CBC|HUYET DO|HUYET HOC|TE BAO MAU|CONG THUC MAU|24 THONG|LASER|HEMATOL/.test(t)) {
     return PACKAGE_CRITERIA_FALLBACK.CBC;
   }
@@ -187,7 +187,6 @@ function extractCriteria(pkg) {
   const fromCriteria = data.criteria || data.Criteria || pkg.criteria || pkg.Criteria || [];
   if (Array.isArray(fromCriteria) && fromCriteria.length > 0) return fromCriteria;
 
-  // service_packages.Tests (RBC/HGB/…) khi criteria map chưa hydrate
   const tests = data.tests || data.Tests || pkg.tests || pkg.Tests || [];
   if (Array.isArray(tests) && tests.length > 0) {
     return tests.map((t) => ({
@@ -221,12 +220,11 @@ function searchKeywordsFor(code, name) {
   if (/LIPID|CHOLESTEROL/.test(norm)) push('LIPID');
   if (/SINH HOA|BIOCHEM/.test(norm)) push('BIOCHEM');
 
-  // Cụm 2–4 từ đầu (bỏ ngoặc)
   const cleaned = raw.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
   const words = cleaned.split(' ').filter(Boolean);
   if (words.length >= 2) push(words.slice(0, 3).join(' '));
   if (words.length >= 4) push(words.slice(0, 4).join(' '));
-  // Tránh đẩy full name dài (>48) vì search hay [] 
+
   if (cleaned.length > 0 && cleaned.length <= 48) push(cleaned);
 
   return out;
@@ -239,7 +237,6 @@ async function fetchPackageCriteriaById(id) {
     const fromCatalog = extractCriteria(pkg);
     if (fromCatalog.length > 0) return fromCatalog;
   } catch {
-    // Fall through to Admin service-packages endpoint
   }
   try {
     const res = await api.get(`/service-packages/${encodeURIComponent(id)}`);
@@ -283,13 +280,11 @@ async function expandPackageByCodeOrName(code, name) {
   const label = String(name || key).trim();
   if (!key && !label) return [];
 
-  // 0) Gói CBC / tên TV dài → ưu tiên PKG-CBC-01 (criteria trong DB), không chờ search full-name
   for (const id of canonicalPackageIds(key, label)) {
     const criteria = await fetchPackageCriteriaById(id);
     if (criteria.length > 0) return criteria.map(criterionToParam);
   }
 
-  // 1) Search keyword ngắn → criteria từ test_package_criteria
   try {
     const keywords = searchKeywordsFor(key, label);
     let best = null;
@@ -301,7 +296,7 @@ async function expandPackageByCodeOrName(code, name) {
       for (const p of items) {
         let criteria = extractCriteria(p);
         const id = p.id || p.Id || p.packageCode || p.PackageCode;
-        // Gói alias (PKG-SINGLE-CBC) criteria [] → hydrate bằng id chuẩn
+
         if (criteria.length === 0 && id && String(id).length <= 40) {
           criteria = await fetchPackageCriteriaById(id);
         }
@@ -328,14 +323,11 @@ async function expandPackageByCodeOrName(code, name) {
       if (fb?.length) return paramsFromCodeList(fb);
     }
   } catch {
-    /* fallthrough */
   }
 
-  // 2) Fallback panel theo tên gói (tách từng chỉ — không bao giờ 1 dòng tên gói)
   const fb = fallbackCodesForPackage(key, label);
   if (fb?.length) return paramsFromCodeList(fb);
 
-  // 3) Chỉ số lẻ (BS thêm) — chỉ khi KHÔNG giống tên gói
   if (!looksLikePackage(key, label)) {
     const single = fromMedicalLib(key) || fromMedicalLib(label);
     if (single) return [single];
@@ -360,14 +352,12 @@ export async function resolveParamsFromOrderItems(orderItems) {
       continue;
     }
 
-    // Chỉ số lẻ: ưu tiên thư viện y tế (đơn vị + khoảng TC riêng)
     const lib = fromMedicalLib(code) || fromMedicalLib(name);
     if (lib) {
       params.push(lib);
       continue;
     }
 
-    // Có thể là mã gói ngắn → cố expand catalog
     const expanded = await expandPackageByCodeOrName(code, name);
     params.push(...expanded);
   }
@@ -412,14 +402,13 @@ export async function resolveParamsForSample(sample) {
         .sort((a, b) => new Date(b.createdAt || b.CreatedAt || 0) - new Date(a.createdAt || a.CreatedAt || 0));
       order = active.find((o) => o.id === orderRef || o.Id === orderRef) || active[0] || null;
     } catch {
-      /* keep null */
     }
   }
 
   const items = order?.items || order?.Items || null;
   if (items?.length) {
     const resolved = await resolveParamsFromOrderItems(items);
-    // Nếu y lệnh chỉ có 1 mã nhưng đó là gói → đã expand trong resolveParamsFromOrderItems
+
     if (resolved.params.length > 0) {
       return {
         params: resolved.params,
@@ -429,14 +418,12 @@ export async function resolveParamsForSample(sample) {
     }
   }
 
-  // Ống ghi tên gói / nhiều mã cách nhau bằng dấu phẩy
   if (packageCode || packageName) {
     const parts = String(packageName || packageCode)
       .split(/[,;|]/)
       .map((s) => s.trim())
       .filter(Boolean);
 
-    // Nhiều mã trên nhãn ống (TSH, FT4, ANTI-TPO…) → từng chỉ + ràng buộc riêng
     if (parts.length > 1) {
       const multi = [];
       for (const part of parts) {

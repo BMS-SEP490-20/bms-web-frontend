@@ -1,12 +1,8 @@
-/* Shared dashboard surface for every role. Loaded last.
-   Tables: one sheet, one header color, one row rhythm. */
-
 .bms-app-layout .bms-page-content {
   background: #f4f7fb;
   padding: 10px 16px 20px !important;
 }
 
-/* Every dashboard page starts at the same distance from the top. */
 .bms-app-layout .bms-page-content > * {
   margin-top: 0 !important;
   padding-top: 0 !important;
@@ -32,7 +28,6 @@
   border-radius: 16px !important;
 }
 
-/* Standardized Unified Card Layout for all Data Tables */
 .bms-app-layout .bms-page-content .bms-table-standalone-section,
 .bms-app-layout .bms-page-content .card:has(table):not(:has(.bms-vat-table)),
 .bms-app-layout .bms-page-content .card:has(.table):not(:has(.bms-vat-table)),
@@ -47,7 +42,6 @@
   margin: 20px 0 !important;
 }
 
-/* Keep table cards placed inside Bootstrap multi-column rows flush with sibling columns */
 .bms-app-layout .bms-page-content .row > [class*="col-"] > .card:has(table):not(:has(.bms-vat-table)),
 .bms-app-layout .bms-page-content .row > [class*="col-"] > .card:has(.table):not(:has(.bms-vat-table)) {
   margin-top: 0 !important;
@@ -88,7 +82,6 @@
   border-bottom: 0 !important;
 }
 
-/* Card Header inside table cards */
 .bms-app-layout .bms-page-content .card:has(table) > .card-header,
 .bms-app-layout .bms-page-content .card:has(.table) > .card-header,
 .bms-app-layout .bms-page-content .bms-table-standalone-header {
@@ -227,7 +220,6 @@
   text-align: center !important;
 }
 
-/* Action buttons stay on one line so a row cannot grow into a stack. */
 .bms-app-layout .bms-page-content table .bms-action-btn-group,
 .bms-app-layout .bms-page-content table .btn-group {
   display: inline-flex !important;
@@ -245,7 +237,6 @@
   white-space: nowrap !important;
 }
 
-/* Manager dashboard: TAT and cold-storage cards. */
 .bms-app-layout .bms-page-content .bms-monitor-card {
   display: flex;
   flex-direction: column;
@@ -383,7 +374,6 @@
   margin-top: auto;
 }
 
-/* Change-password form: one compact card, not a full-width blank sheet. */
 .bms-app-layout .bms-page-content .bms-password-page {
   width: min(520px, 100%);
 }
@@ -498,7 +488,6 @@
   opacity: 0.7;
 }
 
-/* Queue stats sit in four equal cards, not bare on the page. */
 .bms-app-layout .bms-page-content .bms-statrow {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -542,7 +531,6 @@
   }
 }
 
-/* Inventory page grid: four counters, then one filter row. */
 .bms-app-layout .bms-page-content .bms-inventory-page {
   display: flex;
   flex-direction: column;
@@ -670,7 +658,6 @@
   }
 }
 
-/* Three SLA cards, one row. */
 .bms-app-layout .bms-page-content .bms-sla-grid {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -776,7 +763,6 @@
   }
 }
 
-/* One compact filter bar. Full width. Bootstrap columns keep their own width. */
 .bms-app-layout .bms-page-content .bms-filter-bar,
 .bms-app-layout .bms-page-content .bms-criteria-toolbar,
 .bms-app-layout .bms-page-content .bms-pay-toolbar {
@@ -1096,7 +1082,6 @@
   outline: none !important;
 }
 
-/* Zero Box-in-Box: Filter bars placed inside table containers must render cleanly without nested card borders/backgrounds */
 .bms-app-layout .bms-page-content .bms-table-standalone-section .bms-filter-bar,
 .bms-app-layout .bms-page-content .bms-table-standalone-body .bms-filter-bar,
 .bms-app-layout .bms-page-content .card:has(table) .bms-filter-bar,
@@ -1130,7 +1115,6 @@
   border: 0 !important;
 }
 
-/* Global Zero Box-in-Box Fallback across ALL Roles & Layouts */
 .bms-table-standalone-section .bms-filter-bar,
 .bms-table-standalone-body .bms-filter-bar,
 .card:has(table) .bms-filter-bar,
@@ -1145,7 +1129,6 @@
   box-shadow: none !important;
 }
 
-/* Unified Action Column Styling: No Line Break, Neat Alignment */
 table td:last-child {
   white-space: nowrap !important;
 }
@@ -1169,7 +1152,6 @@ table .bms-table-action-btn {
   font-weight: 500 !important;
 }
 
-/* Universal Single-Line Filter Bar Enforcement across ALL Roles & Pages */
 .bms-filter-bar .d-flex {
   flex-direction: row !important;
   align-items: center !important;

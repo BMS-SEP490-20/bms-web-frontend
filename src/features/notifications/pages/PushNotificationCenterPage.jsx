@@ -67,7 +67,6 @@ export default function PushNotificationCenterPage() {
     const canViewUsers = useMemo(() => currentRoleId === ROLES.ADMIN, [currentRoleId]);
     const [patientFilter, setPatientFilter] = useState("ALL");
 
-    // Audit logs state
     const [logs, setLogs] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -75,13 +74,11 @@ export default function PushNotificationCenterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [loadError, setLoadError] = useState(null);
 
-    // Filters
     const [activeTab, setActiveTab] = useState("ALL");
     const [searchTerm, setSearchTerm] = useState("");
     const [channelFilter, setChannelFilter] = useState("ALL");
     const [priorityFilter, setPriorityFilter] = useState("ALL");
 
-    // Dispatch form state
     const [formUserId, setFormUserId] = useState("");
     const [formRecipientName, setFormRecipientName] = useState("");
     const [formChannel, setFormChannel] = useState("InApp");
@@ -95,12 +92,10 @@ export default function PushNotificationCenterPage() {
     const [formAlert, setFormAlert] = useState(null);
     const [availableUsers, setAvailableUsers] = useState([]);
 
-    // In-App Notification Drawer
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [drawerUserId, setDrawerUserId] = useState("");
     const [userNotifications, setUserNotifications] = useState([]);
 
-    // Detail Modal
     const [selectedDetail, setSelectedDetail] = useState(null);
 
     const playChime = useCallback((isCritical = false) => {
@@ -128,7 +123,6 @@ export default function PushNotificationCenterPage() {
                 osc.stop(ctx.currentTime + 0.35);
             }
         } catch {
-            // AudioContext unsupported or blocked
         }
     }, []);
 
@@ -504,7 +498,7 @@ export default function PushNotificationCenterPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content">
                     <div className="bms-page-title-row">
@@ -541,7 +535,6 @@ export default function PushNotificationCenterPage() {
                 </div>
             </div>
 
-            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
@@ -606,9 +599,8 @@ export default function PushNotificationCenterPage() {
                 </div>
             )}
 
-            {/* Main 2-Column Workspace */}
             <div className="row g-4 align-items-start">
-                {/* Left Column: Composer */}
+
                 <div className="col-12 col-xl-4">
                     <div className="bg-white rounded-4 border p-4" style={{ borderColor: "#E2E8F0" }}>
                         <div className="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
@@ -773,9 +765,8 @@ export default function PushNotificationCenterPage() {
                     </div>
                 </div>
 
-                {/* Right Column: Tabs + Filter + Standalone Table */}
                 <div className="col-12 col-xl-8">
-                    {/* External Pill Tabs */}
+
                     <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
                         {LOG_TABS.map(tab => {
                             const isActive = activeTab === tab.key;
@@ -801,7 +792,6 @@ export default function PushNotificationCenterPage() {
                         })}
                     </div>
 
-                    {/* Single-Line Filter Bar */}
                     <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
                         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: "220px" }}>
                             <LucideSearch className="bms-search-icon" size="1em" />
@@ -876,7 +866,6 @@ export default function PushNotificationCenterPage() {
                         )}
                     </div>
 
-                    {/* Standalone Table */}
                     <div className="bms-table-standalone-section">
                         <div className="bms-table-standalone-header">
                             <div>
@@ -1014,7 +1003,6 @@ export default function PushNotificationCenterPage() {
                             </div>
                         </div>
 
-                        {/* Footer Pagination */}
                         <div className="px-4 py-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2 bg-white">
                             <span className="small text-muted">
                                 Hiển thị <strong>{logs.length}</strong> / <strong>{totalCount}</strong> thông báo
@@ -1042,7 +1030,6 @@ export default function PushNotificationCenterPage() {
                 </div>
             </div>
 
-            {/* In-App Notification Drawer */}
             {isDrawerOpen && (
                 <div
                     className="position-fixed top-0 end-0 bottom-0 bg-white shadow-lg border-start d-flex flex-column"
@@ -1138,7 +1125,6 @@ export default function PushNotificationCenterPage() {
                 </div>
             )}
 
-            {/* Notification Detail Modal */}
             {selectedDetail && (
                 <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)", zIndex: 1070 }}>
                     <div className="modal-dialog modal-dialog-centered">

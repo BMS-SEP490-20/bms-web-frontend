@@ -20,28 +20,23 @@ export default function PatientPaymentHistoryPage() {
   const navigate = useNavigate();
   const storedUser = useMemo(() => getStoredUser(), []);
 
-  // Profile & State
   const [patientProfile, setPatientProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rawTransactions, setRawTransactions] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Filters
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
-  // Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Receipt Modal State
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
-  // 1. Load patient profile once
   useEffect(() => {
     let isMounted = true;
     async function fetchProfile() {
@@ -60,7 +55,6 @@ export default function PatientPaymentHistoryPage() {
     return () => { isMounted = false; };
   }, [storedUser]);
 
-  // Determine current active patient ID
   const activePatientId = useMemo(() => {
     return (
       patientProfile?.patientCode ||
@@ -73,7 +67,6 @@ export default function PatientPaymentHistoryPage() {
     );
   }, [patientProfile, storedUser]);
 
-  // 2. Fetch invoices from real billing API
   const fetchInvoices = useCallback(async () => {
     if (!activePatientId) return;
 
@@ -88,24 +81,21 @@ export default function PatientPaymentHistoryPage() {
         toDate: toDate || undefined };
 
       if (filterStatus === 'PAID') {
-        params.status = 1; // InvoiceStatus.Paid
+        params.status = 1;
       } else if (filterStatus === 'PENDING') {
-        params.status = 0; // InvoiceStatus.Unpaid
+        params.status = 0;
       }
 
       let resData = null;
 
-      // Try getInvoicesByPatient first
       try {
         const res = await getInvoicesByPatient(activePatientId, params);
         resData = res?.data || res;
       } catch (firstErr) {
-        // Fallback to getInvoices with patientId
         try {
           const res = await getInvoices({ ...params, patientId: activePatientId });
           resData = res?.data || res;
         } catch {
-          // Fallback to /payments/patient
           const res = await api.get(`/payments/patient/${encodeURIComponent(activePatientId)}`);
           resData = res?.data?.data || res?.data;
         }
@@ -126,7 +116,6 @@ export default function PatientPaymentHistoryPage() {
           ? resData.totalCount
           : list.length;
 
-      // Normalize invoices into structured records
       const normalized = list.map((item, index) => {
         const rawStatus = item.status;
         const isPaid =
@@ -135,7 +124,6 @@ export default function PatientPaymentHistoryPage() {
           rawStatus === 'PAID' ||
           Boolean(item.paidAt);
 
-        // Normalize payment method
         let displayMethod = item.paymentMethod ? String(item.paymentMethod) : (isPaid ? 'Chuyển khoản / Trực tuyến' : 'Chờ thanh toán');
         const rawMethod = String(item.paymentMethod || '').toLowerCase();
         if (rawMethod.includes('cash') || rawMethod.includes('tiền mặt') || item.paymentMethod === 1) {
@@ -159,7 +147,6 @@ export default function PatientPaymentHistoryPage() {
 
         const cqtCode = item.cqtCode || '';
 
-        // Package / Items breakdown
         const pkgName =
           item.packageName ||
           item.items?.[0]?.itemName ||
@@ -181,7 +168,7 @@ export default function PatientPaymentHistoryPage() {
           amount: totalAmt,
           subTotal: subTot,
           discountAmount: discountAmt,
-          // Tax rate: Medical services are Non-taxable (KCT) or 8% under Decree 123/2020/ND-CP & Decree 72/2024/ND-CP
+
           taxRate: item.taxRate || 'KCT',
           taxAmount: item.taxAmount || 0,
           paymentMethod: displayMethod,
@@ -228,7 +215,6 @@ export default function PatientPaymentHistoryPage() {
     fetchInvoices();
   }, [fetchInvoices]);
 
-  // Client-side search filtering across current transactions
   const displayedTransactions = useMemo(() => {
     if (!searchKeyword.trim()) return rawTransactions;
     const q = searchKeyword.toLowerCase().trim();
@@ -242,7 +228,6 @@ export default function PatientPaymentHistoryPage() {
     });
   }, [rawTransactions, searchKeyword]);
 
-  // Financial statistics calculated from real loaded records
   const stats = useMemo(() => {
     const paidList = rawTransactions.filter(t => t.status === 'PAID');
     const totalPaid = paidList.reduce((acc, cur) => acc + (cur.amount || 0), 0);
@@ -254,7 +239,6 @@ export default function PatientPaymentHistoryPage() {
     };
   }, [rawTransactions]);
 
-  // Date range validation
   const isDateInvalid = Boolean(fromDate && toDate && fromDate > toDate);
 
   const handleOpenReceipt = (item) => {
@@ -295,7 +279,7 @@ export default function PatientPaymentHistoryPage() {
 
   return (
     <div className="bms-payhistory-content">
-      {/* 1. PAGE HEADER */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">Lịch Sử Thanh Toán</h1>
@@ -320,7 +304,6 @@ export default function PatientPaymentHistoryPage() {
         </div>
       </div>
 
-      {/* 2. KPI FINANCIAL SUMMARY CARDS */}
       <Row className="g-3 mb-4">
         <Col md={4}>
           <div className="bms-kpi-quad-card h-100">
@@ -363,7 +346,6 @@ export default function PatientPaymentHistoryPage() {
         </Col>
       </Row>
 
-      {/* Date Range Validation Alert */}
       {isDateInvalid && (
         <Alert variant="warning" className="d-flex align-items-center gap-2 mb-3 rounded-3 border-0 bg-warning-subtle text-dark">
           <AlertTriangle className="text-warning flex-shrink-0"  size="1em"/>
@@ -371,7 +353,6 @@ export default function PatientPaymentHistoryPage() {
         </Alert>
       )}
 
-      {/* Network Error Alert */}
       {error && (
         <Alert variant="danger" className="d-flex align-items-center justify-content-between mb-3 rounded-3 border-0 bg-danger-subtle text-dark">
           <div className="d-flex align-items-center gap-2">
@@ -384,7 +365,6 @@ export default function PatientPaymentHistoryPage() {
         </Alert>
       )}
 
-      {/* 3. TOOLBAR & FILTER CONTROLS */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: 220 }}>
           <Search className="text-muted" size={13} />
@@ -450,7 +430,6 @@ export default function PatientPaymentHistoryPage() {
         )}
       </div>
 
-      {/* 4. TRANSACTIONS TABLE */}
       <div className="bms-table-standalone-section">
         <div className="table-responsive">
           <table className="table align-middle mb-0">
@@ -604,7 +583,6 @@ export default function PatientPaymentHistoryPage() {
           </div>
         </div>
 
-      {/* 6. HELPFUL FOOTER NOTICE */}
       <div className="bms-pay-footer-note">
         <div className="d-flex align-items-center gap-2">
           <Info className="text-primary flex-shrink-0"  size="1em"/>
@@ -617,7 +595,6 @@ export default function PatientPaymentHistoryPage() {
         </div>
       </div>
 
-      {/* 7. OFFICIAL ELECTRONIC VAT INVOICE MODAL (NGHỊ ĐỊNH 123/2020/NĐ-CP) */}
       <VatInvoiceModal
         show={showReceiptModal}
         onClose={() => setShowReceiptModal(false)}

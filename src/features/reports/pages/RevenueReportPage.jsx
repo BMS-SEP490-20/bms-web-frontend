@@ -15,8 +15,7 @@ import {
 } from "../api/revenueReportApi";
 
 export default function RevenueReportPage() {
-    // Filter State
-    const [datePreset, setDatePreset] = useState("30days"); // 'today' | '7days' | '30days' | 'thisMonth' | 'custom'
+    const [datePreset, setDatePreset] = useState("30days");
     const [fromDate, setFromDate] = useState(() => {
         const d = new Date();
         d.setDate(d.getDate() - 30);
@@ -27,14 +26,12 @@ export default function RevenueReportPage() {
     const [paymentMethodFilter, setPaymentMethodFilter] = useState("");
     const [serviceTypeFilter, setServiceTypeFilter] = useState("");
 
-    // Data State
     const [report, setReport] = useState(null);
     const [exportRows, setExportRows] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'breakdown' | 'transactions'
+    const [activeTab, setActiveTab] = useState("overview");
 
-    // Handle Preset Change
     const handlePresetChange = (preset) => {
         setDatePreset(preset);
         const now = new Date();
@@ -56,7 +53,6 @@ export default function RevenueReportPage() {
         }
     };
 
-    // Load Report Data
     const loadReport = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -86,7 +82,6 @@ export default function RevenueReportPage() {
         loadReport();
     }, [loadReport]);
 
-    // Handle Export to CSV
     const handleExportCSV = () => {
         if (!exportRows || exportRows.length === 0) return;
 
@@ -129,7 +124,6 @@ export default function RevenueReportPage() {
         document.body.removeChild(link);
     };
 
-    // Filtered transaction rows for table view
     const filteredTransactions = useMemo(() => {
         if (!exportRows) return [];
         if (!searchTerm) return exportRows;
@@ -145,7 +139,6 @@ export default function RevenueReportPage() {
 
     const txPag = usePagination(filteredTransactions, 10);
 
-    // Trend SVG chart data calculation
     const trendRender = useMemo(() => {
         if (!report || !report.trend || report.trend.length === 0) return null;
 
@@ -175,7 +168,6 @@ export default function RevenueReportPage() {
 
         const polylinePoints = coords.map(c => `${c.x},${c.y}`).join(" ");
 
-        // Area polygon closed at bottom
         const areaPoints = `${coords[0].x},${padding.top + plotHeight} ` +
             coords.map(c => `${c.x},${c.y}`).join(" ") +
             ` ${coords[coords.length - 1].x},${padding.top + plotHeight}`;
@@ -198,7 +190,7 @@ export default function RevenueReportPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -233,7 +225,6 @@ export default function RevenueReportPage() {
                 </div>
             </div>
 
-            {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="btn-group" role="group">
                     {[
@@ -306,9 +297,8 @@ export default function RevenueReportPage() {
                 </span>
             </div>
 
-            {/* Financial KPI Cards */}
             <div className="row g-3 mb-4">
-                {/* Gross Revenue */}
+
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
                         <div>
@@ -322,7 +312,6 @@ export default function RevenueReportPage() {
                     </div>
                 </div>
 
-                {/* Net Revenue */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
                         <div>
@@ -339,7 +328,6 @@ export default function RevenueReportPage() {
                     </div>
                 </div>
 
-                {/* Discounts / Promotions */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
                         <div>
@@ -353,7 +341,6 @@ export default function RevenueReportPage() {
                     </div>
                 </div>
 
-                {/* Average Order Value (AOV) */}
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
                         <div>
@@ -368,7 +355,6 @@ export default function RevenueReportPage() {
                 </div>
             </div>
 
-            {/* Navigation Tabs */}
             <div className="d-flex flex-wrap gap-2 mb-4 bg-white p-2 rounded-4 shadow-sm" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                 {[
                     { key: "overview", label: "Biểu Đồ Doanh Thu & Xu Hướng", icon: TrendingUp },
@@ -397,10 +383,9 @@ export default function RevenueReportPage() {
                 })}
             </div>
 
-            {/* TAB 1: OVERVIEW & TREND CHART */}
             {activeTab === "overview" && (
                 <div className="row g-4">
-                    {/* Trend Line Chart */}
+
                     <div className="col-12 col-xl-8">
                         <div className="card shadow-sm rounded-4 bg-white h-100 overflow-hidden" style={{ border: '1px solid rgba(15, 23, 42, 0.05)' }}>
                             <div className="card-header border-bottom p-3 d-flex justify-content-between align-items-center" style={{ backgroundColor: '#F8FAFC', borderColor: 'rgba(15, 23, 42, 0.05)' }}>
@@ -428,13 +413,11 @@ export default function RevenueReportPage() {
                                                 </linearGradient>
                                             </defs>
 
-                                            {/* Area Gradient fill */}
                                             <polygon
                                                 points={trendRender.areaPoints}
                                                 fill="url(#revenueGradient)"
                                             />
 
-                                            {/* Polyline */}
                                             <polyline
                                                 fill="none"
                                                 stroke="#1E60E6"
@@ -442,7 +425,6 @@ export default function RevenueReportPage() {
                                                 points={trendRender.polylinePoints}
                                             />
 
-                                            {/* Data Points */}
                                             {trendRender.coords.map((pt, idx) => (
                                                 <g key={idx}>
                                                     <circle
@@ -456,7 +438,7 @@ export default function RevenueReportPage() {
                                                     >
                                                         <title>{`${pt.dateLabel}\nDoanh thu: ${pt.netAmount.toLocaleString('vi-VN')} ₫\nSố đơn: ${pt.orderCount}`}</title>
                                                     </circle>
-                                                    {/* Label on alternate points */}
+
                                                     {(idx === 0 || idx === trendRender.coords.length - 1 || idx % Math.ceil(trendRender.coords.length / 8) === 0) && (
                                                         <text
                                                             x={pt.x}
@@ -477,7 +459,6 @@ export default function RevenueReportPage() {
                         </div>
                     </div>
 
-                    {/* Channel & Referral Summary */}
                     <div className="col-12 col-xl-4">
                         <div className="card border-0 shadow-sm rounded-3 bg-white mb-4">
                             <div className="card-header bg-white border-bottom p-3">
@@ -505,7 +486,6 @@ export default function RevenueReportPage() {
                             </div>
                         </div>
 
-                        {/* Top Referrals */}
                         <div className="card border-0 shadow-sm rounded-3 bg-white">
                             <div className="card-header bg-white border-bottom p-3">
                                 <h6 className="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
@@ -530,10 +510,9 @@ export default function RevenueReportPage() {
                 </div>
             )}
 
-            {/* TAB 2: BREAKDOWN CHARTS */}
             {activeTab === "breakdown" && (
                 <div className="row g-4">
-                    {/* Category Breakdown */}
+
                     <div className="col-12 col-md-6">
                         <div className="card border-0 shadow-sm rounded-3 bg-white h-100">
                             <div className="card-header bg-white border-bottom p-3">
@@ -562,7 +541,6 @@ export default function RevenueReportPage() {
                         </div>
                     </div>
 
-                    {/* Payment Method Breakdown */}
                     <div className="col-12 col-md-6">
                         <div className="card border-0 shadow-sm rounded-3 bg-white h-100">
                             <div className="card-header bg-white border-bottom p-3">
@@ -593,7 +571,6 @@ export default function RevenueReportPage() {
                 </div>
             )}
 
-            {/* TAB 3: DETAILED TRANSACTIONS AUDIT TABLE (ZERO BOX-IN-BOX) */}
             {activeTab === "transactions" && (
                 <>
                     <div className="bms-filter-bar mb-3">

@@ -69,7 +69,6 @@ export default function TestReportPage() {
                 }
             }
         } catch {
-            // fallback below
         }
         window.print();
     };
@@ -112,7 +111,7 @@ export default function TestReportPage() {
 
     return (
         <div className="container-fluid py-2 px-md-4" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-            {/* Action Bar & Breadcrumbs (Hidden on print) */}
+
             <div className="d-print-none d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
                 <div>
                     <h2 className="h4 fw-bold text-dark mb-0">
@@ -121,7 +120,7 @@ export default function TestReportPage() {
                 </div>
 
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                    {/* Direct Clinical Action: Mở form tư vấn / Đánh giá ICD-10 chỉ dành cho Bác sĩ */}
+
                     {isDoctor && (
                         <Link
                             to={`/medical-assessments/add?patientId=${encodeURIComponent(report.patientId || '')}&encounterId=${encodeURIComponent(report.orderId || '')}&patientName=${encodeURIComponent(report.patientName || '')}`}
@@ -154,7 +153,6 @@ export default function TestReportPage() {
                 </div>
             </div>
 
-            {/* A4 Report Sheet Document */}
             <div className="row justify-content-center">
                 <div className="col-lg-9 col-xl-8">
                     <div
@@ -166,7 +164,7 @@ export default function TestReportPage() {
                             borderColor: "#e2e8f0"
                         }}
                     >
-                        {/* Report Header */}
+
                         <div className="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4 flex-wrap gap-3" style={{ borderColor: "#e2e8f0" }}>
                             <div className="d-flex align-items-center gap-2">
                                 <div
@@ -186,7 +184,6 @@ export default function TestReportPage() {
                             </div>
                         </div>
 
-                        {/* Demographics 8-field grid */}
                         <div
                             className="p-3 mb-4 rounded-3 border"
                             style={{
@@ -208,7 +205,6 @@ export default function TestReportPage() {
                             <div><span className="text-muted fw-semibold">Bác sĩ chỉ định:</span> <span className="text-dark">{report.referringDoctor || 'BS. Chuyên Khoa'}</span></div>
                         </div>
 
-                        {/* Results Table */}
                         <div className="mb-4">
                             <h6 className="fw-bold text-dark mb-3 text-uppercase small" style={{ letterSpacing: "0.5px" }}>
                                 {report.category === 'Biochemistry' ? 'Khoa Sinh Hóa Lâm Sàng' : report.category === 'Hematology' ? 'Khoa Huyết Học Lâm Sàng' : (report.category || 'Kết Quả Phân Tích Cận Lâm Sàng')}
@@ -254,7 +250,6 @@ export default function TestReportPage() {
                             </div>
                         </div>
 
-                        {/* Clinical Notes */}
                         <div className="mb-4 p-3 rounded-2 border" style={{ backgroundColor: "#f8fafc", borderLeft: "4px solid #0284c7", borderColor: "#e2e8f0" }}>
                             <h6 className="fw-bold text-dark mb-2 small text-uppercase">Ghi Chú Của Kỹ Thuật Viên / Bác Sĩ Xét Nghiệm</h6>
                             <p className="mb-0 text-dark small" style={{ lineHeight: "1.6" }}>
@@ -262,7 +257,6 @@ export default function TestReportPage() {
                             </p>
                         </div>
 
-                        {/* Dual Signatures */}
                         <div className="d-flex justify-content-between align-items-end mt-4 pt-4 border-top" style={{ borderColor: "#e2e8f0" }}>
                             <div>
                                 <small className="text-muted d-block">Kỹ thuật viên thực hiện xét nghiệm</small>
@@ -280,7 +274,6 @@ export default function TestReportPage() {
                             </div>
                         </div>
 
-                        {/* Legal Disclaimer & ISO 15189 Notice */}
                         <div className="mt-5 pt-3 border-top text-center text-muted" style={{ fontSize: "11px", fontStyle: "italic", borderColor: "#e2e8f0" }}>
                             Phiếu kết quả chỉ có giá trị tham khảo lâm sàng sau khi được bác sĩ duyệt. Vui lòng trao đổi với bác sĩ điều trị để được tư vấn chi tiết.
                             <div className="mt-1 font-monospace text-secondary">

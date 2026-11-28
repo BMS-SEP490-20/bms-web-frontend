@@ -132,7 +132,7 @@ function paramsFromTestCode(code, name) {
   if (ANALYTE_LIBRARY[raw] || ANALYTE_LIBRARY[code]) {
     return [cloneParam(ANALYTE_LIBRARY[raw] || ANALYTE_LIBRARY[code])];
   }
-  // Gói đa chỉ số chưa có thư viện → giữ 1 dòng theo mã y lệnh (KTV nhập đúng chỉ định)
+
   return [{
     code: raw,
     name: label.includes('·') ? label : `${raw} · ${label}`,
@@ -181,11 +181,9 @@ function evaluateMedicalFlag(code, value, p) {
   if (Number.isNaN(Number(value))) return 'NORMAL';
   const num = Number(value);
 
-  // Critical / Panic thresholds (ISO 15189:2022 — strict < / > matching TestResultService.ValidatedItemsAsync)
   if (p.criticalLow != null && num < p.criticalLow) return 'CRITICAL';
   if (p.criticalHigh != null && num > p.criticalHigh) return 'CRITICAL';
 
-  // Reference range thresholds
   if (p.refLow != null && num < p.refLow) return 'LOW';
   if (p.refHigh != null && num > p.refHigh) return 'HIGH';
 
@@ -202,7 +200,7 @@ function playWebAudioAlert880Hz() {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, startTime); // Còi cảnh báo chuẩn ISO 880Hz
+      osc.frequency.setValueAtTime(880, startTime);
 
       gain.gain.setValueAtTime(0, startTime);
       gain.gain.linearRampToValueAtTime(0.25, startTime + 0.04);
@@ -223,7 +221,7 @@ function playWebAudioAlert880Hz() {
   }
 }
 
-export function EnterTestResultsPage() { /* e2e-order-params-v2 */
+export function EnterTestResultsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialSampleId = searchParams.get('sampleId') || searchParams.get('barcode') || '';
@@ -240,7 +238,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [labRoom, setLabRoom] = useState('Đang tải phòng phân công…');
   const [labRoomId, setLabRoomId] = useState('');
   const [benchOperator, setBenchOperator] = useState(operatorDisplay);
-  // Không seed CBC — chỉ nạp theo y lệnh / gói / chỉ số BS thêm
+
   const [params, setParams] = useState([]);
   const [orderParamTemplate, setOrderParamTemplate] = useState(null);
   const [resolvedOrderLabel, setResolvedOrderLabel] = useState('');
@@ -248,13 +246,11 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [entryMethod, setEntryMethod] = useState('manual');
   const [paramsLoading, setParamsLoading] = useState(false);
 
-  // Vật tư / Lô hóa chất sử dụng khi chạy xét nghiệm (tự động trừ tồn kho khi lưu KQ)
   const [reagentLots, setReagentLots] = useState([]);
   const [reagentsLoading, setReagentsLoading] = useState(false);
   const [selectedReagentLotId, setSelectedReagentLotId] = useState('');
   const [reagentQuantity, setReagentQuantity] = useState('1');
 
-  // RÀNG BUỘC NGHIỆP VỤ: Xác nhận Báo động Bác sĩ điều trị khi có cờ CRITICAL (không prefill tên giả)
   const [confirmRerun, setConfirmRerun] = useState(false);
   const [doctorNotified, setDoctorNotified] = useState(false);
   const [doctorName, setDoctorName] = useState('');
@@ -264,20 +260,17 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [notificationTime, setNotificationTime] = useState(() => new Date().toLocaleTimeString('vi-VN'));
   const [callLogNotes, setCallLogNotes] = useState('');
 
-  // Đồng hồ đếm ngược 15 phút cảnh báo khẩn cấp (ISO 15189 Turnaround Time)
-  const [countdownSeconds, setCountdownSeconds] = useState(900); // 15 phút = 900 giây
+  const [countdownSeconds, setCountdownSeconds] = useState(900);
   const [timerRunning, setTimerRunning] = useState(false);
 
-  // Feedback states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
-  // Danh sách ống mẫu sẵn sàng ở Bước 3 (Đang xét nghiệm / Yêu cầu chạy lại / Chờ BS duyệt / BS đã duyệt)
   const [benchSamples, setBenchSamples] = useState([]);
   const [resultBySampleKey, setResultBySampleKey] = useState({});
   const [benchLoading, setBenchLoading] = useState(false);
-  const [benchTab, setBenchTab] = useState('TESTING'); // 'TESTING' | 'RERUN' | 'WAITING_DOCTOR' | 'APPROVED'
+  const [benchTab, setBenchTab] = useState('TESTING');
   const [benchSearch, setBenchSearch] = useState('');
   const [showEntryModal, setShowEntryModal] = useState(Boolean(initialSampleId));
   const [pageFeedback, setPageFeedback] = useState(null);
@@ -406,7 +399,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   }, [benchTab, testingOnlySamples, rerunOnlySamples, waitingDoctorSamples, approvedByDoctorSamples, benchSearch]);
   const benchPag = usePagination(displayedBenchSamples, 10);
 
-  // Xóa banner lỗi checklist IQC cũ còn kẹt sau HMR / lần bấm gửi trước khi gỡ ràng buộc
   useEffect(() => {
     setError((prev) =>
       typeof prev === 'string' && prev.includes('checklist IQC') ? null : prev
@@ -415,7 +407,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
   const [result, setResult] = useState(null);
   const [sampleDetails, setSampleDetails] = useState(null);
 
-  // Xem trước (Preview) & Hủy kết quả yêu cầu làm lại (Re-run) states
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showRerunModal, setShowRerunModal] = useState(false);
   const [rerunReason, setRerunReason] = useState('Mẫu bị vỡ hồng cầu / Tan máu (Hemolysis) làm sai lệch chỉ số Kali và Men gan');
@@ -544,7 +535,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           || [...byCode.entries()].find(([k]) => code && (k === code || k.startsWith(code) || code.startsWith(k)))?.[1];
         return hit ? normalizeSavedParam(hit, row) : row;
       });
-      // Bổ sung chỉ số TRE chưa có trong template
+
       for (const [code, p] of byCode.entries()) {
         if (!merged.some((r) => String(r.code || '').trim().toUpperCase() === code)) {
           merged.push(normalizeSavedParam(p));
@@ -557,7 +548,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     return { merged, saved };
   }, [normalizeSavedParam]);
 
-  // Phòng + KTV từ ca trực — không cho đổi tay
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -570,7 +560,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     return () => { cancelled = true; };
   }, [operatorDisplay]);
 
-  // Xử lý Hủy kết quả và chạy lại (Gọi API thực tế: Reject nếu lấy lại mẫu, hoặc Rerun nếu chạy lại mẫu hiện có)
   const handleCancelAndRerun = async () => {
     if (!rerunReason) return;
     const targetSample = sampleId.trim();
@@ -590,7 +579,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
           requestedBy: benchOperator || operatorDisplay
         });
       }
-      // Reset giá trị đã nhập nhưng vẫn giữ nguyên danh sách chỉ số của y lệnh / gói hiện tại
+
       setParams((prev) => (orderParamTemplate?.length ? orderParamTemplate : prev).map((p) => ({ ...p, value: '' })));
       setShowRerunModal(false);
       setCancellationSuccess(
@@ -627,7 +616,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     [reagentLots, selectedReagentLotId]
   );
 
-  // Tải danh mục chỉ tiêu xét nghiệm chuẩn từ CSDL (test_criteria) làm fallback khi mẫu không gắn gói
   useEffect(() => {
     let isMounted = true;
     api.get('/laboratory/criteria', { params: { page: 1, pageSize: 100, isActive: true } })
@@ -658,12 +646,10 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         setDbCatalogParams(mapped);
       })
       .catch(() => {
-        // Non-fatal; sample lookup still populates packageParameters directly from BE
       });
     return () => { isMounted = false; };
   }, []);
 
-  // Validation sinh lý / dải đo AMR theo từng chỉ số (chặn số âm, quy tắc số 0, biên trên/dưới, ràng buộc chéo)
   const liveValidation = useMemo(
     () => validateAllParameters(params, { requireAll: false }),
     [params]
@@ -679,7 +665,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     [params]
   );
 
-  // Tự động đánh giá cờ cho từng chỉ số (giữ nguyên giá trị 0 hợp lệ như BASO_PCT, BILI_D, CRP_HS, HBS_AB)
   const flags = useMemo(() => {
     const list = Array.isArray(params) ? params : [];
     return list.map((p) => {
@@ -706,8 +691,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     return (Array.isArray(flags) ? flags : []).filter((p) => (p.flag === 'LOW' || p.flag === 'HIGH' || p.flag === 'CRITICAL') && hasEnteredValue(p.value));
   }, [flags]);
 
-  // Đã tắt còi Web Audio 880Hz và đồng hồ đếm ngược CRITICAL theo yêu cầu quy trình Lab gọn nhẹ
-
   const formatCountdown = (totalSec) => {
     const mins = Math.floor(totalSec / 60);
     const secs = totalSec % 60;
@@ -720,7 +703,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     );
   };
 
-  // Tra cứu mẫu + nạp chỉ số ĐÚNG từ DB (ưu tiên sample.packageParameters từ BE, fallback resolveParamsForSample)
   const handleLookupSampleWithTarget = useCallback(async (code) => {
     const target = (code || sampleId).trim();
     if (!target) return;
@@ -844,7 +826,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         setIsPackageFiltered(resolved.length > 0 && Boolean(pkgName || pkgId));
       }
 
-      // Luôn cố nạp TRE đã lưu (view / Completed / đã duyệt) để không hiện 0.0 trống
       const { merged, saved } = await mergeSavedResultValues(sample, resolved, target);
       if (saved) {
         setResult({
@@ -886,7 +867,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
     setShowEntryModal(true);
     handleLookupSampleWithTarget(initialSampleId);
     return undefined;
-    // Chỉ auto-load khi query sampleId đổi — tránh loop do setSampleId đổi callback
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSampleId]);
 
@@ -1010,7 +991,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
   return (
     <div className="w-100 py-1">
-      {/* 1. Header chuẩn quản lý (đồng bộ Màn 1 & Màn 2) */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -1047,7 +1028,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </div>
       </div>
 
-      {/* 2. KPI Cards tóm tắt quản lý (click lọc nhanh theo trạng thái) */}
       <Row className="g-3 mb-3">
         <Col md={3} sm={6}>
           <div
@@ -1139,7 +1119,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </Col>
       </Row>
 
-      {/* Thông báo sau khi lưu kết quả hoặc hủy chạy lại */}
       {pageFeedback && (
         <Alert
           variant={pageFeedback.type}
@@ -1165,7 +1144,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </Alert>
       )}
 
-      {/* 3. Thanh điều hướng 1 dòng gọn (Tabs + Quét Barcode nhanh / Tìm kiếm) */}
       <div className="bms-filter-bar mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
         <div className="d-flex align-items-center gap-2 flex-wrap">
           <button
@@ -1255,7 +1233,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </form>
       </div>
 
-      {/* 4. Bảng quản lý chính toàn màn hình + Phân trang */}
       <section className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -1437,9 +1414,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </div>
       </section>
 
-      {/* =========================================================================
-          MODAL CHÍNH: BÀN ĐO & NHẬP KẾT QUẢ XÉT NGHIỆM (Mở khi chọn 1 ống mẫu)
-         ========================================================================= */}
       <Modal
         show={showEntryModal}
         onHide={() => !loading && setShowEntryModal(false)}
@@ -1470,7 +1444,7 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 
         <Form noValidate onSubmit={onSubmit} className="d-flex flex-column" style={{ minHeight: 0, overflow: 'hidden' }}>
           <Modal.Body className="p-4" style={{ backgroundColor: '#F8FAFC', overflowY: 'auto' }}>
-            {/* Thẻ tóm tắt Bệnh nhân, Ống mẫu & KTV phụ trách */}
+
             <div className="p-3 bg-white rounded-4 border mb-3 shadow-xs" style={{ borderColor: '#E2E8F0' }}>
               <Row className="g-3 small">
                 <Col md={3}>
@@ -1507,7 +1481,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </Row>
             </div>
 
-            {/* Các cảnh báo trạng thái */}
             {sampleDetails && !allowEnter && (
               <Alert variant="info" className="rounded-3 border-0 shadow-xs mb-3 py-2 small">
                 <Lock className="me-1.5" size="1em" />
@@ -1527,7 +1500,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </Alert>
             )}
 
-            {/* Bảng nhập chỉ số đo bệnh phẩm */}
             <div className="bg-white rounded-4 border overflow-hidden mb-3" style={{ borderColor: '#E2E8F0' }}>
               <div className="px-3 py-2.5 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2" style={{ backgroundColor: '#FFFFFF' }}>
                 <div className="fw-bold text-dark small d-flex align-items-center gap-2">
@@ -1658,7 +1630,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </div>
             </div>
 
-            {/* Cảnh báo lỗi ràng buộc chéo giữa các chỉ số (WBC% > 100%, BILI_D > BILI_T, ALB > TP) */}
             {validationState.crossErrors.length > 0 && (
               <Alert variant="danger" className="py-2 small mb-3 rounded-3">
                 <div className="fw-bold d-flex align-items-center gap-1.5 mb-1">
@@ -1673,7 +1644,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </Alert>
             )}
 
-            {/* Cảnh báo chỉ số bất thường */}
             {abnormalAnalytes.length > 0 && (
               <div className="alert alert-warning py-2 small mb-3 rounded-3">
                 <strong>Phát hiện {abnormalAnalytes.length} chỉ số ngoài khoảng tham chiếu:</strong>{' '}
@@ -1681,7 +1651,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
               </div>
             )}
 
-            {/* Ghi chú kỹ thuật */}
             <div className="p-3 bg-white rounded-4 border" style={{ borderColor: '#E2E8F0' }}>
               <Form.Label className="small fw-semibold text-secondary mb-1">Ghi Chú Kỹ Thuật (Technical Notes)</Form.Label>
               <Form.Control
@@ -1774,7 +1743,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </Form>
       </Modal>
 
-      {/* Modal 1: Xem Trước Kết Quả (Preview Results Modal) */}
       <Modal show={showPreviewModal} onHide={() => setShowPreviewModal(false)} size="lg" centered>
         <Modal.Header closeButton style={{ background: "#F8FAFC", borderBottom: "1px solid #E2E8F0" }}>
           <Modal.Title className="h5 fw-bold text-dark d-flex align-items-center gap-2">
@@ -1848,7 +1816,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
             </Table>
           </div>
 
-          {/* Đánh giá mẫu theo ISO 15189 */}
           <div className="p-3 bg-white rounded-3 border small">
             <div className="fw-bold text-dark mb-1 d-flex align-items-center gap-1">
               <CheckCircle2 className="text-success"  size="1em"/>
@@ -1882,7 +1849,6 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
         </Modal.Footer>
       </Modal>
 
-      {/* Modal 2: Hủy Kết Quả & Yêu Cầu Chạy Lại (Re-run / Re-sample) */}
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton style={{ background: "#FEF2F2", borderBottom: "1px solid #FECACA" }}>
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2" style={{ color: "#991B1B" }}>
@@ -1965,5 +1931,3 @@ export function EnterTestResultsPage() { /* e2e-order-params-v2 */
 }
 
 export default EnterTestResultsPage;
-
-

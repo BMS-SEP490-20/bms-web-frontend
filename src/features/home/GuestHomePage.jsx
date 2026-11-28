@@ -228,11 +228,11 @@ export default function GuestHomePage({ user: propUser }) {
       <PortalNavbar user={signedInUser} />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Hero Section (Spacious 2-Column: Narrative + 2x2 Metric Quad Left, Big Animated Lab Scene Right) */}
+
       <section className="bms-hero-container-wrap pt-5 pb-4">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-kit-hero">
-            {/* Left Column: Narrative, Search Pill, 2x2 Metric Quad */}
+
             <div className="bms-hero-narrative">
               <div className="bms-status-chip d-inline-flex align-items-center gap-2 mb-2.5">
                 <img src="/assets/lab-icon.png" alt="Lab" style={{ width: '15px', height: '15px', objectFit: 'contain' }} />
@@ -260,7 +260,6 @@ export default function GuestHomePage({ user: propUser }) {
                 Trung tâm xét nghiệm máu kỹ thuật cao chuẩn y khoa hiện đại. Đặt lịch linh hoạt, lấy mẫu nhẹ nhàng tại nhà hoặc tại trung tâm, tra cứu kết quả trực tuyến nhanh chóng và nhận tư vấn chuyên sâu từ Bác sĩ.
               </p>
 
-              {/* Search Pill Capsule */}
               <form
                 className="bms-search-pill-capsule mb-4"
                 onSubmit={(e) => {
@@ -280,7 +279,6 @@ export default function GuestHomePage({ user: propUser }) {
                 </button>
               </form>
 
-              {/* 2x2 Metric Grid (Patient-Centric Value Propositions) */}
               <div className="bms-hero-page-metrics">
                 <div className="bms-metric-item-v3">
                   <img src="/assets/bms/svg/hero/home/metric-tests-safe.svg" alt="" aria-hidden="true" />
@@ -313,7 +311,6 @@ export default function GuestHomePage({ user: propUser }) {
               </div>
             </div>
 
-            {/* Right Column: Narrative Lab Scene Artwork (100% Pure 2D Flat, Zero Shadow, Zero Glow) */}
             <div className="bms-hero-art--big">
               <img
                 src="/assets/bms/svg/hero/home/hero-lab-narrative-A.svg?v=clean-20261106-1408"
@@ -327,7 +324,6 @@ export default function GuestHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 2. Service Packages Catalog (Spacious Horizontal Service Strips - Moved to Top) */}
       <section className="bms-section-wrap py-5" id="danh-muc">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
@@ -338,7 +334,6 @@ export default function GuestHomePage({ user: propUser }) {
             </p>
           </div>
 
-          {/* Spacious Horizontal Floating Service Strips */}
           <div className="d-flex flex-column gap-3 mb-4">
             {packages.map((pkg, idx) => (
               <div
@@ -353,7 +348,7 @@ export default function GuestHomePage({ user: propUser }) {
                 }}
                 className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
               >
-                {/* Left: Specialty Icon + Full-Width Content Stack */}
+
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="d-flex align-items-center" style={{ gap: '24px' }}>
                     <div
@@ -372,7 +367,7 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      {/* Row 1: Category & Code + Patient Rating */}
+
                       <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span
                           style={{
@@ -404,7 +399,6 @@ export default function GuestHomePage({ user: propUser }) {
                         <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                       </div>
 
-                      {/* Row 2: Full Package Title */}
                       <h3
                         className="mb-1.5"
                         style={{
@@ -419,7 +413,6 @@ export default function GuestHomePage({ user: propUser }) {
                         {pkg.packageName}
                       </h3>
 
-                      {/* Row 3: Clinical Scope & Description */}
                       <p
                         className="mb-0 text-muted"
                         style={{
@@ -435,7 +428,6 @@ export default function GuestHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Middle Dedicated Column: Specimen Standards & Turnaround Time */}
                 <div
                   className="d-none d-lg-flex flex-column justify-content-center px-4 flex-shrink-0"
                   style={{
@@ -448,7 +440,6 @@ export default function GuestHomePage({ user: propUser }) {
                     Tiêu Chuẩn Lấy Mẫu &amp; Kết Quả
                   </div>
 
-                  {/* Tube Specimen */}
                   <div className="d-flex align-items-center gap-2.5 mb-2">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaVial style={{ color: '#1E60E6', fontSize: '12px' }} />
@@ -461,7 +452,6 @@ export default function GuestHomePage({ user: propUser }) {
                     </div>
                   </div>
 
-                  {/* Turnaround Time */}
                   <div className="d-flex align-items-center gap-2.5">
                     <div style={{ width: '26px', height: '26px', borderRadius: '7px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <FaClock style={{ color: '#10B981', fontSize: '12px' }} />
@@ -475,7 +465,6 @@ export default function GuestHomePage({ user: propUser }) {
                   </div>
                 </div>
 
-                {/* Right: Price & CTA Action Button */}
                 <div
                   className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
                   style={{
@@ -542,7 +531,6 @@ export default function GuestHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 3. Clinical Workflow Section (4 Soft Steps - Moved Below Catalog) */}
       <section className="bms-section-wrap py-5" id="quy-trinh">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
@@ -627,7 +615,6 @@ export default function GuestHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* 4. Complete V3.1 Clinical Narrative Sections (14 Expanded Vignettes) */}
       <section className="bms-section-wrap py-5">
         <div className="container" style={{ maxWidth: '1360px' }}>
           <div className="bms-section-lead-center text-center mb-5">
@@ -662,7 +649,6 @@ export default function GuestHomePage({ user: propUser }) {
         </div>
       </section>
 
-      {/* Modal: Patient Login Requirement Notice */}
       {showRequireLoginModal && (
         <div className="bms-modal-backdrop" onClick={() => setShowRequireLoginModal(false)}>
           <div className="bms-modal-card bms-modal-card-sm" onClick={e => e.stopPropagation()}>
@@ -695,7 +681,6 @@ export default function GuestHomePage({ user: propUser }) {
         </div>
       )}
 
-        {/* 5. Mega Footer */}
         <MegaFooter />
       </div>
     </div>

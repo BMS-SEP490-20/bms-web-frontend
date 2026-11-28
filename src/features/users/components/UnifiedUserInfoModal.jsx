@@ -146,7 +146,7 @@ const UnifiedUserInfoModal = ({
           onSelect={(k) => { setActiveTab(k); setError(''); }}
           className="mb-4"
         >
-          {/* TAB 1: Thông tin định danh & tài khoản */}
+
           <Tab eventKey="account" title="Thông Tin Tài Khoản">
             <Form>
               <Row className="g-3">
@@ -265,7 +265,6 @@ const UnifiedUserInfoModal = ({
             </Form>
           </Tab>
 
-          {/* TAB 2: Hồ sơ chuyên môn Y tế & Phòng xét nghiệm máu (ISO 15189) */}
           {isStaffRole && (
             <Tab eventKey="medical" title="Hồ Sơ Y Tế & CCHN (ISO 15189)">
               <div className="p-3 mb-3 rounded-3 border d-flex align-items-start gap-2" style={{ background: '#F0F7FF', borderColor: '#BFDBFE' }}>
@@ -414,7 +413,6 @@ const UnifiedUserInfoModal = ({
             </Tab>
           )}
 
-          {/* TAB 3: Cấp lại mật khẩu */}
           <Tab eventKey="password" title="Cấp Lại Mật Khẩu">
             <Alert variant="info" className="py-2 mb-3 small d-flex align-items-center gap-2">
               <Info className="fs-5 flex-shrink-0" size="1em" />

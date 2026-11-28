@@ -37,7 +37,6 @@ function AvatarFace({ src, alt }) {
   );
 }
 
-// Common chronic conditions list (clean, concise typography)
 const CHRONIC_CONDITIONS = [
   'Tăng huyết áp',
   'Đái tháo đường',
@@ -51,7 +50,6 @@ const CHRONIC_CONDITIONS = [
   'Động kinh / Thần kinh'
 ];
 
-// Common allergy options (concise typography)
 const COMMON_ALLERGIES = [
   'Penicillin / Amox',
   'Cephalosporin',
@@ -63,7 +61,6 @@ const COMMON_ALLERGIES = [
   'Cồn / Povidine'
 ];
 
-// Coagulation disorder options (clinically standardized)
 const COAGULATION_OPTIONS = [
   CANONICAL_NO_COAGULATION,
   'Hemophilia (máu khó đông)',
@@ -72,7 +69,6 @@ const COAGULATION_OPTIONS = [
   'Dùng thuốc chống đông'
 ];
 
-// Structured blood types for clinical clarity
 const BLOOD_TYPES_RH_POS = [
   { code: 'O+', label: 'O+', sub: 'Rh+ Phổ biến (~45%)' },
   { code: 'A+', label: 'A+', sub: 'Rh+ Kháng nguyên A (~20%)' },
@@ -144,7 +140,6 @@ export const UserProfilePage = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isEditing, setIsEditing] = useState(() => searchParams.get('edit') === '1' || searchParams.get('setup') === '1');
 
-  // Clinical profile form state
   const [formData, setFormData] = useState({
     fullName: '',
     identityNumber: '',
@@ -210,7 +205,6 @@ export const UserProfilePage = () => {
       setProfile(loadedProfile);
       setPatientRecord(loadedPatient);
 
-      // Populate form data
       const baseObj = loadedPatient || loadedProfile || {};
       const vitals = loadedPatient?.vitals || {};
       const allergies = Array.isArray(loadedPatient?.allergies) ? loadedPatient.allergies.join('; ') : '';
@@ -237,7 +231,6 @@ export const UserProfilePage = () => {
       };
       setFormData(nextForm);
 
-      // Unified Khai báo + Chỉnh sửa: auto-open edit mode if basic profile is incomplete or ?edit=1
       const basicComplete = Boolean(
         nextForm.fullName?.trim() &&
         nextForm.identityNumber?.trim()?.length === 12 &&
@@ -259,7 +252,6 @@ export const UserProfilePage = () => {
     }
   };
 
-  // Real-time BMI calculation (Unified WHO Asian Standard)
   const bmiInfo = useMemo(() => {
     const h = parseFloat(formData.heightCm);
     const w = parseFloat(formData.weightKg);
@@ -276,7 +268,6 @@ export const UserProfilePage = () => {
     return { bmi: bmiVal, label: 'Béo phì', color: 'danger' };
   }, [formData.heightCm, formData.weightKg]);
 
-  // Profile completion status check
   const isProfileComplete = useMemo(() => {
     return Boolean(
       formData.fullName?.trim() &&
@@ -297,7 +288,6 @@ export const UserProfilePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Toggle Chronic Condition in Profile Edit
   const toggleConditionInProfile = (cond) => {
     setFormData((prev) => {
       let current = prev.medicalHistory || '';
@@ -328,7 +318,6 @@ export const UserProfilePage = () => {
     });
   };
 
-  // Toggle Allergy in Profile Edit
   const toggleAllergyInProfile = (allergy) => {
     setFormData((prev) => {
       let current = prev.allergiesText || '';
@@ -355,7 +344,6 @@ export const UserProfilePage = () => {
     setErrorMessage('');
     setSuccessMessage('');
 
-    // Validation
     if (!formData.fullName.trim()) {
       setErrorMessage('Vui lòng nhập Họ và tên bệnh nhân.');
       return;
@@ -428,7 +416,6 @@ export const UserProfilePage = () => {
       }
       setSuccessMessage('Đã lưu và đồng bộ thông tin khai báo hồ sơ cơ bản thành công!');
 
-      // Sync AuthContext + localStorage so all screens (Booking, Header, Profile) stay 100% consistent
       const syncedFields = {
         fullName: updated.fullName || payload.fullName,
         phoneNumber: updated.phoneNumber || payload.phoneNumber,
@@ -570,7 +557,7 @@ export const UserProfilePage = () => {
           </div>
 
           <Row className="g-4">
-            {/* Left Column: Staff ID Card */}
+
             <Col xs={12} lg={4}>
               <Card className="border-0 shadow-sm rounded-4 overflow-hidden text-center p-3 mb-4 bg-white">
                 <div className="bms-avatar-wrapper mx-auto mb-3">
@@ -621,7 +608,6 @@ export const UserProfilePage = () => {
               </Card>
             </Col>
 
-            {/* Right Column: Staff Details */}
             <Col xs={12} lg={8}>
               <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white">
                 <Card.Header className="bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
@@ -693,7 +679,7 @@ export const UserProfilePage = () => {
   return (
     <div className="bms-profile-page">
       <div className="container-xl">
-        {/* Alerts */}
+
         {errorMessage && (
           <Alert variant="danger" dismissible onClose={() => setErrorMessage('')} className="mb-4 border-0 rounded-4">
             <AlertTriangle className="me-2"  size="1em"/>
@@ -708,7 +694,7 @@ export const UserProfilePage = () => {
         )}
 
         <Row className="g-4">
-          {/* Left Column: Identity & Medical Profile Status Card */}
+
           <Col xs={12} lg={4} xl={3}>
             <div className="bms-profile-card text-center mb-4">
               <div className="bms-avatar-wrapper mx-auto mb-3">
@@ -725,7 +711,6 @@ export const UserProfilePage = () => {
                 </span>
               </div>
 
-              {/* Profile Completeness Box */}
               <div className="p-3 rounded-4 text-start mb-3" style={{ background: isProfileComplete ? '#F0FDF4' : '#FEFCE8' }}>
                 <div className="d-flex align-items-center justify-content-between mb-1">
                   <span className="small fw-bold">
@@ -750,7 +735,6 @@ export const UserProfilePage = () => {
                 </p>
               </div>
 
-              {/* Action buttons */}
               <div className="d-grid gap-2">
                 {!isEditing ? (
                   <button type="button" className="bms-btn-pill-primary w-100" onClick={() => setIsEditing(true)}>
@@ -764,7 +748,6 @@ export const UserProfilePage = () => {
               </div>
             </div>
 
-            {/* Quick Summary Card: Vitals & Blood Type */}
             <div className="bms-profile-card">
               <h6 className="bms-profile-section-title mb-3">
                 <HeartPulse className="text-danger"  size="1em"/> Tóm Tắt Chỉ Số Y Tế
@@ -824,7 +807,6 @@ export const UserProfilePage = () => {
             </div>
           </Col>
 
-          {/* Right Column: Full Clinical Profile Form / Display */}
           <Col xs={12} lg={8} xl={9}>
             <div className="bms-profile-card">
               <div className="bms-profile-masthead">
@@ -854,7 +836,7 @@ export const UserProfilePage = () => {
               </div>
 
               <Form onSubmit={handleSaveProfile}>
-                {/* Section 1: Demographics & Identity */}
+
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
                     <IdCard className="text-primary"  size="1em"/> Thông Tin Định Danh Bệnh Nhân
@@ -1001,7 +983,6 @@ export const UserProfilePage = () => {
                   </Row>
                 </div>
 
-                {/* Section 2: Clinical Vitals & Blood Compatibility */}
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
                     <HeartPulse className="text-primary"  size="1em"/> Chỉ Số Huyết Học &amp; Thể Trạng
@@ -1167,7 +1148,6 @@ export const UserProfilePage = () => {
                   </Row>
                 </div>
 
-                {/* Section 3: Specialized Blood Test Medical History */}
                 <div className="mb-5">
                   <h6 className="bms-profile-section-title">
                     <Pill className="text-primary"  size="1em"/> Tiền Sử Y Khoa &amp; Rối Loạn Đông Máu
@@ -1387,7 +1367,6 @@ export const UserProfilePage = () => {
                   </Row>
                 </div>
 
-                {/* Section 4: Emergency Contacts */}
                 <div className="mb-4">
                   <h6 className="bms-profile-section-title">
                     <Phone className="text-primary"  size="1em"/> Thông Tin Người Liên Hệ Khẩn Cấp
@@ -1456,7 +1435,6 @@ export const UserProfilePage = () => {
                   </Row>
                 </div>
 
-                {/* Submit buttons when editing */}
                 {isEditing && (
                   <div className="d-flex justify-content-end gap-2 pt-3">
                     <button
@@ -1494,4 +1472,3 @@ export const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
-

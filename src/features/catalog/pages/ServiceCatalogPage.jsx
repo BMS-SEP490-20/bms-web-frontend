@@ -119,7 +119,6 @@ export default function ServiceCatalogPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // User state
   const [user] = useState(() => {
     try {
       const raw = localStorage.getItem('bms_user') || sessionStorage.getItem('bms_user');
@@ -129,7 +128,6 @@ export default function ServiceCatalogPage() {
     }
   });
 
-  // Search & Filter state
   const initialKeyword = searchParams.get('search') || searchParams.get('keyword') || '';
   const [searchInput, setSearchInput] = useState(initialKeyword);
   const [debouncedSearch, setDebouncedSearch] = useState(initialKeyword);
@@ -140,7 +138,6 @@ export default function ServiceCatalogPage() {
   const [sortDir, setSortDir] = useState('asc');
   const [viewMode, setViewMode] = useState('list');
 
-  // Pagination & Data state
   const [packages, setPackages] = useState([]);
   const [page, setPage] = useState(1);
   const pageSize = 12;
@@ -151,12 +148,10 @@ export default function ServiceCatalogPage() {
   const [ratingsMap, setRatingsMap] = useState({});
   const openedDetailParamRef = React.useRef('');
 
-  // Detail Modal State
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchInput.trim());
@@ -165,7 +160,6 @@ export default function ServiceCatalogPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Load distinct categories and public package ratings once
   useEffect(() => {
     fetchServiceCatalog()
       .then((res) => {
@@ -184,12 +178,10 @@ export default function ServiceCatalogPage() {
       .catch(() => {});
   }, []);
 
-  // Compute price bounds
   const currentPriceRange = useMemo(() => {
     return PRICE_FILTERS.find((p) => p.id === priceFilterId) || PRICE_FILTERS[0];
   }, [priceFilterId]);
 
-  // Fetch packages from backend
   const loadPackages = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
@@ -225,7 +217,6 @@ export default function ServiceCatalogPage() {
     loadPackages();
   }, [loadPackages]);
 
-  // Open detail modal automatically when navigated with ?detail=<packageCodeOrId>
   useEffect(() => {
     const detailParam = searchParams.get('detail');
     if (!detailParam || openedDetailParamRef.current === detailParam) return;
@@ -238,7 +229,6 @@ export default function ServiceCatalogPage() {
     handleOpenDetail(match || { id: detailParam, packageCode: detailParam, packageName: 'Chi tiết gói xét nghiệm' });
   }, [searchParams, packages]);
 
-  // Handle open details modal
   const handleOpenDetail = async (pkg) => {
     setSelectedPackage(pkg);
     setShowDetailModal(true);
@@ -268,14 +258,12 @@ export default function ServiceCatalogPage() {
     }
   };
 
-  // Direct Book Appointment
   const handleBook = (pkg) => {
     const pkgId = pkg.packageCode || pkg.code || pkg.id;
     const pkgName = encodeURIComponent(pkg.packageName || pkg.name || '');
     navigate(`/appointments/book?packageId=${encodeURIComponent(pkgId)}&packageName=${pkgName}`);
   };
 
-  // Featured Spotlight item
   const featuredItem = useMemo(() => {
     if (packages.length === 0) return null;
     return packages.find((p) => p.isPopular);
@@ -285,13 +273,12 @@ export default function ServiceCatalogPage() {
 
   return (
     <div className="bms-catalog-page min-vh-100 d-flex flex-column" style={{ background: '#F8FAFC' }}>
-      {/* 1. Global Navigation Bar */}
+
       <PortalNavbar user={user} />
 
       <main className={`flex-grow-1 py-4 bms-page-directional-content ${pageTransitionClass}`}>
         <div className="container" style={{ maxWidth: '1400px' }}>
-          
-          {/* 2. Top Spotlight Header (Pure Flat, High Contrast SaaS Showcase) */}
+
           <section
             className="mb-5"
             style={{
@@ -333,7 +320,6 @@ export default function ServiceCatalogPage() {
                   Tra cứu toàn bộ danh mục gói xét nghiệm chuẩn y khoa hiện đại. Mẫu bệnh phẩm được xử lý trên hệ thống máy phân tích tự động thế hệ mới, kết quả chính xác 99.9%, hỗ trợ chiết khấu BHYT trực tiếp và Bác sĩ chuyên khoa giải thích kết quả chu đáo.
                 </p>
 
-                {/* Key Spec Badges - Pure Flat, No Emojis, No Borders */}
                 <div className="d-flex flex-wrap gap-2 pt-1">
                   <div
                     style={{
@@ -390,7 +376,6 @@ export default function ServiceCatalogPage() {
                 </div>
               </Col>
 
-              {/* Right: Featured Panel Spotlight Card or Catalog Hero Art - Pure Flat, Zero Border */}
               {featuredItem ? (
                 <Col lg={5}>
                   <div
@@ -490,7 +475,6 @@ export default function ServiceCatalogPage() {
             </Row>
           </section>
 
-          {/* 3. Search & Category Filter Bar (Compact Toolbar, Pure Flat, No Borders) */}
           <section
             className="mb-5 p-3.5"
             style={{
@@ -500,7 +484,7 @@ export default function ServiceCatalogPage() {
               boxShadow: 'none'
             }}
           >
-            {/* Top row: Category Pills Track & Result Count */}
+
             <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
               <div className="d-flex flex-wrap gap-1.5 align-items-center">
                 {categories.map((cat) => {
@@ -575,7 +559,6 @@ export default function ServiceCatalogPage() {
               </div>
             </div>
 
-            {/* Bottom row: Compact borderless inputs */}
             <Row className="g-2 align-items-center">
               <Col md={6} lg={8}>
                 <div className="position-relative">
@@ -662,7 +645,6 @@ export default function ServiceCatalogPage() {
             </Row>
           </section>
 
-          {/* 4. Packages Grid Showcase */}
           {loadError && (
             <Alert variant="danger" className="border-0 rounded-4 p-3 mb-4">
               <div className="fw-bold mb-1">Lỗi tải dữ liệu:</div>
@@ -720,7 +702,7 @@ export default function ServiceCatalogPage() {
               </button>
             </div>
           ) : viewMode === 'list' ? (
-            /* Spacious Full-Width Horizontal List View (Zero Awkward Line Breaking) */
+
             <div className="d-flex flex-column gap-3 mb-4">
               {packages.map((pkg) => (
                 <div
@@ -735,10 +717,10 @@ export default function ServiceCatalogPage() {
                   }}
                   className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-4"
                 >
-                  {/* Left Main Clinical Content (Spans Full Available Width, No Crowding) */}
+
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="d-flex align-items-center" style={{ gap: '24px' }}>
-                      {/* Clinical SVG Specialty Icon (Centered Vertically, 25% Larger, No Background) */}
+
                       <div
                         style={{
                           width: '68px',
@@ -754,9 +736,8 @@ export default function ServiceCatalogPage() {
                         <BmsPackageIcon name={getCategoryIconKey(pkg.category)} size={64} />
                       </div>
 
-                      {/* Content Stack: Badges -> Full Title -> Description -> Biomarkers */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        {/* Row 1: Badges */}
+
                         <div className="d-flex flex-wrap align-items-center gap-2 mb-2.5">
                           <span
                             style={{
@@ -802,7 +783,6 @@ export default function ServiceCatalogPage() {
                           <PackageRatingPill ratingSummary={lookupPackageRating(ratingsMap, pkg)} compact />
                         </div>
 
-                        {/* Row 2: Full Package Title (Full Horizontal Width, No Ellipsis Truncation) */}
                         <h3
                           className="mb-1.5"
                           style={{
@@ -817,7 +797,6 @@ export default function ServiceCatalogPage() {
                           {pkg.packageName}
                         </h3>
 
-                        {/* Row 3: Clinical Description */}
                         <p
                           className="mb-2 text-muted"
                           style={{
@@ -830,7 +809,6 @@ export default function ServiceCatalogPage() {
                           {pkg.description || 'Gói xét nghiệm lâm sàng phục vụ tầm soát và chẩn đoán định kỳ theo quy chuẩn y tế.'}
                         </p>
 
-                        {/* Row 4: Biomarkers / Tests Pills Preview */}
                         {Array.isArray(pkg.criteria) && pkg.criteria.length > 0 ? (
                           <div className="d-flex flex-wrap align-items-center gap-1.5">
                             <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, marginRight: '4px' }}>
@@ -889,7 +867,6 @@ export default function ServiceCatalogPage() {
                     </div>
                   </div>
 
-                  {/* Middle: Specimen + TAT — wrap dài, không tràn sang cột giá */}
                   <div
                     className="d-none d-lg-flex flex-column justify-content-center px-3 px-xl-4 flex-shrink-0"
                     style={{
@@ -939,7 +916,6 @@ export default function ServiceCatalogPage() {
                     </div>
                   </div>
 
-                  {/* Right Commercial Block: Price & CTA Actions (Separated with clean vertical border) */}
                   <div
                     className="d-flex flex-row flex-xl-column align-items-xl-end justify-content-between justify-content-xl-center gap-3 ps-xl-4 flex-shrink-0"
                     style={{
@@ -1010,7 +986,6 @@ export default function ServiceCatalogPage() {
             </Row>
           )}
 
-          {/* 5. Pagination Bar */}
           {totalPages > 1 && !loading && (
             <div className="d-flex justify-content-center align-items-center gap-2 py-3">
               <button
@@ -1042,7 +1017,6 @@ export default function ServiceCatalogPage() {
         </div>
       </main>
 
-      {/* 6. Clinical Detail Modal */}
       <Modal
         show={showDetailModal}
         onHide={() => setShowDetailModal(false)}
@@ -1085,7 +1059,6 @@ export default function ServiceCatalogPage() {
                 {selectedPackage.description}
               </p>
 
-              {/* Pre-analytical Requirements */}
               <div className="bms-package-facts mb-3">
                 <Row className="g-3">
                   <Col sm={6}>
@@ -1115,7 +1088,6 @@ export default function ServiceCatalogPage() {
                 </Row>
               </div>
 
-              {/* Included Biomarkers List */}
               <h5 className="fw-bold mb-2" style={{ fontSize: '14px', color: '#0F172A' }}>
                 Danh Mục Chỉ Số Xét Nghiệm Trong Gói:
               </h5>
@@ -1177,13 +1149,11 @@ export default function ServiceCatalogPage() {
                 </div>
               )}
 
-              {/* Quality & Insurance Trust Note */}
               <div className="mt-3 d-flex align-items-center flex-wrap gap-1" style={{ fontSize: '11.5px', color: '#475569' }}>
                 <span className="d-inline-flex align-items-center gap-1" style={{ color: '#10B981', fontWeight: 700 }}><FaCheckCircle /> Cam kết BMS:</span>
                 <span>Thẩm định chuyên môn 2 cấp, hỗ trợ BHYT và Bác sĩ chuyên khoa tư vấn kết quả.</span>
               </div>
 
-              {/* Package Patient Reviews & Rating Distribution */}
               <PackageReviewsSection
                 pkg={selectedPackage}
                 onCloseModal={() => setShowDetailModal(false)}
@@ -1234,7 +1204,6 @@ export default function ServiceCatalogPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* 7. Global Mega Footer */}
       <MegaFooter />
     </div>
   );

@@ -54,7 +54,6 @@ export default function ClinicalRangeSimulator({ onCriterionChange }) {
         }
       })
       .catch(() => {
-        // Keep COMMON_CRITERIA fallback
       });
   }, []);
 

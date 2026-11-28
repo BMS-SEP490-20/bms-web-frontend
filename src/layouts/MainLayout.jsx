@@ -21,11 +21,9 @@ export default function MainLayout() {
   const user = useMemo(() => getStoredUser(), []);
   const roleId = useMemo(() => resolveRoleId(user), [user]);
 
-  // Mobile drawer state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
 
-  // Desktop sidebar collapsed state (persisted in localStorage)
   const [desktopCollapsed, setDesktopCollapsed] = useState(() => {
     try {
       const saved = localStorage.getItem('bms_sidebar_collapsed');
@@ -35,7 +33,6 @@ export default function MainLayout() {
     }
   });
 
-  // Track window resize for responsive layout
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 992;
@@ -48,12 +45,10 @@ export default function MainLayout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Save desktop collapsed state
   useEffect(() => {
     try {
       localStorage.setItem('bms_sidebar_collapsed', JSON.stringify(desktopCollapsed));
     } catch {
-      // Ignore storage errors
     }
   }, [desktopCollapsed]);
 
@@ -71,14 +66,13 @@ export default function MainLayout() {
 
   const sidebarWidth = desktopCollapsed ? '80px' : '260px';
 
-  // Logged-in Patient is a healthcare consumer: delegate to PatientPortalLayout (after all hooks)
   if (user && roleId === ROLES.PATIENT) {
     return <PatientPortalLayout />;
   }
 
   return (
     <div className="bms-app-layout min-vh-100 d-flex flex-column" style={{ background: 'var(--bg-page, #F4F7F9)', overflowX: 'hidden' }}>
-      {/* Mobile Backdrop Overlay */}
+
       {isMobile && mobileSidebarOpen && (
         <div
           className="bms-mobile-overlay position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50"
@@ -88,7 +82,6 @@ export default function MainLayout() {
         />
       )}
 
-      {/* Responsive Sidebar */}
       <div
         className={`bms-sidebar-container ${isMobile ? (mobileSidebarOpen ? 'd-block' : 'd-none') : 'd-block'}`}
         style={{
@@ -109,7 +102,6 @@ export default function MainLayout() {
         />
       </div>
 
-      {/* Main Layout Area: Header + Content + Footer */}
       <div
         className="bms-main-content-wrapper d-flex flex-column flex-grow-1"
         style={{
@@ -122,7 +114,7 @@ export default function MainLayout() {
           boxSizing: 'border-box'
         }}
       >
-        {/* Minimal Mobile Drawer Header */}
+
         {isMobile && (
           <div className="d-flex align-items-center justify-content-between px-3 py-2 bg-white border-bottom" style={{ zIndex: 1020 }}>
             <button
@@ -140,12 +132,10 @@ export default function MainLayout() {
           </div>
         )}
 
-        {/* Dynamic Page Content Outlet - 100% full width layout */}
         <main className="bms-page-content flex-grow-1 w-100" style={{ maxWidth: '100%', boxSizing: 'border-box' }}>
           <Outlet />
         </main>
 
-        {/* Soft Telehealth Minimal Footer */}
         <footer className="bms-main-footer py-3 px-4 text-muted small" style={{ border: 'none', background: 'transparent' }}>
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
             <div style={{ color: '#6B7280', fontSize: '12px' }}>

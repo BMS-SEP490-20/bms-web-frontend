@@ -1,9 +1,3 @@
-/**
- * @file SkeletonProfile.css
- * @description Shimmer animation styles for profile skeleton loader.
- * Conforms to: AGENTS-DESIGN.md Rule 23 (Skeleton Shimmer Loading).
- */
-
 @keyframes bmsShimmer {
   0% {
     background-position: -400px 0;

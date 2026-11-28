@@ -111,7 +111,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
             </div>
             <div className="card-body p-2" style={{ maxHeight: "550px", overflowY: "auto" }}>
                 <div className="timeline-container position-relative">
-                    {/* Vertical guideline */}
+
                     <div
                         className="position-absolute h-100 border-start border-2 border-primary-subtle"
                         style={{ left: "19px", top: "10px", zIndex: 1 }}
@@ -126,7 +126,7 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
 
                             return (
                                 <div key={evt.eventId || idx} className="d-flex position-relative" style={{ zIndex: 2 }}>
-                                    {/* Icon circle */}
+
                                     <div
                                         className={`rounded-circle d-flex align-items-center justify-content-center shadow-sm ${visual.bg} ${visual.border} border border-2`}
                                         style={{ width: "40px", height: "40px", minWidth: "40px", backgroundColor: "#fff" }}
@@ -134,7 +134,6 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                                         <IconComponent className={visual.color} />
                                     </div>
 
-                                    {/* Event Content Card */}
                                     <div className="ms-3 flex-grow-1">
                                         <div className={`p-3 rounded border shadow-xs ${isLatest ? "bg-white border-primary border-2" : "bg-light border"}`}>
                                             <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
@@ -154,7 +153,6 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                                                 </small>
                                             </div>
 
-                                            {/* Details & Metadata */}
                                             <div className="text-secondary small mb-2 d-flex flex-wrap gap-3">
                                                 {evt.location && (
                                                     <span className="d-inline-flex align-items-center">
@@ -175,7 +173,6 @@ export default function SpecimenLifecycleTimeline({ events = [], onAddEventClick
                                                 )}
                                             </div>
 
-                                            {/* Description & Notes */}
                                             {(evt.description || evt.notes) && (
                                                 <div className="p-2 rounded bg-white border text-dark small">
                                                     <em>{evt.description || evt.notes}</em>

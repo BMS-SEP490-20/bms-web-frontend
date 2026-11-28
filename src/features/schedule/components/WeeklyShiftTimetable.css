@@ -1,5 +1,3 @@
-/* WeeklyShiftTimetable.css - FPT / BMS Portal-style Weekly Timetable Matrix */
-
 .timetable-container {
   width: 100%;
   margin: 0;
@@ -66,7 +64,6 @@
   vertical-align: middle;
 }
 
-/* Header Cells */
 .timetable-header-slot {
   width: 80px;
   background-color: #f8fafc;
@@ -112,7 +109,6 @@
   opacity: 0.85;
 }
 
-/* Slot Column */
 .timetable-slot-cell {
   background-color: #f8fafc;
   text-align: center;
@@ -137,7 +133,6 @@
   line-height: 1.2;
 }
 
-/* Shift Content Cell */
 .timetable-content-cell {
   vertical-align: top;
   padding: 8px 6px;
@@ -182,7 +177,6 @@
   visibility: visible;
 }
 
-/* Shift Card in Timetable */
 .timetable-shift-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -215,7 +209,6 @@
   border-left-color: #10b981;
 }
 
-/* Card Lines */
 .timetable-card-title {
   color: #1e3a8a;
   font-weight: 700;

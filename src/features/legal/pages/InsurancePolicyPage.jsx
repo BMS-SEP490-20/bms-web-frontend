@@ -19,7 +19,7 @@ export default function InsurancePolicyPage() {
       <PortalNavbar />
 
       <div className={`bms-page-directional-content ${pageTransitionClass}`}>
-        {/* 1. Header Banner */}
+
         <section className="pt-4 pb-3 mb-4">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -48,7 +48,6 @@ export default function InsurancePolicyPage() {
           </div>
         </section>
 
-        {/* 2. Content Body */}
         <section className="pb-5 mb-5">
           <div className="container" style={{ maxWidth: '1200px' }}>
             <div
@@ -60,7 +59,7 @@ export default function InsurancePolicyPage() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
               }}
             >
-              {/* Mục 1: Nguyên tắc chi trả */}
+
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   1. Nguyên Tắc Thanh Toán BHYT Tại BMS Lab
@@ -70,7 +69,6 @@ export default function InsurancePolicyPage() {
                 </p>
               </div>
 
-              {/* Mục 2: Tỷ lệ mức hưởng */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   2. Mức Hưởng &amp; Tỷ Lệ Chi Trả Theo Nhóm Đối Tượng
@@ -120,7 +118,6 @@ export default function InsurancePolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 3: Thủ tục xuất trình */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   3. Thủ Tục Xuất Trình &amp; Đăng Ký Giảm Trừ BHYT
@@ -156,7 +153,6 @@ export default function InsurancePolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 4: Danh mục xét nghiệm */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   4. Danh Mục Xét Nghiệm Máu Được BHYT Hỗ Trợ
@@ -193,7 +189,6 @@ export default function InsurancePolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 5: Quy trình đồng chi trả và hóa đơn điện tử */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   5. Tự Động Chiết Khấu Đồng Chi Trả &amp; Xuất Hóa Đơn Điện Tử (VAT)
@@ -210,7 +205,6 @@ export default function InsurancePolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 6: Các trường hợp loại trừ */}
               <div className="mb-4 pb-3 border-bottom" style={{ borderColor: '#F1F5F9' }}>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   6. Các Trường Hợp Không Thuộc Phạm Vi BHYT Chi Trả
@@ -229,7 +223,6 @@ export default function InsurancePolicyPage() {
                 </div>
               </div>
 
-              {/* Mục 7: Tổng đài tư vấn BHYT */}
               <div>
                 <h2 className="fw-bold mb-3" style={{ fontSize: '18px', color: '#0F172A' }}>
                   7. Tổng Đài Tư Vấn &amp; Tra Cứu Quyền Lợi BHYT
@@ -251,7 +244,6 @@ export default function InsurancePolicyPage() {
 
             </div>
 
-            {/* Quick Links Footer */}
             <div className="d-flex justify-content-between align-items-center mt-4 px-2">
               <Link to="/terms" style={{ color: '#1E60E6', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>
                 ← Xem Điều khoản dịch vụ
@@ -268,4 +260,3 @@ export default function InsurancePolicyPage() {
     </div>
   );
 }
-

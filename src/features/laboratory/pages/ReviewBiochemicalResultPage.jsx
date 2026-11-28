@@ -292,7 +292,7 @@ export default function ReviewBiochemicalResultPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* Top Action Header */}
+
       <div className="bms-page-header-card mb-3 bms-no-print">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -359,7 +359,7 @@ export default function ReviewBiochemicalResultPage() {
         </div>
       ) : result ? (
         <div className="bms-review-card">
-          {/* 1. Patient & Specimen Summary Strip (4 Spacious Cards) */}
+
           <div className="bms-review-info-grid">
             <div className="bms-review-info-box">
               <span className="bms-review-info-label">Người bệnh</span>
@@ -404,7 +404,6 @@ export default function ReviewBiochemicalResultPage() {
             </div>
           </div>
 
-          {/* 2. Zero-Scroll Abnormal / PANIC Summary Strip */}
           {resultParameters.length > 0 && (
             <div
               className={`bms-triage-strip ${
@@ -458,7 +457,6 @@ export default function ReviewBiochemicalResultPage() {
             </div>
           )}
 
-          {/* 3. Full-Width Parameter Table (No Cramped Scroll Box) */}
           <div className="bms-param-toolbar">
             <div className="d-flex align-items-center gap-2">
               <Microscope size={16} className="text-primary" />
@@ -558,7 +556,6 @@ export default function ReviewBiochemicalResultPage() {
             </table>
           </div>
 
-          {/* 4. Full-Width Clinical Conclusion & Approval Section */}
           <div className="bms-signoff-section">
             <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
               <Form.Label className="fw-bold text-dark mb-0 small text-uppercase">

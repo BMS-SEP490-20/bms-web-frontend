@@ -18,7 +18,6 @@ function buildWalkInError(err, fallbackMsg) {
   const data = err.response.data;
   let errMsg = '';
 
-  // Priority 1: Extract field-specific validation errors
   if (data?.errors && typeof data.errors === 'object') {
     const fieldList = Object.entries(data.errors)
       .flatMap(([, v]) => (Array.isArray(v) ? v : [v]))
@@ -28,7 +27,6 @@ function buildWalkInError(err, fallbackMsg) {
     }
   }
 
-  // Priority 2: Specific backend business message
   const rawMsg = data?.message || data?.Message || data?.detail || data?.title;
   const isGenericOrTechnical =
     !rawMsg ||
@@ -41,7 +39,6 @@ function buildWalkInError(err, fallbackMsg) {
     errMsg = rawMsg;
   }
 
-  // Priority 3: Standard Vietnamese HTTP error messages
   if (!errMsg) {
     switch (status) {
       case 400:

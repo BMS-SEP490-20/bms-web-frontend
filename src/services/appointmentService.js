@@ -1,38 +1,28 @@
 import api from '../config/api';
 
-// appointmentService.js - Updated normalizeAppointment
-
 const normalizeAppointment = (item) => {
   if (!item) return null;
 
-  // 1. ID Mapping
   const id = item.id || item.appointmentId || item.AppointmentId || item.appointment_id || null;
 
-  // 2. Patient Name Mapping
-  // Backend may return: patientName, PatientName, patient_name
-  // Or nested in object: patient.fullname, Patient.FullName
   let patientName = item.patientName || item.PatientName || item.patient_name || null;
 
   if (item.patient && typeof item.patient === 'object') {
     patientName = item.patient.fullname || item.patient.fullName || item.patient.name || patientName;
   }
 
-  // Fallback to truncated ID if patient name is missing
   const rawPatientId = item.patientId || item.patient_id || item.createdBy || item.createdById || '';
   if (!patientName || patientName === "Chưa cập nhật") {
     if (rawPatientId && rawPatientId !== 'N/A') {
       const cleanId = String(rawPatientId).replace(/^(PAT-)+/i, '');
-      patientName = `PAT-${cleanId.substring(0, 8)}...`; // Compact fallback format without duplicate prefix
+      patientName = `PAT-${cleanId.substring(0, 8)}...`;
     } else {
       patientName = "Chưa cập nhật";
     }
   }
 
-  // 3. Package/Service Name Mapping
-  // Prioritize TestPackageName from backend DTO
   let packageName = item.TestPackageName || item.testPackageName || item.test_package_name;
 
-  // Fallback: resolve name from nested test package object
   if (!packageName && item.testPackage) {
     packageName = item.testPackage.packageName || item.testPackage.name;
   }
@@ -40,15 +30,11 @@ const normalizeAppointment = (item) => {
     packageName = item.serviceName || item.service_name || "Gói xét nghiệm";
   }
 
-  // 4. Time Mapping
-  // Parse appointment date and time to ISO format
   let appointmentDate = item.appointmentDate || item.date || item.appointment_date;
   let appointmentTime = item.appointmentTime || item.time || item.appointment_time;
 
-  // 5. Status Mapping
   const status = item.status || item.Status || item.status_code || 'unknown';
 
-  // 6. Doctor Shift ID Mapping (Critical for linking to Doctor_Shifts table)
   const doctorShiftId = item.doctor_shift_id || item.doctorShiftId || item.DoctorShiftId || null;
 
   return {
@@ -56,28 +42,26 @@ const normalizeAppointment = (item) => {
     id,
     appointmentId: id,
     patientId: rawPatientId,
-    patientName, // Standardized field for UI
-    packageName, // Standardized field for UI
+    patientName,
+    packageName,
     appointmentDate,
     appointmentTime,
-    status: status.toLowerCase(), // Normalized lowercase for comparison
-    doctorShiftId // Link to Doctor_Shifts table
+    status: status.toLowerCase(),
+    doctorShiftId
   };
 };
 export const appointmentService = {
-  // Retrieve all appointments
-  // options: { fetchAll: boolean, params: object }
   getAllAppointments: async (options = {}) => {
     try {
       const response = await api.get('/gateway/testorder/appointment', { params: options.params || {} });
 
       const raw = Array.isArray(response.data) ? response.data : (response.data?.data || []);
-      // If caller requested full set, iterate pages
+
       if (options.fetchAll) {
         try {
           const collected = [];
           let page = 1;
-          const MAX_PAGES = 100; // Pagination safety limit
+          const MAX_PAGES = 100;
           const respPageSize = Number(response.data?.pageSize || response.data?.page_size || 0) || (Array.isArray(raw) ? raw.length : 0) || 50;
           while (page <= MAX_PAGES) {
             const pagedResp = await api.get('/gateway/testorder/appointment', { params: { page, pageSize: respPageSize } });
@@ -101,7 +85,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointments by date
   getAppointmentsByDate: async (date) => {
     try {
       const response = await api.get('/gateway/testorder/appointment');
@@ -114,7 +97,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointments by doctor
   getAppointmentsByDoctor: async (doctorId) => {
     try {
       if (!doctorId) {
@@ -123,7 +105,7 @@ export const appointmentService = {
       const response = await api.get('/gateway/testorder/appointment');
       const raw = Array.isArray(response.data) ? response.data : (response.data?.data || []);
       const allAppointments = Array.isArray(raw) ? raw.map(normalizeAppointment) : [];
-      // Type-safe comparison: normalize IDs to strings
+
       const doctorIdStr = String(doctorId);
       const appointments = allAppointments.filter(apt => {
         if (apt.doctorId === null || apt.doctorId === undefined) {
@@ -137,7 +119,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointments by patient
   getAppointmentsByPatient: async (patientId) => {
     try {
       const response = await api.get(`/gateway/testorder/appointment/patient/${patientId}`);
@@ -145,7 +126,6 @@ export const appointmentService = {
       const data = Array.isArray(raw) ? raw.map(normalizeAppointment) : [];
       return { success: true, data: data };
     } catch (error) {
-      // BE returns 404 when no appointments found - this is normal, return empty array
       if (error.response?.status === 404) {
         return { success: true, data: [] };
       }
@@ -156,11 +136,11 @@ export const appointmentService = {
   /**
    * Retrieves an appointment by its booking code or ID.
    * Feature Task: Scan QR Check-in (Web).
-   * 
+   *
    * @description Searches for an existing appointment matching the scanned QR code or identifier.
    * @param {string} code - The unique appointment code or ID extracted from a QR code or manual input.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} The appointment details if matched.
-   * 
+   *
    * @example
    * const result = await appointmentService.getAppointmentByCode('AP123456');
    */
@@ -169,7 +149,6 @@ export const appointmentService = {
     const cleanCode = String(code).trim();
     console.log('[appointmentService.getAppointmentByCode] Searching cleanCode:', cleanCode);
     try {
-      // 1. Direct indexed fetch by ID or AppointmentCode (fastest and most accurate)
       try {
         const directRes = await api.get(`/gateway/testorder/appointment/${cleanCode}`);
         console.log('[appointmentService.getAppointmentByCode] directRes:', directRes.status, directRes.data);
@@ -181,7 +160,6 @@ export const appointmentService = {
         console.warn('[appointmentService.getAppointmentByCode] direct lookup error:', directErr?.response?.status, directErr.message);
       }
 
-      // 2. Fallback search by keyword with higher PageSize
       const response = await api.get('/gateway/testorder/appointment', { params: { Keyword: cleanCode, PageSize: 50 } });
       console.log('[appointmentService.getAppointmentByCode] fallback response:', response.status, response.data);
       const raw = Array.isArray(response.data) ? response.data : (response.data?.data || response.data?.items || []);
@@ -203,17 +181,17 @@ export const appointmentService = {
   /**
    * Creates a new lab test appointment.
    * Feature Task: Create Appointments (Web).
-   * 
+   *
    * @description Submits a new appointment booking request to the backend TestOrder service.
    * Requires patient identification (CreatedBy), test package, and optional doctor shift.
-   * 
+   *
    * @param {Object} appointmentData - The appointment creation payload.
    * @param {string} [appointmentData.TestPackageId] - The selected lab test package ID.
    * @param {string} [appointmentData.DoctorShiftId] - Optional doctor work shift ID.
    * @param {string} [appointmentData.Status] - Initial status (e.g., 'pending_confirmation', 'scheduled').
    * @param {string} appointmentData.CreatedBy - The user/patient ID creating the appointment.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Object containing created appointment data or error.
-   * 
+   *
    * @example
    * const res = await appointmentService.createAppointment({
    *   TestPackageId: 'PKG_001',
@@ -223,8 +201,6 @@ export const appointmentService = {
    */
   createAppointment: async (appointmentData) => {
     try {
-      // BE DTO format: { TestPackageId, DoctorShiftId, Status, CreatedBy }
-      // Accept multiple casing/field variants from callers
       const resolvedTestPackageId = appointmentData.TestPackageId || appointmentData.testPackageId || appointmentData.test_package_id || appointmentData.PackageId || appointmentData.packageId || null;
       const resolvedDoctorShiftId = appointmentData.DoctorShiftId || appointmentData.doctorShiftId || appointmentData.doctor_shift_id || null;
       const resolvedStatus = appointmentData.Status || appointmentData.status || 'pending_confirmation';
@@ -237,7 +213,6 @@ export const appointmentService = {
         CreatedBy: resolvedCreatedBy
       };
 
-      // Validate required field
       if (!newAppointment.CreatedBy) {
         return { success: false, message: 'CreatedBy (Patient ID) is required' };
       }
@@ -258,12 +233,12 @@ export const appointmentService = {
   /**
    * Updates existing appointment details.
    * Feature Task: Update Appointments (Web).
-   * 
+   *
    * @description Sends modified appointment data (time, date, package, notes, status) to the backend.
    * @param {string} id - The unique identifier of the appointment to update.
    * @param {Object} appointmentData - Payload containing fields to update.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} Update result.
-   * 
+   *
    * @example
    * const res = await appointmentService.updateAppointment('AP001', { Status: 'confirmed' });
    */
@@ -280,11 +255,11 @@ export const appointmentService = {
   /**
    * Deletes an appointment from the system.
    * Feature Task: Delete Appointments (Web).
-   * 
+   *
    * @description Calls the backend DELETE endpoint to permanently remove an appointment record.
    * @param {string} id - The unique identifier of the appointment to remove.
    * @returns {Promise<{success: boolean, message: string}>} Result message.
-   * 
+   *
    * @example
    * const res = await appointmentService.deleteAppointment('AP001');
    */
@@ -297,13 +272,10 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status
   updateAppointmentStatus: async (id, status) => {
     try {
-      // Backend DTO expects Status (PascalCase) according to AppointmentUpdateDto
       const response = await api.put(`/gateway/testorder/appointment/${id}`, { Status: status });
 
-      // Backend returns 204 NoContent on success, or 200 OK with data
       if (response.status === 204 || response.status === 200) {
         return { success: true, data: response.data || { id, status } };
       }
@@ -321,10 +293,8 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve available shifts
   getAvailableTimeSlots: async (date, doctorId) => {
     try {
-      // Retrieve existing appointments for date
       const appointmentsResponse = await api.get('/gateway/testorder/appointment');
       const raw = Array.isArray(appointmentsResponse.data) ? appointmentsResponse.data : (appointmentsResponse.data?.data || []);
       const allAppointments = Array.isArray(raw) ? raw.map(normalizeAppointment) : [];
@@ -334,7 +304,6 @@ export const appointmentService = {
 
       const bookedSlots = appointments.map(apt => apt.appointmentTime);
 
-      // Standard fixed shift definitions
       const timeSlots = [
         '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
         '11:00', '11:30', '14:00', '14:30', '15:00', '15:30',
@@ -349,7 +318,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointment by ID
   getAppointmentById: async (id) => {
     try {
       const response = await api.get(`/gateway/testorder/appointment/${id}`);
@@ -359,7 +327,6 @@ export const appointmentService = {
 
       return { success: true, data: data };
     } catch (error) {
-
       return { success: false, message: 'Lỗi lấy thông tin lịch hẹn' };
     }
   },
@@ -367,20 +334,19 @@ export const appointmentService = {
   /**
    * Performs express check-in for an appointment upon QR code scan or receptionist reception.
    * Feature Task: Scan QR Check-in (Web).
-   * 
+   *
    * @description Validates appointment state and check-in time window (30 mins before to 2 hours after),
    * updates status to 'checked_in', records timestamp and receptionist ID, and pushes the patient into the queue.
-   * 
+   *
    * @param {string} id - The unique appointment ID to check-in.
    * @param {string} [receptionistId=null] - The ID of the receptionist performing or supervising the check-in.
    * @returns {Promise<{success: boolean, data?: Object, message?: string}>} The updated appointment payload with check-in timestamp.
-   * 
+   *
    * @example
    * const res = await appointmentService.checkInAppointment('AP001', 'rec_123');
    */
   checkInAppointment: async (id, receptionistId = null) => {
     try {
-      // Validate appointment before check-in
       const appointmentResponse = await api.get(`/gateway/testorder/appointment/${id}`);
       const appointment = appointmentResponse.data?.data || appointmentResponse.data;
 
@@ -388,7 +354,6 @@ export const appointmentService = {
         return { success: false, message: 'Không tìm thấy lịch hẹn' };
       }
 
-      // Check if already checked in or further along in clinical workflow
       const statusRaw = (appointment.status || appointment.Status || '').toString();
       const statusLower = statusRaw.toLowerCase().replace(/[_-]/g, '');
 
@@ -402,12 +367,10 @@ export const appointmentService = {
         };
       }
 
-      // Accept 'scheduled', 'confirmed', 'paid', 'pending' statuses (case-insensitive and enum numeric)
       if (!['scheduled', 'confirmed', 'paid', '1', 'pending', '0', 'checkedin', '2'].includes(statusLower)) {
         return { success: false, message: 'Chỉ có thể check-in lịch hẹn hợp lệ' };
       }
 
-      // Validate check-in window (for self-service; receptionist desk has intake override)
       const now = new Date();
       const getAppointmentDateTime = (apt) => {
         if (!apt || !apt.appointmentDate) return null;
@@ -423,8 +386,8 @@ export const appointmentService = {
       const appointmentDateTime = getAppointmentDateTime(appointment);
 
       if (appointmentDateTime && !receptionistId) {
-        const windowStart = new Date(appointmentDateTime.getTime() - 30 * 60 * 1000); // 30 mins before
-        const windowEnd = new Date(appointmentDateTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after
+        const windowStart = new Date(appointmentDateTime.getTime() - 30 * 60 * 1000);
+        const windowEnd = new Date(appointmentDateTime.getTime() + 2 * 60 * 60 * 1000);
 
         if (now < windowStart) {
           const minutesUntil = Math.ceil((windowStart - now) / (1000 * 60));
@@ -443,28 +406,24 @@ export const appointmentService = {
         }
       }
 
-      // Update status to CheckedIn and record timestamp
       const updateData = {
         status: 'CheckedIn',
         checkedInAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
 
-      // Record staff check-in user info if available
       if (receptionistId) {
         updateData.checkedInBy = receptionistId;
         updateData.checkedInByRole = 'receptionist';
       }
 
       const response = await api.put(`/gateway/testorder/appointment/${id}`, updateData);
-      
-      // Fetch the updated appointment to get newly generated fields like queueNumber
+
       try {
         const updatedResponse = await api.get(`/gateway/testorder/appointment/${id}`);
         const updatedData = updatedResponse.data?.data || updatedResponse.data || {};
         return { success: true, data: updatedData };
       } catch (e) {
-        // Fallback if fetch fails
         const data = response.data?.data || response.data;
         return { success: true, data: data };
       }
@@ -473,7 +432,6 @@ export const appointmentService = {
     }
   },
 
-  // Helper function: parse datetime from appointment
   getAppointmentDateTime: (appointment) => {
     if (!appointment || !appointment.appointmentDate) return null;
 
@@ -487,10 +445,8 @@ export const appointmentService = {
     }
   },
 
-  // Mark appointment as no-show
   markNoShow: async (id, notes = '') => {
     try {
-      // Validate appointment
       const appointmentResponse = await api.get(`/gateway/testorder/appointment/${id}`);
       const appointment = appointmentResponse.data?.data || appointmentResponse.data;
 
@@ -502,7 +458,6 @@ export const appointmentService = {
         return { success: false, message: 'Chỉ có thể đánh dấu không đến cho lịch hẹn đã xác nhận' };
       }
 
-      // Update appointment status to no_show
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
         status: 'no_show',
         noShowAt: new Date().toISOString(),
@@ -516,7 +471,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointments by status
   getAppointmentsByStatus: async (status) => {
     try {
       const response = await api.get('/gateway/testorder/appointment');
@@ -529,7 +483,6 @@ export const appointmentService = {
     }
   },
 
-  // Retrieve appointments ready for check-in (status = 'confirmed')
   getAppointmentsNeedCheckIn: async () => {
     try {
       const response = await api.get('/gateway/testorder/appointment');
@@ -538,7 +491,6 @@ export const appointmentService = {
       const now = new Date();
       const today = now.toISOString().split('T')[0];
 
-      // Retrieve confirmed appointments for today or past dates
       const appointments = allAppointments.filter(apt => {
         return apt.status === 'confirmed' && apt.appointmentDate && apt.appointmentDate <= today;
       });
@@ -549,7 +501,6 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status upon sample collection
   updateAfterSampleCollection: async (id) => {
     try {
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
@@ -563,7 +514,6 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status upon sample processing completion
   updateAfterSampleProcessed: async (id) => {
     try {
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
@@ -577,7 +527,6 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status upon internal result verification
   updateAfterResultConfirmed: async (id) => {
     try {
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
@@ -591,7 +540,6 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status when submitted for doctor review
   updateAfterSendToDoctor: async (id) => {
     try {
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
@@ -605,7 +553,6 @@ export const appointmentService = {
     }
   },
 
-  // Update appointment status when doctor review is complete
   updateAfterDoctorApproval: async (id) => {
     try {
       const response = await api.put(`/gateway/testorder/appointment/${id}`, {
@@ -620,12 +567,9 @@ export const appointmentService = {
     }
     },
 
-  // Helper: Extract test/package id from an appointment object
-  // Returns the first non-empty candidate or null.
   getTestPackageIdFromAppointment: (appointment) => {
     if (!appointment) return null;
     try {
-      // 1) Direct common fields
       const direct = [
         appointment.TestPackageId, appointment.testPackageId, appointment.TestPackageId, appointment.packageId, appointment.PackageId, appointment.pkgId, appointment.pkg_id, appointment.test_package_id, appointment.test_packageid
       ];
@@ -633,7 +577,6 @@ export const appointmentService = {
         if (c !== undefined && c !== null && String(c).trim() !== '') return c;
       }
 
-      // 2) Shallow known nested shapes
       const shallowCandidates = [
         appointment.testPackage, appointment.package, appointment.service, appointment.pkg, appointment.items, appointment.services, appointment.order, appointment.meta
       ];
@@ -658,7 +601,6 @@ export const appointmentService = {
         }
       }
 
-      // 3) Limited recursive search for keys that look like package id
       const seen = new Set();
       const searchForPkgId = (obj, depth = 0) => {
         if (!obj || typeof obj !== 'object' || depth > 4) return null;
@@ -686,7 +628,7 @@ export const appointmentService = {
                 }
               }
             }
-          } catch (e) { /* ignore individual property errors */ }
+          } catch (e) {  }
         }
         return null;
       };
@@ -694,7 +636,6 @@ export const appointmentService = {
       const rec = searchForPkgId(appointment, 0);
       if (rec) return rec;
 
-      // 4) shallow fallback: service.package.id
       if (appointment.service && appointment.service.package) {
         const sPkg = appointment.service.package;
         if (sPkg.id || sPkg.packageId) return sPkg.id || sPkg.packageId;

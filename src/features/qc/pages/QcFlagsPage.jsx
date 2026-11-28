@@ -1,10 +1,10 @@
 /**
  * Quality Control (QC) Flags Management Page
- * 
+ *
  * Allows Laboratory Users and Clinic Managers to configure, inspect,
  * and resolve Quality Control (QC) flags triggered by laboratory analyzers
  * or system out-of-bound threshold rules.
- * 
+ *
  * @author Blood Laboratory Management Team
  * @version 1.0.0
  * @since 2024
@@ -12,9 +12,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Row, Col, Card, Badge, Button, Form, 
-  InputGroup, Modal, Spinner, Alert 
+import {
+  Row, Col, Card, Badge, Button, Form,
+  InputGroup, Modal, Spinner, Alert
 } from 'react-bootstrap';
 import { FlaskConical, AlertTriangle, CheckCircle2, Plus, Trash2, RefreshCw, Search, TestTube2, Wrench, Check, Info, X as LucideX } from 'lucide-react';
 import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
@@ -62,21 +62,17 @@ const QcFlagsPage = () => {
   const canWriteManualFlags = hasRole(activeUser, ROLES.LAB);
   const isManager = hasRole(activeUser, ROLES.MANAGER);
 
-  // Live state bound directly to MongoDB collection 'QcFlags' via backend service.
   const [flags, setFlags] = useState([]);
   const flagsPag = usePagination(flags, 8);
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
 
-  // Filters are applied server-side by the MongoDB aggregation pipeline in Testorder-service.
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [analyzerFilter, setAnalyzerFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
-
-  // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -84,7 +80,6 @@ const QcFlagsPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
 
-  // Create Form State
   const [createForm, setCreateForm] = useState({
     flagCode: '',
     analyzerId: 'ANL-SYS-01',
@@ -102,7 +97,6 @@ const QcFlagsPage = () => {
     resolutionNotes: ''
   });
 
-  // Edit/Resolve Form State
   const [editForm, setEditForm] = useState({
     status: 'RESOLVED',
     severity: 'HIGH',
@@ -137,7 +131,6 @@ const QcFlagsPage = () => {
         ...iqcList.filter((f) => !manualIds.has(f.flagId))
       ];
 
-      // Client-side filter for IQC-sourced rows (manual API already filtered server-side)
       const filtered = merged.filter((f) => {
         if (statusFilter !== 'ALL' && f.status !== statusFilter) return false;
         if (severityFilter !== 'ALL' && f.severity !== severityFilter) return false;
@@ -197,7 +190,6 @@ const QcFlagsPage = () => {
     fetchFlags();
   }, [fetchFlags]);
 
-  // Handle Create Flag
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -226,7 +218,6 @@ const QcFlagsPage = () => {
     }
   };
 
-  // Handle Edit/Resolve Submit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFlag) return;
@@ -247,7 +238,6 @@ const QcFlagsPage = () => {
     }
   };
 
-  // Handle Delete Flag
   const handleDeleteSubmit = async () => {
     if (!selectedFlag) return;
     try {
@@ -316,7 +306,7 @@ const QcFlagsPage = () => {
 
   return (
     <div className="w-100">
-      {/* Top Banner */}
+
       <header className="bms-page-header">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">Cảnh báo vi phạm Westgard (IQC)</h1>
@@ -378,7 +368,6 @@ const QcFlagsPage = () => {
         </Alert>
       )}
 
-      {/* CẢNH BÁO KHÓA MÁY (WESTGARD 1_3s) */}
       {Array.isArray(flags) && flags.some(f => f.status === 'ACTIVE' && (f.ruleType?.includes('1_3s') || f.severity === 'CRITICAL')) && (
         <Alert variant="danger" className="rounded-4 mb-4 d-flex align-items-center gap-3" style={{ background: '#FEF2F2', borderColor: '#FECACA', color: '#991B1B' }}>
           <AlertTriangle className="fs-3 text-danger flex-shrink-0"  size="1em"/>
@@ -391,7 +380,6 @@ const QcFlagsPage = () => {
         </Alert>
       )}
 
-      {/* KPI Quad Cards */}
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} lg={3}>
@@ -445,7 +433,6 @@ const QcFlagsPage = () => {
         </Row>
       )}
 
-      {/* Single-Line Flat Filter Bar */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <Search className="bms-search-icon"  size="1em"/>
@@ -508,7 +495,6 @@ const QcFlagsPage = () => {
         </span>
       </div>
 
-      {/* QC Flags Cards List (No Thick Left Border) */}
       {loading && (!Array.isArray(flags) || flags.length === 0) ? (
         <div className="text-center py-4">
           <Spinner animation="border" variant="primary" />
@@ -519,15 +505,15 @@ const QcFlagsPage = () => {
           {flagsPag.paginatedItems.map((flag) => {
             const isOutOfRange = flag.observedValue < flag.lowerLimit || flag.observedValue > flag.upperLimit;
             return (
-              <Card 
-                key={flag.flagId} 
+              <Card
+                key={flag.flagId}
                 className="rounded-4 overflow-hidden bg-white"
                 style={{ border: '1px solid #E2E8F0' }}
               >
                 <Card.Body className="p-3">
                   <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
                     <div className="d-flex align-items-start gap-3">
-                      <div 
+                      <div
                         className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1"
                         style={{
                           width: '48px',
@@ -549,7 +535,6 @@ const QcFlagsPage = () => {
                           Máy: <strong className="text-dark">{flag.analyzerName}</strong> | Quy tắc: <span className="text-danger fw-semibold">{flag.ruleType}</span>
                         </div>
 
-                        {/* Measurement Range Stats */}
                         <div className="d-flex flex-wrap align-items-center gap-3 p-2 bg-light rounded-3 small mt-2">
                           <div>
                             <span className="text-muted">Giá trị đo:</span>{' '}
@@ -572,7 +557,6 @@ const QcFlagsPage = () => {
                           )}
                         </div>
 
-                        {/* Resolution Notes if Resolved */}
                         {flag.resolutionNotes && (
                           <div className="mt-3 p-3 bg-success-subtle border border-success-subtle rounded-3 small">
                             <div className="fw-bold text-success-emphasis mb-1 d-flex align-items-center gap-1">
@@ -589,7 +573,6 @@ const QcFlagsPage = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="d-flex align-items-center gap-2">
                       {flag.source === 'iqc-run' ? (
                         <Button
@@ -668,7 +651,6 @@ const QcFlagsPage = () => {
         </Card>
       )}
 
-      {/* Create Modal */}
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
@@ -822,7 +804,6 @@ const QcFlagsPage = () => {
         </Form>
       </Modal>
 
-      {/* Edit / Resolve Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
@@ -891,7 +872,6 @@ const QcFlagsPage = () => {
         </Form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">

@@ -1,11 +1,11 @@
 /**
  * Patient Feedback & Rating Hub Page
- * 
+ *
  * Supports:
  * - Patients: Submit new feedback/ratings, view past submissions, edit/delete own reviews.
  * - Clinic Managers: Review all feedback, analyze rating distribution, and submit official replies.
  * - Doctors, Receptionists, Administrators: View patient reviews, service department ratings, and manager responses.
- * 
+ *
  * @author Blood Laboratory Management Team
  * @version 1.0.0
  * @since 2024
@@ -13,9 +13,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  Row, Col, Card, Badge, Button, Form, 
-  InputGroup, Modal, Spinner, ProgressBar, Alert 
+import {
+  Row, Col, Card, Badge, Button, Form,
+  InputGroup, Modal, Spinner, ProgressBar, Alert
 } from 'react-bootstrap';
 import { Star, MessagesSquare, Reply, SquarePen, Trash2, Search, RefreshCw, UserCheck, User, Stethoscope, Plus, ArrowLeft, Package } from 'lucide-react';
 import TablePagination, { usePagination } from '../../../components/ui/TablePagination';
@@ -29,25 +29,19 @@ const FeedbackHubPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, userRole, userRoleId } = useAuth();
 
-  // The server is the authoritative boundary for authorization and MongoDB operations.
-  // These client-side role checks tailor the UI presentation (tabs, modals, and actions).
   const currentRoleId = useMemo(() => resolveRoleId(user) ?? resolveRoleId(userRoleId), [user, userRoleId]);
 
   const isPatient = useMemo(() => {
     return currentRoleId === ROLES.PATIENT || userRole === 'patient';
   }, [currentRoleId, userRole]);
 
-  // Exclusively Admin has permission to moderate and delete feedback
   const isAdmin = useMemo(() => {
     return currentRoleId === ROLES.ADMIN || userRole === 'admin' || userRole === 'administrator';
   }, [currentRoleId, userRole]);
 
-  // Clinic Managers and Admins can view analytics and submit official responses
   const isManagerOrAdmin = useMemo(() => {
     return currentRoleId === ROLES.ADMIN || currentRoleId === ROLES.MANAGER || userRole === 'admin' || userRole === 'manager';
   }, [currentRoleId, userRole]);
-
-
 
   const [feedbacks, setFeedbacks] = useState([]);
   const [myFeedbacks, setMyFeedbacks] = useState([]);
@@ -58,7 +52,6 @@ const FeedbackHubPage = () => {
   const [eligibility, setEligibility] = useState({ isEligible: true, reason: '', completedReferenceCodes: [] });
   const [adminDeleteReason, setAdminDeleteReason] = useState('');
 
-  // Filters
   const [ratingFilter, setRatingFilter] = useState('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [packageFilter, setPackageFilter] = useState('ALL');
@@ -67,7 +60,6 @@ const FeedbackHubPage = () => {
   const [eligiblePackages, setEligiblePackages] = useState([]);
   const [catalogPackages, setCatalogPackages] = useState([]);
 
-  // Modals & Forms
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showResponseModal, setShowResponseModal] = useState(false);
@@ -75,7 +67,6 @@ const FeedbackHubPage = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Create Form State
   const [createForm, setCreateForm] = useState({
     rating: 5,
     serviceCategory: 'Đánh giá gói xét nghiệm',
@@ -89,7 +80,6 @@ const FeedbackHubPage = () => {
     isAnonymous: false
   });
 
-  // Edit Form State
   const [editForm, setEditForm] = useState({
     rating: 5,
     serviceCategory: 'Tư vấn bác sĩ',
@@ -98,7 +88,6 @@ const FeedbackHubPage = () => {
     isAnonymous: false
   });
 
-  // Response Form State (For Manager)
   const [responseForm, setResponseForm] = useState({
     response: '',
     respondedBy: user?.fullName || 'Quản lý phòng khám (Clinic Manager)'
@@ -277,7 +266,6 @@ const FeedbackHubPage = () => {
     fetchFeedbacks();
   }, [fetchFeedbacks]);
 
-  // Handle Create Feedback Submit
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
     if (!user?.id) {
@@ -322,7 +310,6 @@ const FeedbackHubPage = () => {
     }
   };
 
-  // Handle Edit Feedback Submit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFeedback) return;
@@ -343,7 +330,6 @@ const FeedbackHubPage = () => {
     }
   };
 
-  // Handle Manager Response Submit
   const handleResponseSubmit = async (e) => {
     e.preventDefault();
     if (!selectedFeedback) return;
@@ -367,7 +353,6 @@ const FeedbackHubPage = () => {
     }
   };
 
-  // Handle Delete Submit (Patient deletes own, or Admin requests delete with patient consent)
   const handleDeleteSubmit = async () => {
     if (!selectedFeedback) return;
     try {
@@ -449,7 +434,7 @@ const FeedbackHubPage = () => {
 
   return (
     <div className="w-100">
-      {/* Top Banner */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content">
           <h1 className="bms-page-title">Đánh Giá Dịch Vụ</h1>
@@ -515,7 +500,6 @@ const FeedbackHubPage = () => {
         </Alert>
       )}
 
-      {/* Statistics Overview Card */}
       {statistics && (
         <Row className="g-3 mb-4">
           <Col xs={12} md={4}>
@@ -546,10 +530,10 @@ const FeedbackHubPage = () => {
                       {star} <Star className="text-warning" size={11} />
                     </span>
                     <div className="flex-grow-1">
-                      <ProgressBar 
-                        now={pct} 
-                        variant={star >= 4 ? 'success' : star === 3 ? 'warning' : 'danger'} 
-                        style={{ height: '8px' }} 
+                      <ProgressBar
+                        now={pct}
+                        variant={star >= 4 ? 'success' : star === 3 ? 'warning' : 'danger'}
+                        style={{ height: '8px' }}
                         className="rounded-pill"
                       />
                     </div>
@@ -584,7 +568,6 @@ const FeedbackHubPage = () => {
         </Row>
       )}
 
-      {/* Single-Line Filter Bar */}
       <div className="bms-filter-bar d-flex flex-wrap align-items-center gap-2 mb-3">
         <div className="bms-search-input-pill flex-grow-1" style={{ minWidth: '230px' }}>
           <Search className="bms-search-icon" size="1em" />
@@ -671,7 +654,6 @@ const FeedbackHubPage = () => {
         </div>
       )}
 
-      {/* Feedbacks List */}
       {loading && displayedFeedbacks.length === 0 ? (
         <div className="text-center py-3">
           <Spinner animation="border" variant="primary" />
@@ -685,9 +667,9 @@ const FeedbackHubPage = () => {
               <Card key={fb.feedbackId} className="border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                 <Card.Body className="p-2">
                   <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-                    {/* Review Header */}
+
                     <div className="d-flex align-items-center gap-3">
-                      <div 
+                      <div
                         className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                         style={{
                           width: '46px',
@@ -745,9 +727,8 @@ const FeedbackHubPage = () => {
                       </div>
                     </div>
 
-                    {/* Action buttons */}
                     <div className="d-flex align-items-center gap-2">
-                      {/* Patient full CRUD on their own feedback */}
+
                       {isPatient && isOwn && fb.status !== 'HIDDEN_BY_ADMIN' && fb.status !== 'DELETED' && (
                         <>
                           <Button
@@ -774,7 +755,6 @@ const FeedbackHubPage = () => {
                         </>
                       )}
 
-                      {/* Clinic Manager reply button */}
                       {isManagerOrAdmin && fb.status !== 'DELETED' && (
                         <Button
                           variant="outline-primary"
@@ -787,7 +767,6 @@ const FeedbackHubPage = () => {
                         </Button>
                       )}
 
-                      {/* Only Admin can request delete (requires patient consent) */}
                       {isAdmin && fb.status !== 'HIDDEN_BY_ADMIN' && fb.status !== 'DELETED' && !fb.adminDeleteRequested && (
                         <Button
                           variant="outline-danger"
@@ -812,7 +791,6 @@ const FeedbackHubPage = () => {
                     </div>
                   </div>
 
-                  {/* Admin delete consent prompt for Patient owner */}
                   {isPatient && isOwn && fb.adminDeleteRequested && fb.status !== 'HIDDEN_BY_ADMIN' && (
                     <div className="mt-3 p-3 bg-warning-subtle border border-warning rounded-3 small">
                       <div className="fw-bold text-dark mb-1">
@@ -832,7 +810,6 @@ const FeedbackHubPage = () => {
                     </div>
                   )}
 
-                  {/* Review Content */}
                   {fb.status === 'HIDDEN_BY_ADMIN' || fb.hiddenByAdminWithConsent ? (
                     <div className="mt-3 p-3 bg-secondary-subtle border border-secondary-subtle rounded-3 text-secondary d-flex align-items-center gap-2">
                       <Trash2 className="flex-shrink-0" size="1em" />
@@ -852,7 +829,6 @@ const FeedbackHubPage = () => {
                     </div>
                   )}
 
-                  {/* Manager Response Box if present */}
                   {fb.managerResponse && (
                     <div className="mt-3 p-3 bg-primary-subtle border border-primary-subtle rounded-3 small">
                       <div className="d-flex align-items-center justify-content-between mb-1">
@@ -902,7 +878,6 @@ const FeedbackHubPage = () => {
         </Card>
       )}
 
-      {/* Create Modal */}
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
@@ -1030,7 +1005,7 @@ const FeedbackHubPage = () => {
                 </Form.Group>
               </Col>
               <Col md={12}>
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   id="anonymous-check"
                   label="Gửi đánh giá dưới dạng Ẩn danh (Không hiển thị họ tên của tôi)"
@@ -1050,7 +1025,6 @@ const FeedbackHubPage = () => {
         </Form>
       </Modal>
 
-      {/* Edit Modal (Patient) */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
@@ -1114,7 +1088,6 @@ const FeedbackHubPage = () => {
         </Form>
       </Modal>
 
-      {/* Response Modal (Manager) */}
       <Modal show={showResponseModal} onHide={() => setShowResponseModal(false)} size="lg" centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold d-flex align-items-center gap-2">
@@ -1157,7 +1130,6 @@ const FeedbackHubPage = () => {
         </Form>
       </Modal>
 
-      {/* Delete Confirmation Modal (Patient delete own OR Admin request delete with Patient consent) */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton className="border-0 pb-0">
           <Modal.Title className="fw-bold text-danger d-flex align-items-center gap-2">

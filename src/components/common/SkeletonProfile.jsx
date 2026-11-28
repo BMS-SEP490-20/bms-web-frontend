@@ -10,7 +10,7 @@ import './SkeletonProfile.css';
 export const SkeletonProfile = () => {
   return (
     <div className="row g-4" aria-busy="true" aria-label="Loading profile information">
-      {/* Left Column Skeleton */}
+
       <div className="col-12 col-lg-4">
         <div className="card shadow-sm border-0 p-4 text-center">
           <div className="bms-skeleton bms-skeleton-avatar"></div>
@@ -20,7 +20,6 @@ export const SkeletonProfile = () => {
         </div>
       </div>
 
-      {/* Right Column Skeleton */}
       <div className="col-12 col-lg-8">
         <div className="card shadow-sm border-0 p-4">
           <div className="bms-skeleton mb-4" style={{ height: '24px', width: '35%' }}></div>

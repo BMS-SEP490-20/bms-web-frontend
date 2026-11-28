@@ -23,7 +23,7 @@ export default function Forbidden403({ requiredRole, userRole }) {
     localStorage.removeItem('bms_refresh_token');
     localStorage.removeItem('bms_user');
     sessionStorage.clear();
-    // Không giữ ?redirect= URL bị cấm — tránh login lại rồi lại 403
+
     navigate('/login', { replace: true });
   };
 

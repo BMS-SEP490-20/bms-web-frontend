@@ -144,13 +144,11 @@ const SampleQueuePage = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [labRoomFilter, setLabRoomFilter] = useState('');
 
-  // Dynamic lookups from backend APIs
   const [patientOptions, setPatientOptions] = useState([]);
   const [appointmentOptions, setAppointmentOptions] = useState([]);
   const [labRooms, setLabRooms] = useState(['LAB-ROOM-01', 'LAB-ROOM-02', 'LAB-BIOCHEM-01', 'LAB-HEMATOLOGY-01']);
@@ -180,9 +178,6 @@ const SampleQueuePage = () => {
     return () => { cancelled = true; };
   }, [defaultOperatorName, defaultOperatorId]);
 
-  // =========================================================================
-  // MODAL 1: RECORD SAMPLE TIME (Ghi nhận thời gian lấy mẫu)
-  // =========================================================================
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [collectionTargetSample, setCollectionTargetSample] = useState(null);
   const [collectionForm, setCollectionForm] = useState({
@@ -218,9 +213,6 @@ const SampleQueuePage = () => {
     }
   }, []);
 
-  // =========================================================================
-  // MODAL 2: UPDATE SAMPLE STATUS (Cập nhật trạng thái vòng đời mẫu ISO 15189)
-  // =========================================================================
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusTargetSample, setStatusTargetSample] = useState(null);
   const [statusDetailLoading, setStatusDetailLoading] = useState(false);
@@ -236,17 +228,11 @@ const SampleQueuePage = () => {
   const [statusError, setStatusError] = useState('');
   const [statusSubmitting, setStatusSubmitting] = useState(false);
 
-  // =========================================================================
-  // MODAL 3: RERUN REQUEST (UC47)
-  // =========================================================================
   const [showRerunModal, setShowRerunModal] = useState(false);
   const [selectedSample, setSelectedSample] = useState(null);
   const [rerunReason, setRerunReason] = useState('');
   const [rerunLoading, setRerunLoading] = useState(false);
 
-  // =========================================================================
-  // MODAL 4: NHẬP / XEM KẾT QUẢ XÉT NGHIỆM MÁU (Clean Human-Operated Entry)
-  // =========================================================================
   const [showResultModal, setShowResultModal] = useState(false);
   const [resultTargetSample, setResultTargetSample] = useState(null);
   const [resultParameters, setResultParameters] = useState([]);
@@ -298,7 +284,6 @@ const SampleQueuePage = () => {
         }
       }
     } catch {
-      // Keep defaults
     }
 
     setResultParameters(paramsToUse);
@@ -331,7 +316,6 @@ const SampleQueuePage = () => {
         }
       }
     } catch {
-      // Keep defaults
     }
 
     setResultParameters(paramsToUse);
@@ -416,7 +400,6 @@ const SampleQueuePage = () => {
     fetchQueue();
   }, [fetchQueue]);
 
-  // Load patient, appointment, and lab room options dynamically from backend APIs
   const loadLookups = useCallback(async () => {
     try {
       if (patientOptions.length === 0) {
@@ -425,7 +408,6 @@ const SampleQueuePage = () => {
         if (items.length > 0) setPatientOptions(items);
       }
     } catch {
-      // Non-blocking
     }
 
     try {
@@ -442,7 +424,6 @@ const SampleQueuePage = () => {
             status: o.status
           }));
         } catch {
-          // Fallback to /appointments for roles with AppointmentReaders permission
         }
         if (ordList.length === 0) {
           const aptRes = await api.get('/appointments');
@@ -451,13 +432,12 @@ const SampleQueuePage = () => {
         if (ordList.length > 0) setAppointmentOptions(ordList.slice(0, 30));
       }
     } catch {
-      // Non-blocking
     }
 
     try {
       const roomRes = await api.get('/shifts/rooms');
       const rList = Array.isArray(roomRes.data?.data) ? roomRes.data.data : (Array.isArray(roomRes.data) ? roomRes.data : []);
-      // Main Lab flow: only LAB / lấy mẫu rooms — never overwrite with ROOM-10x clinic rooms.
+
       const labOnly = rList.filter((r) => {
         const code = String(r?.id || r?.roomNumber || r?.code || r || '').toUpperCase();
         const name = String(r?.name || r?.roomName || '').toUpperCase();
@@ -465,7 +445,6 @@ const SampleQueuePage = () => {
       });
       if (labOnly.length > 0) setLabRooms(labOnly);
     } catch {
-      // Non-blocking — keep default LAB-ROOM-* list
     }
 
     try {
@@ -474,13 +453,11 @@ const SampleQueuePage = () => {
       const sList = Array.isArray(staffRes.data?.data) ? staffRes.data.data : (Array.isArray(staffRes.data) ? staffRes.data : []);
       if (sList.length > 0) setStaffOptions(sList);
     } catch {
-      // Non-blocking
     } finally {
       setStaffLoading(false);
     }
   }, [patientOptions.length, appointmentOptions.length]);
 
-  // Sync collector and technician fields with MongoDB staff directory once loaded.
   useEffect(() => {
     if (staffOptions.length === 0) return;
 
@@ -530,9 +507,6 @@ const SampleQueuePage = () => {
     fetchQueue();
   };
 
-  // =========================================================================
-  // HANDLERS: RECORD SAMPLE TIME MODAL
-  // =========================================================================
   const openRecordCollectionModal = (sample = null) => {
     loadLookups();
     setCollectionTargetSample(sample);
@@ -628,7 +602,6 @@ const SampleQueuePage = () => {
     e.preventDefault();
     setCollectionError('');
 
-    // Validate timestamp
     const parsedDate = collectionForm.collectedAt ? new Date(collectionForm.collectedAt) : new Date();
     if (Number.isNaN(parsedDate.getTime())) {
       setCollectionError('Thời điểm lấy mẫu không hợp lệ.');
@@ -719,9 +692,6 @@ const SampleQueuePage = () => {
     }
   };
 
-  // =========================================================================
-  // HANDLERS: UPDATE SAMPLE STATUS MODAL
-  // =========================================================================
   /** Chuyển mẫu đã tiếp nhận Lab (Received / Processing) sang Đang xét nghiệm (Testing). */
   const handleStartTesting = async (sample) => {
     const steps = pathToTesting(sample?.status);
@@ -792,7 +762,6 @@ const SampleQueuePage = () => {
     });
     setShowStatusModal(true);
 
-    // Fetch full sample details including statusHistory
     setStatusDetailLoading(true);
     try {
       const res = await api.get(`/laboratory/samples/${encodeURIComponent(sample.id)}`);
@@ -800,7 +769,6 @@ const SampleQueuePage = () => {
         setStatusTargetSample(res.data.data);
       }
     } catch {
-      // Keep row item if detail call fails
     } finally {
       setStatusDetailLoading(false);
     }
@@ -853,9 +821,6 @@ const SampleQueuePage = () => {
     }
   };
 
-  // =========================================================================
-  // HANDLERS: RERUN MODAL
-  // =========================================================================
   const openRerunModal = (sample) => {
     setSelectedSample(sample);
     setRerunReason('');
@@ -902,7 +867,6 @@ const SampleQueuePage = () => {
     }
   };
 
-  // Summary counts
   const sampleListSafe = (Array.isArray(samples) ? [...samples] : []).sort((a, b) => {
     const tA = Math.max(
       new Date(a?.updatedAt || 0).getTime() || 0,
@@ -924,7 +888,7 @@ const SampleQueuePage = () => {
 
   return (
     <div className="w-100 py-1">
-      {/* Page Header Card */}
+
       <div className="bms-page-header-card mb-4">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row">
@@ -952,7 +916,6 @@ const SampleQueuePage = () => {
         </Alert>
       )}
 
-      {/* KPI Quad Cards */}
       <Row className="g-3 mb-4">
         <Col sm={6} xl={3}>
           <div className="bms-kpi-quad-card">
@@ -992,7 +955,6 @@ const SampleQueuePage = () => {
         </Col>
       </Row>
 
-      {/* Filter and Search Bar */}
       <section className="bms-inventory-filter">
         <Form onSubmit={handleSearch} className="bms-field-grid">
           <label className="bms-field">
@@ -1063,7 +1025,6 @@ const SampleQueuePage = () => {
         </Form>
       </section>
 
-      {/* Samples Queue Table - Standalone Section */}
       <section className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -1234,9 +1195,6 @@ const SampleQueuePage = () => {
         </div>
       </section>
 
-      {/* =====================================================================
-          MODAL 1: RECORD SAMPLE TIME POPUP (Ghi nhận thời gian lấy mẫu)
-         ===================================================================== */}
       <Modal
         show={showCollectionModal}
         onHide={() => !collectionSubmitting && setShowCollectionModal(false)}
@@ -1264,7 +1222,6 @@ const SampleQueuePage = () => {
               </Alert>
             )}
 
-            {/* Thông tin đã gán từ hệ thống — chỉ xem, không nhập lại */}
             <div className="rounded-3 border bg-light p-3 mb-3">
               <div className="small text-secondary fw-semibold mb-2 text-uppercase">
                 Thông tin đã gắn (không đổi)
@@ -1370,7 +1327,6 @@ const SampleQueuePage = () => {
               </div>
             )}
 
-            {/* Chỉ các trường nghiệp vụ cần nhập khi lấy mẫu */}
             <Row className="g-3">
               <Col md={7}>
                 <Form.Label className="small fw-semibold">
@@ -1575,9 +1531,6 @@ const SampleQueuePage = () => {
         </Form>
       </Modal>
 
-      {/* =====================================================================
-          MODAL 2: UPDATE SAMPLE STATUS POPUP (Cập nhật trạng thái mẫu ISO 15189)
-         ===================================================================== */}
       <Modal
         show={showStatusModal}
         onHide={() => !statusSubmitting && setShowStatusModal(false)}
@@ -1603,7 +1556,7 @@ const SampleQueuePage = () => {
 
             {statusTargetSample && (
               <>
-                {/* Sample Summary Header */}
+
                 <div className="p-3 rounded-3 bg-primary-subtle border border-primary-subtle mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                   <div>
                     <div className="fw-bold text-dark fs-6">
@@ -1619,7 +1572,6 @@ const SampleQueuePage = () => {
                   </div>
                 </div>
 
-                {/* Permitted Transitions Selector */}
                 <div className="mb-3">
                   <Form.Label className="small fw-bold text-secondary">
                     Chọn Trạng Thái Chuyển Tiếp Hợp Lệ (Permitted Status Transitions) <span className="text-danger">*</span>
@@ -1787,7 +1739,6 @@ const SampleQueuePage = () => {
                   </Col>
                 </Row>
 
-                {/* Status History Audit Trail */}
                 <div className="mt-4 pt-3 border-top">
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="small fw-bold text-secondary d-flex align-items-center gap-1">
@@ -1842,9 +1793,6 @@ const SampleQueuePage = () => {
         </Form>
       </Modal>
 
-      {/* =====================================================================
-          MODAL 3: RERUN REQUEST POPUP
-         ===================================================================== */}
       <Modal show={showRerunModal} onHide={() => setShowRerunModal(false)} centered>
         <Modal.Header closeButton className="bg-danger-subtle text-danger">
           <Modal.Title className="h5 fw-bold d-flex align-items-center gap-2">
@@ -1883,9 +1831,7 @@ const SampleQueuePage = () => {
           </Form>
         </Modal.Body>
       </Modal>
-      {/* ========================================================================= */}
-      {/* MODAL 4: NHẬP / XEM KẾT QUẢ XÉT NGHIỆM MÁU (Clean Human-Operated Lab Entry) */}
-      {/* ========================================================================= */}
+
       <Modal
         show={showResultModal}
         onHide={() => !resultSubmitting && setShowResultModal(false)}
@@ -1910,7 +1856,7 @@ const SampleQueuePage = () => {
 
           {resultTargetSample && (
             <>
-              {/* Patient and Sample Summary Card */}
+
               <div className="p-3 rounded-3 bg-light border mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                   <div className="fw-bold text-dark fs-6">
@@ -1937,7 +1883,6 @@ const SampleQueuePage = () => {
                 </div>
               )}
 
-              {/* Parameters Table */}
               <div className="table-responsive border rounded-3">
                 <Table hover className="mb-0 align-middle">
                   <thead className="table-light">

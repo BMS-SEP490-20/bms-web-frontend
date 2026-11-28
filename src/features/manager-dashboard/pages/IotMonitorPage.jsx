@@ -201,7 +201,6 @@ function TelemetryTimeSeriesChart({
           <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>{subtitle}</p>
         </div>
 
-        {/* Chart Legend */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '11.5px', color: '#475569' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: primaryColor, display: 'inline-block' }} />
@@ -259,7 +258,6 @@ function TelemetryTimeSeriesChart({
           </g>
         ))}
 
-        {/* Safe Zone Band */}
         {yMaxThreshold != null && yMinThreshold != null && (
           <rect
             x={padLeft}
@@ -270,7 +268,6 @@ function TelemetryTimeSeriesChart({
           />
         )}
 
-        {/* Disconnection Outage Shaded Vertical Windows */}
         {outageBands.map((b, idx) => (
           <g key={b.id || idx}>
             <rect
@@ -296,7 +293,6 @@ function TelemetryTimeSeriesChart({
           </g>
         ))}
 
-        {/* Upper & Lower Threshold Dashed Lines */}
         {yMaxThreshold != null && (
           <g>
             <line
@@ -347,10 +343,8 @@ function TelemetryTimeSeriesChart({
           </g>
         )}
 
-        {/* Area under curve */}
         <polygon points={areaPoints} fill={primaryColor} fillOpacity="0.07" />
 
-        {/* Main Telemetry Line */}
         <polyline
           fill="none"
           stroke={primaryColor}
@@ -360,7 +354,6 @@ function TelemetryTimeSeriesChart({
           points={polylinePoints}
         />
 
-        {/* Data Points */}
         {coords.map((c) => {
           const isViolation =
             (maxThreshold != null && Number(c.raw[valueKey]) > Number(maxThreshold)) ||
@@ -399,7 +392,6 @@ function TelemetryTimeSeriesChart({
           );
         })}
 
-        {/* X-Axis Timestamps */}
         {coords.length > 0 && (
           <>
             <text x={padLeft} y={height - 10} textAnchor="start" fontSize="10.5" fill="#64748b">
@@ -423,7 +415,6 @@ function TelemetryTimeSeriesChart({
         )}
       </svg>
 
-      {/* Hover Tooltip Bar */}
       {hovered && (
         <div
           style={{
@@ -544,7 +535,6 @@ export default function IotMonitorPage() {
         });
       }
     } catch {
-      // Non-fatal
     }
   };
 
@@ -617,7 +607,6 @@ export default function IotMonitorPage() {
         });
       })
       .catch(() => {
-        // Keep current selection if device list fetch fails transiently
       });
     return () => {
       active = false;
@@ -689,7 +678,6 @@ export default function IotMonitorPage() {
         });
       })
       .catch(() => {
-        // Keep current selection if device list fetch fails transiently
       });
     return () => {
       active = false;
@@ -714,7 +702,6 @@ export default function IotMonitorPage() {
         });
       })
       .catch(() => {
-        // Keep current selection if device list fetch fails transiently
       });
     return () => {
       active = false;
@@ -825,7 +812,7 @@ export default function IotMonitorPage() {
 
   return (
     <div className="w-100 py-1">
-      {/* 1. PAGE HEADER CARD FIRST */}
+
       <div className="bms-page-header-card mb-3">
         <div className="bms-page-header-content flex-column align-items-start">
           <div className="bms-page-title-row d-flex align-items-center gap-2 flex-wrap">
@@ -854,7 +841,6 @@ export default function IotMonitorPage() {
           </p>
         </div>
 
-        {/* Device Selector & Quick Actions */}
         <div className="bms-page-actions">
           <select
             value={selectedDeviceId}
@@ -919,10 +905,8 @@ export default function IotMonitorPage() {
         </div>
       </div>
 
-      {/* 2. IOT NAVIGATION TABS BELOW HEADER */}
       <IotNavigationTabs connectionStatus={connection} />
 
-      {/* 3. DISCONNECTION WARNING BANNER (Soft Pastel Surface, No Gradient) */}
       {!connection.isConnected && (
         <div
           role="alert"
@@ -973,7 +957,6 @@ export default function IotMonitorPage() {
         </div>
       )}
 
-      {/* 4. RECOVERED OUTAGE NOTIFICATION BANNER */}
       {connection.isConnected && connection.lastRecoveredOutage && (
         <div
           style={{
@@ -1022,7 +1005,6 @@ export default function IotMonitorPage() {
         </div>
       )}
 
-      {/* Feedback Banner */}
       {feedbackMsg && (
         <div
           style={{
@@ -1067,7 +1049,6 @@ export default function IotMonitorPage() {
         </div>
       )}
 
-      {/* 4. KPI METRIC CARDS (6 Cards) */}
       <div
         style={{
           display: 'grid',
@@ -1210,7 +1191,6 @@ export default function IotMonitorPage() {
         </div>
       </div>
 
-      {/* 5. TIME-SERIES CHARTS SECTION */}
       <div style={{ marginBottom: '20px' }}>
         <div
           style={{
@@ -1314,7 +1294,6 @@ export default function IotMonitorPage() {
         </div>
       </div>
 
-      {/* 6. CONNECTION OUTAGE & BUFFER RECOVERY HISTORY TABLE */}
       {outages.length > 0 && (
         <div className="bms-table-standalone-section">
           <div className="bms-table-standalone-header">
@@ -1420,7 +1399,6 @@ export default function IotMonitorPage() {
         </div>
       )}
 
-      {/* 7. SINGLE-LINE FILTER BAR ABOVE TELEMETRY LOGS TABLE (ZERO BOX-IN-BOX) */}
       <div className="bms-filter-bar mb-3">
         <div className="bms-search-input-pill">
           <Search className="bms-search-icon" size={14} />
@@ -1487,7 +1465,6 @@ export default function IotMonitorPage() {
         </span>
       </div>
 
-      {/* 8. TEMPERATURE & HUMIDITY LOGS TABLE (STANDALONE) */}
       <div className="bms-table-standalone-section">
         <div className="bms-table-standalone-header">
           <div>
@@ -1681,7 +1658,6 @@ export default function IotMonitorPage() {
         </div>
       </div>
 
-      {/* 9. DETAIL MODAL */}
       {showConfigModal && (
         <div
           onClick={() => setShowConfigModal(false)}

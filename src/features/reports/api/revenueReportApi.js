@@ -19,7 +19,6 @@ async function getApi() {
     }
 }
 
-// Empty defaults for offline or fresh databases (ZERO fake / fabricated data rule)
 function createEmptySummary() {
     return {
         grossRevenue: 0,
@@ -74,7 +73,6 @@ export async function fetchRevenueReport(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through to empty report
             }
         }
     }
@@ -110,7 +108,6 @@ export async function fetchRevenueSummary(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }
@@ -136,7 +133,6 @@ export async function fetchRevenueTrend(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }
@@ -162,7 +158,6 @@ export async function fetchRevenueByCategory(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }
@@ -188,7 +183,6 @@ export async function fetchRevenueByPaymentMethod(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }
@@ -214,7 +208,6 @@ export async function fetchRevenueByChannel(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }
@@ -240,7 +233,6 @@ export async function fetchRevenueExportTransactions(params = {}) {
                     return res.data.data;
                 }
             } catch {
-                // fall through
             }
         }
     }

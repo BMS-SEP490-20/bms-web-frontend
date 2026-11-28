@@ -107,7 +107,6 @@ export default function LoginPage({
   const [focusedInput, setFocusedInput] = useState(null);
   const [activeQuickRole, setActiveQuickRole] = useState(null);
 
-  // Easter Egg State: 3 clicks in top-right corner reveals QA/Testing Role Modal
   const [secretClicks, setSecretClicks] = useState(0);
   const [showTestModal, setShowTestModal] = useState(false);
   const secretClickTimer = useRef(null);
@@ -127,7 +126,6 @@ export default function LoginPage({
     }, 1500);
   };
 
-  // Account lockout counter (BR-IAM-03)
   const [failedAttempts, setFailedAttempts] = useState(() => {
     try {
       const saved = localStorage.getItem("bms_failed_login_attempts");
@@ -146,7 +144,6 @@ export default function LoginPage({
     }
   });
 
-  // Check registration query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("registered") === "true") {
@@ -157,7 +154,6 @@ export default function LoginPage({
     }
   }, [location.search]);
 
-  // Lockout verification
   const isLocked = lockoutTime > Date.now();
 
   /**
@@ -200,7 +196,6 @@ export default function LoginPage({
     const fromQueryPath = new URLSearchParams(location.search).get("redirect") || "";
     const candidate = (fromStatePath || fromQueryPath || "").trim();
 
-    // Only allow safe internal paths (prevent open redirect) and ignore auth/error pages
     if (!candidate.startsWith("/") || candidate.startsWith("//")) return "";
     const blocked = ["/login", "/register", "/forgot-password", "/reset-password", "/403", "/404"];
     if (blocked.some((b) => candidate === b || candidate.startsWith(`${b}?`) || candidate.startsWith(`${b}/`))) {
@@ -214,7 +209,7 @@ export default function LoginPage({
     const roleId = resolveRoleId(normalizedUser) ?? resolveRoleId(user);
     const returnUrl = resolveSafeReturnUrl();
     let target = getHomePathForRole(roleId);
-    // Chỉ quay lại URL cũ nếu role hiện tại được phép — tránh login xong dính 403
+
     if (returnUrl && isPathAllowedForRole(roleId, returnUrl)) {
       target = returnUrl;
     }
@@ -222,10 +217,8 @@ export default function LoginPage({
     try {
       window.dispatchEvent(new Event("storage"));
     } catch {
-      /* ignore storage event dispatch error */
     }
 
-    // Perform navigation to refresh layout with authenticated user session
     window.location.href = target;
   };
 
@@ -275,7 +268,6 @@ export default function LoginPage({
         }
         const user = normalizeAuthenticatedUser(rawUser);
 
-        // Reset failed login counter on success
         localStorage.removeItem("bms_failed_login_attempts");
         localStorage.removeItem("bms_login_lockout_until");
         setFailedAttempts(0);
@@ -298,7 +290,6 @@ export default function LoginPage({
           return;
         }
 
-        // If backend returned account lockout (423) or custom lockout time (BR-IAM-03)
         if (status === 423 || respData?.code === "ACCOUNT_LOCKED") {
           const retryMinutes = respData?.retryAfterMinutes || 15;
           const lockUntil = Date.now() + retryMinutes * 60 * 1000;
@@ -308,7 +299,6 @@ export default function LoginPage({
           return;
         }
 
-        // Only count credential failure (401) towards client lockout
         if (status === 401) {
           const nextAttempts = failedAttempts + 1;
           setFailedAttempts(nextAttempts);
@@ -336,7 +326,6 @@ export default function LoginPage({
     }
   }
 
-  // Quick Demo Account Auto-Fill & One-Click Login
   const handleQuickDemoFill = async (roleName, defaultId, defaultPwd, roleKey = null) => {
     if (roleKey) setActiveQuickRole(roleKey);
     setIdentifier(defaultId);
@@ -385,7 +374,6 @@ export default function LoginPage({
     }
   };
 
-  // Google OAuth 2.0 Single Sign-On Handler
   const handleGoogleSuccess = async (credentialResponse) => {
     if (loading || isLocked) return;
     if (!credentialResponse?.credential) {
@@ -439,14 +427,14 @@ export default function LoginPage({
   };
 
   return (
-    <div 
+    <div
       className="min-vh-100 d-flex flex-column align-items-center justify-content-center py-5 px-3 px-sm-4 position-relative"
-      style={{ 
-        backgroundColor: '#FFFFFF', 
-        fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)' 
+      style={{
+        backgroundColor: '#FFFFFF',
+        fontFamily: 'var(--font-sans, "Plus Jakarta Sans", sans-serif)'
       }}
     >
-      {/* Hidden Easter Egg Trigger: Click 3 times in top-right corner to open Test Roles Modal (Gated to DEV/Demo) */}
+
       {IS_DEV_OR_DEMO && (
         <div
           onClick={handleSecretClick}
@@ -476,23 +464,17 @@ export default function LoginPage({
         </div>
       )}
 
-      {/* ======================================================================
-          CENTER TOP: Centered BMS Brand Logo Only (No Text, 3x Prominent Scale)
-          ====================================================================== */}
       <div className="text-center mb-4 pb-2">
         <Link to="/" className="d-inline-block text-decoration-none" title="Trang chủ BMS">
-          <img 
-            src="/assets/bms-logo.png" 
-            alt="BMS Logo" 
-            style={{ width: '160px', height: 'auto', maxHeight: '48px', objectFit: 'contain' }} 
+          <img
+            src="/assets/bms-logo.png"
+            alt="BMS Logo"
+            style={{ width: '160px', height: 'auto', maxHeight: '48px', objectFit: 'contain' }}
           />
         </Link>
       </div>
 
-      {/* ======================================================================
-          CENTER FORM: 100% Transparent Authentication Form (Zero Background)
-          ====================================================================== */}
-      <div 
+      <div
         className="w-100 px-2"
         style={{
           maxWidth: '420px',
@@ -507,7 +489,6 @@ export default function LoginPage({
           </h2>
         </div>
 
-        {/* Notifications & Feedback */}
         {successNotice && (
           <Alert variant="success" className="d-flex align-items-center gap-2 small border-0 py-2.5 px-3 rounded-3 mb-3.5" style={{ backgroundColor: '#DCFCE7', color: '#166534' }}>
             <CheckCircle2 size={16} className="flex-shrink-0" style={{ color: '#16A34A' }} />
@@ -522,10 +503,8 @@ export default function LoginPage({
           </Alert>
         )}
 
-        {/* Authentication Form with Generous Airy Spacing */}
         <form onSubmit={handleSubmit} noValidate>
-          
-          {/* Identifier Field */}
+
           <div style={{ marginBottom: '22px' }}>
             <label htmlFor="login-email" className="form-label fw-semibold text-dark d-block" style={{ fontSize: '13.5px', marginBottom: '8px' }}>
               Tên đăng nhập hoặc Email <span className="text-danger">*</span>
@@ -573,7 +552,6 @@ export default function LoginPage({
             </div>
           </div>
 
-          {/* Password Field */}
           <div style={{ marginBottom: '20px' }}>
             <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '8px' }}>
               <label htmlFor="login-password" className="form-label fw-semibold text-dark mb-0" style={{ fontSize: '13.5px' }}>
@@ -648,7 +626,6 @@ export default function LoginPage({
             </div>
           </div>
 
-          {/* Remember Me Option with Generous Breathing Space */}
           <div className="d-flex align-items-center justify-content-between" style={{ marginTop: '14px', marginBottom: '26px' }}>
             <label className="d-flex align-items-center gap-2.5 small text-muted mb-0 cursor-pointer" style={{ userSelect: 'none' }}>
               <input
@@ -661,7 +638,6 @@ export default function LoginPage({
             </label>
           </div>
 
-          {/* Primary Action Button */}
           <button
             type="submit"
             className="btn fw-bold w-100 d-flex align-items-center justify-content-center gap-2"
@@ -690,7 +666,6 @@ export default function LoginPage({
           </button>
         </form>
 
-        {/* Clean & Compact Quick Role Login (Dev/Demo only) */}
         {IS_DEV_OR_DEMO && QUICK_LOGIN_ROLES.length > 0 && (
           <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
             <div className="d-flex align-items-center justify-content-between mb-2">
@@ -768,19 +743,18 @@ export default function LoginPage({
           </div>
         )}
 
-        {/* Google OAuth 2.0 Single Sign-On Button (Auto-configured from Backend Google__ClientId) */}
         {googleEnabled && (
           <>
-            {/* OR Divider with Generous Breathing Room */}
+
             <div className="d-flex align-items-center" style={{ marginTop: '30px', marginBottom: '30px' }}>
               <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
               <span className="px-3.5 text-muted fw-semibold" style={{ fontSize: '12.5px', color: '#64748B' }}>hoặc tiếp tục với</span>
               <div className="flex-grow-1" style={{ height: '1px', backgroundColor: '#E2E8F0' }} />
             </div>
 
-            <div 
-              className="d-flex justify-content-center w-100" 
-              style={{ 
+            <div
+              className="d-flex justify-content-center w-100"
+              style={{
                 marginBottom: '32px',
                 pointerEvents: (loading || isLocked) ? 'none' : 'auto',
                 opacity: (loading || isLocked) ? 0.45 : 1,
@@ -803,12 +777,11 @@ export default function LoginPage({
           </>
         )}
 
-        {/* Footer Registration Link */}
         <div className="text-center mt-3 text-muted" style={{ fontSize: '13.5px' }}>
           <span>Chưa có tài khoản bệnh nhân? </span>
           {onRegister ? (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={onRegister}
               className="btn btn-link p-0 text-decoration-none fw-bold"
               style={{ color: '#1E60E6', fontSize: '13.5px' }}
@@ -816,7 +789,7 @@ export default function LoginPage({
               Đăng ký ngay
             </button>
           ) : (
-            <Link 
+            <Link
               to="/register"
               className="text-decoration-none fw-bold"
               style={{ color: '#1E60E6' }}
@@ -828,15 +801,10 @@ export default function LoginPage({
 
       </div>
 
-      {/* Footer Minimal Copyright */}
       <div className="text-center mt-4 pt-3 text-muted" style={{ fontSize: '12px', color: '#94A3B8' }}>
         © 2026 BMS Clinical Laboratory
       </div>
 
-      {/* ======================================================================
-          DEV & QA TESTING MODAL: Select Demo Role to Fast-Login (Gated to DEV/Demo)
-          Triggered by clicking 3 times in top-right corner
-          ====================================================================== */}
       {IS_DEV_OR_DEMO && (
         <Modal
           show={showTestModal}
@@ -890,13 +858,13 @@ export default function LoginPage({
                       <span>{role.desc}</span>
                     </div>
                   </div>
-                  <span 
-                    style={{ 
-                      backgroundColor: '#F1F5F9', 
-                      color: '#475569', 
-                      fontSize: '11px', 
+                  <span
+                    style={{
+                      backgroundColor: '#F1F5F9',
+                      color: '#475569',
+                      fontSize: '11px',
                       fontWeight: 600,
-                      padding: '4px 8px', 
+                      padding: '4px 8px',
                       borderRadius: '6px',
                       border: '1px solid #E2E8F0'
                     }}

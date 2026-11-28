@@ -1,6 +1,6 @@
 /**
  * Receptionist Check-In Component
- * 
+ *
  * Component for receptionist to check-in patients using QR code scanning.
  * Shows list of appointments that can be checked in and provides QR code scanning functionality.
  */
@@ -25,7 +25,6 @@ import { queueApi } from '../../api/queueApi';
 import { PosThermalModal } from '../../../../shared/components/PosThermalSlip';
 
 const ReceptionistCheckIn = () => {
-  // Safe Date & Currency Formatter Helpers to prevent React Render crashes
   const safeFormatDate = (dateVal, options = {}) => {
     if (!dateVal) return 'N/A';
     try {
@@ -159,9 +158,9 @@ const ReceptionistCheckIn = () => {
   const checkedInPag = usePagination(checkedInAppointments, 10);
   const [testPackages, setTestPackages] = useState([]);
   const [doctors, setDoctors] = useState([]);
-  const [rooms, setRooms] = useState([]); // Room directory state
-  const [labAssignmentInfo, setLabAssignmentInfo] = useState(null); // Loaded lab assignment details
-  const [loadingLabAssignment, setLoadingLabAssignment] = useState(false); // Lab assignment loading flag
+  const [rooms, setRooms] = useState([]);
+  const [labAssignmentInfo, setLabAssignmentInfo] = useState(null);
+  const [loadingLabAssignment, setLoadingLabAssignment] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState('ALL');
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [issuedTicketData, setIssuedTicketData] = useState(null);
@@ -178,19 +177,19 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Normalizes patient record to standard format
-   * 
+   *
    * This utility function normalizes patient objects from various API responses
    * to a consistent format. It handles different field name variations (camelCase,
    * PascalCase, snake_case) and extracts patient ID from multiple possible fields.
-   * 
+   *
    * **Field normalization:**
    * - ID: Checks multiple ID field variations
    * - fullName: Checks name field variations
    * - email, phone, gender, address, dateOfBirth, identityNumber
-   * 
+   *
    * @param {Object} patient - Patient object to normalize
    * @returns {Object|null} Normalized patient object or null if invalid
-   * 
+   *
    * @example
    * const normalized = normalizePatientRecord({ PatientId: '123', Fullname: 'John Doe' });
    * // Returns: { id: '123', fullName: 'John Doe', ... }
@@ -235,20 +234,20 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Checks if patient matches target ID
-   * 
+   *
    * This utility function checks if a patient object matches a target ID by
    * comparing the target ID against multiple possible ID fields in the patient object.
    * Uses case-insensitive string comparison.
-   * 
+   *
    * **ID fields checked:**
    * - id, Id, patientId, PatientId, patient_id, PatientID
    * - accountId, AccountId, account_id
    * - userId, UserId, user_id
-   * 
+   *
    * @param {Object} patient - Patient object to check
    * @param {string|number} targetId - Target ID to match against
    * @returns {boolean} True if patient matches target ID, false otherwise
-   * 
+   *
    * @example
    * doesPatientMatchId({ patientId: '123' }, '123') // Returns: true
    * doesPatientMatchId({ id: '456' }, '123') // Returns: false
@@ -282,21 +281,21 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Fetches missing patient records for appointments
-   * 
+   *
    * This function identifies patient IDs from appointments that are not in
    * the current patients list and fetches them from the API. It normalizes
    * and deduplicates patient records.
-   * 
+   *
    * **Process:**
    * 1. Identifies missing patient IDs from appointments
    * 2. Fetches missing patients from API one by one
    * 3. Normalizes fetched patient records
    * 4. Returns combined list of existing and newly fetched patients
-   * 
+   *
    * @param {Array<Object>} appointmentsList - List of appointments to extract patient IDs from
    * @param {Array<Object>} currentPatients - Current list of patients
    * @returns {Promise<Array<Object>>} Combined list of existing and fetched patients
-   * 
+   *
    * @example
    * const allPatients = await fetchMissingPatients(appointments, existingPatients);
    */
@@ -336,7 +335,7 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Loads all check-in management data
-   * 
+   *
    * This function is the core data fetching function for the receptionist check-in page.
    * It performs the following operations:
    * 1. Fetches appointments, patients, services, doctors, and rooms
@@ -344,16 +343,16 @@ const ReceptionistCheckIn = () => {
    * 3. Fetches test package names for appointments
    * 4. Fetches missing patient records
    * 5. Normalizes and sets all data
-   * 
+   *
    * The function handles errors gracefully and sets loading states appropriately.
-   * 
+   *
    * @param {boolean} [forceFresh=false] - If true, bypasses cache and forces fresh data fetch
    * @returns {Promise<void>} Does not return a value. Updates component state with fetched data.
-   * 
+   *
    * @example
    * // Load data when component mounts
    * await loadData();
-   * 
+   *
    * // Force fresh data fetch
    * await loadData(true);
    */
@@ -365,37 +364,32 @@ const ReceptionistCheckIn = () => {
         appointmentService.getAllAppointments(),
         patientService.getAllPatients(),
         medicalService.getAllServices(),
-        api.get('/gateway/testorder/doctor', { params: { date: new Date().toISOString().slice(0, 10), page: 1, pageSize: 1000 } }).catch(() => ({ data: [] })), // Get all doctors with large pageSize
-        doctorService.getAllDoctorRooms({ page: 1, pageSize: 100 }).catch(() => ({ success: false, data: [] })) // Get rooms
+        api.get('/gateway/testorder/doctor', { params: { date: new Date().toISOString().slice(0, 10), page: 1, pageSize: 1000 } }).catch(() => ({ data: [] })),
+        doctorService.getAllDoctorRooms({ page: 1, pageSize: 100 }).catch(() => ({ success: false, data: [] }))
       ]);
 
       let appointmentList = appointmentsResult.success ? (appointmentsResult.data || []) : [];
 
-      // Enrich appointments with shift date/time if missing
       if (appointmentList.length > 0) {
         try {
-          // Extract unique shiftIds across appointments
           const shiftIds = [...new Set(
             appointmentList
               .map(apt => apt.doctorShiftId || apt.DoctorShiftId || apt.doctor_shift_id || apt.shiftId || apt.ShiftId)
               .filter(Boolean)
           )];
 
-
-          // Fetch shifts to retrieve date and time
           const shiftsMap = new Map();
           for (const shiftId of shiftIds) {
             try {
               const shiftResp = await shiftService.getShiftById(shiftId);
               if (shiftResp.success && shiftResp.data) {
                 const shift = shiftResp.data;
-                // Index shifts across alias keys for lookup
+
                 const shiftKeyLower = String(shiftId).toLowerCase();
                 const shiftKeyOriginal = String(shiftId);
                 shiftsMap.set(shiftKeyLower, shift);
-                shiftsMap.set(shiftKeyOriginal, shift); // Also store with original case
+                shiftsMap.set(shiftKeyOriginal, shift);
 
-                // Index shift by primary key
                 const shiftOwnId = shift.ShiftId || shift.shiftId || shift.Id || shift.id;
                 if (shiftOwnId) {
                   shiftsMap.set(String(shiftOwnId).toLowerCase(), shift);
@@ -407,8 +401,6 @@ const ReceptionistCheckIn = () => {
             }
           }
 
-
-          // Fetch TestPackageName when missing for test packages
           const packageIdsToFetch = [...new Set(
             appointmentList
               .filter(apt => {
@@ -420,8 +412,6 @@ const ReceptionistCheckIn = () => {
               .filter(Boolean)
           )];
 
-
-          // Retrieve packages to resolve PackageName
           const packagesMap = new Map();
           for (const packageId of packageIdsToFetch) {
             try {
@@ -431,7 +421,7 @@ const ReceptionistCheckIn = () => {
                 const packageName = packageData.PackageName || packageData.packageName || packageData.name || packageData.Name;
                 if (packageName) {
                   packagesMap.set(String(packageId).toLowerCase(), packageName);
-                  packagesMap.set(String(packageId), packageName); // Also store with original case
+                  packagesMap.set(String(packageId), packageName);
                 } else {
                 }
               } else {
@@ -440,15 +430,11 @@ const ReceptionistCheckIn = () => {
             }
           }
 
-
-          // Populate date and time from shift metadata
           appointmentList = appointmentList.map(apt => {
-            const enrichedApt = { ...apt }; // Shallow copy to avoid mutation
+            const enrichedApt = { ...apt };
             const aptShiftId = enrichedApt.doctorShiftId || enrichedApt.DoctorShiftId || enrichedApt.doctor_shift_id || enrichedApt.shiftId || enrichedApt.ShiftId;
 
-            // Enrich shift details whenever shiftId is present
             if (aptShiftId) {
-              // Match shift by alternative key identifiers
               const shiftKey1 = String(aptShiftId).toLowerCase();
               const shiftKey2 = String(aptShiftId);
               const relatedShift = shiftsMap.get(shiftKey1) || shiftsMap.get(shiftKey2) ||
@@ -458,7 +444,6 @@ const ReceptionistCheckIn = () => {
                 });
 
               if (relatedShift) {
-                // Enrich date
                 const shiftDate = relatedShift.ShiftDate || relatedShift.shiftDate || relatedShift.date || relatedShift.Date;
                 if (shiftDate) {
                   try {
@@ -471,12 +456,10 @@ const ReceptionistCheckIn = () => {
                   }
                 }
 
-                // Enrich time
                 const shiftStart = relatedShift.ShiftStart || relatedShift.shiftStart || relatedShift.start || relatedShift.Start;
                 if (shiftStart) {
                   if (typeof shiftStart === 'string') {
-                    // Handle TimeOnly format (HH:MM:SS or HH:MM)
-                    enrichedApt.appointmentTime = shiftStart.substring(0, 5); // Take HH:MM
+                    enrichedApt.appointmentTime = shiftStart.substring(0, 5);
                   } else {
                     enrichedApt.appointmentTime = String(shiftStart);
                   }
@@ -486,7 +469,6 @@ const ReceptionistCheckIn = () => {
             } else {
             }
 
-            // Populate TestPackageName from packagesMap
             const aptPackageId = enrichedApt.TestPackageId || enrichedApt.testPackageId || enrichedApt.test_package_id;
             const aptPackageName = enrichedApt.TestPackageName || enrichedApt.testPackageName || enrichedApt.test_package_name;
 
@@ -505,7 +487,6 @@ const ReceptionistCheckIn = () => {
             return enrichedApt;
           });
 
-          // Log sample enriched appointment record for debugging
           const sampleEnriched = appointmentList.slice(0, 3).map(apt => ({
             id: apt.id || apt.appointmentId,
             shiftId: apt.doctorShiftId || apt.DoctorShiftId,
@@ -546,7 +527,6 @@ const ReceptionistCheckIn = () => {
       } else {
       }
 
-      // Fetch rooms to map RoomId to RoomName
       if (roomsResult.success && roomsResult.data) {
         const roomsData = Array.isArray(roomsResult.data) ? roomsResult.data : [];
         setRooms(roomsData);
@@ -562,14 +542,14 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Gets appointment date and time as Date object
-   * 
+   *
    * This helper function extracts and combines appointment date and time
    * into a JavaScript Date object. It uses appointmentService helper if available,
    * otherwise falls back to manual calculation.
-   * 
+   *
    * @param {Object} appointment - Appointment object with date and time fields
    * @returns {Date|null} Combined date-time object or null if invalid
-   * 
+   *
    * @example
    * const dateTime = getAppointmentDateTime({ appointmentDate: '2024-12-04', appointmentTime: '10:30' });
    * // Returns: Date object for 2024-12-04 10:30:00
@@ -578,7 +558,6 @@ const ReceptionistCheckIn = () => {
     try {
       return appointmentService.getAppointmentDateTime(appointment);
     } catch (error) {
-      // Fallback calculation
       if (!appointment || !appointment.appointmentDate) return null;
       const [hour, minute] = (appointment.appointmentTime || appointment.time || '00:00').split(':').map(Number);
       const aptDate = new Date(appointment.appointmentDate);
@@ -589,20 +568,20 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Calculates time status for appointment (upcoming, on-time, late, very late)
-   * 
+   *
    * This helper function calculates the time difference between now and appointment
    * time and returns a status object with message and color for display.
-   * 
+   *
    * **Status categories:**
    * - 'upcoming': More than 30 minutes away
    * - 'on_time': Within 30 minutes (before or after)
    * - 'late': 30-120 minutes past
    * - 'very_late': More than 2 hours past
    * - 'unknown': No appointment time available
-   * 
+   *
    * @param {Object} appointment - Appointment object to calculate time status for
    * @returns {Object} Status object with status, message, and color properties
-   * 
+   *
    * @example
    * const timeStatus = getTimeStatus(appointment);
    * // Returns: { status: 'on_time', message: '15 mins left', color: 'success' }
@@ -713,27 +692,25 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Filters appointments for check-in display
-   * 
+   *
    * This function filters appointments to show only those that can be checked in.
    * It performs the following filtering:
    * 1. Excludes already checked-in appointments
    * 2. Shows only 'confirmed' status (paid appointments)
    * 3. Filters by search term (patient name, email, phone, appointment code)
-   * 
+   *
    * **Filter criteria:**
    * - Status must be 'confirmed' (paid and confirmed)
    * - Status must not be 'checked_in' (already checked in)
    * - Matches search term if provided
-   * 
+   *
    * @returns {void} Does not return a value. Updates filteredAppointments state.
-   * 
+   *
    * @example
    * // Filter appointments when search term or appointments change
    * filterAppointments();
    */
   const filterAppointments = () => {
-
-    // Debug log all appointments and statuses
     const allStatuses = [...new Set(appointments.map(apt => apt.status || apt.Status || 'null'))];
     const statusBreakdownDetailed = {};
     appointments.forEach(apt => {
@@ -741,40 +718,26 @@ const ReceptionistCheckIn = () => {
       statusBreakdownDetailed[status] = (statusBreakdownDetailed[status] || 0) + 1;
     });
 
-    // Filter for confirmed, paid appointments eligible for check-in
-    // Workflow progression:
-    // Pending confirmation status: unpaid appointment
-    // Confirmed status: paid appointment
-    // Receptionist check-in queue only accepts confirmed appointments
-    // Exclude unpaid pending_confirmation appointments
     let filtered = appointments.filter(apt => {
-      // Check both camelCase and PascalCase status properties
       const rawStatus = apt.status || apt.Status;
       const status = (rawStatus || '').toLowerCase();
 
-      // Detailed debug log
       if (!status || status === 'null') {
       }
 
-      // Exclude already checked-in appointments
       const norm = (status || '').replace(/[_-]/g, '');
       if (norm === 'checkedin' || norm === '2' || norm === 'inprogress' || norm === '3' || norm === 'completed' || norm === '4') {
         return false;
       }
 
-      // Only display appointments with confirmed / paid status
       const isPaidAndConfirmed = norm === 'confirmed' || norm === 'scheduled' || norm === 'paid' || norm === '1';
 
-      // Log unmatched appointments for diagnosis
       if (!isPaidAndConfirmed && status && status !== 'null') {
       }
 
       return isPaidAndConfirmed;
     });
 
-    // Log filtered appointment details for debugging
-
-    // Debug: Log appointments before filtering
     const statusBreakdown = {};
     const statusDetails = [];
     appointments.forEach(apt => {
@@ -788,9 +751,6 @@ const ReceptionistCheckIn = () => {
       });
     });
 
-    // Log status breakdown for debugging
-
-    // Filter by search term
     if (searchTerm) {
       const beforeSearch = filtered.length;
       const searchLower = searchTerm.toLowerCase();
@@ -808,12 +768,10 @@ const ReceptionistCheckIn = () => {
       });
     }
 
-    // Filter by selected morning slot
     if (selectedSlot !== 'ALL') {
       filtered = filtered.filter(apt => getSlotForAppointment(apt) === selectedSlot);
     }
 
-    // Sort newest created/updated first so freshly booked & paid appointments always appear at row #1
     filtered.sort((a, b) => {
       const createdA = new Date(a.createdAt || a.CreatedAt || a.updatedAt || a.appointmentDate || 0).getTime();
       const createdB = new Date(b.createdAt || b.CreatedAt || b.updatedAt || b.appointmentDate || 0).getTime();
@@ -828,19 +786,19 @@ const ReceptionistCheckIn = () => {
 
   /**
    * Filters checked-in appointments for current day
-   * 
+   *
    * This function filters appointments that have been checked in and belong
    * to the current day. It performs:
    * 1. Filters appointments with 'checked_in' or 'checked-in' status
    * 2. Filters by current date (only today's appointments)
    * 3. Sorts by check-in time (most recent first)
-   * 
+   *
    * **Filter criteria:**
    * - Status must be 'checked_in' or 'checked-in'
    * - Appointment date must match today's date
-   * 
+   *
    * @returns {void} Does not return a value. Updates checkedInAppointments state.
-   * 
+   *
    * @example
    * // Filter checked-in appointments when appointments change
    * filterCheckedInAppointments();
@@ -853,7 +811,6 @@ const ReceptionistCheckIn = () => {
         return false;
       }
 
-      // Filter by current date - include if checked in today or appointment date is today
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -863,7 +820,6 @@ const ReceptionistCheckIn = () => {
       return checkInDateStr === todayStr || aptDateStr === todayStr || !checkInDateStr;
     });
 
-    // Sort by check-in time (most recent first)
     checkedIn.sort((a, b) => {
       const timeA = new Date(a.checkedInAt || a.updatedAt || a.appointmentDate || 0);
       const timeB = new Date(b.checkedInAt || b.updatedAt || b.appointmentDate || 0);
@@ -879,7 +835,6 @@ const ReceptionistCheckIn = () => {
   };
 
   const getStatusBadge = (status) => {
-    // Normalize status to lowercase
     const normalizedStatus = (status || '').toString().toLowerCase().replace(/[_-]/g, '');
     const statusMap = {
       'scheduled': { variant: 'success', text: 'Đã thanh toán' },
@@ -967,8 +922,6 @@ const ReceptionistCheckIn = () => {
   };
 
   const handleQuickCheckInSuccess = async () => {
-    // Refresh data list while keeping modal active for consecutive scans
-    // Enables continuous scanning for incoming patients
     setRefreshFlag('appointments');
     dispatchRefreshEvent('appointments', 'updated');
     await loadData(true);
@@ -990,7 +943,6 @@ const ReceptionistCheckIn = () => {
     setShowQuickQRModal(false);
   };
 
-  // Export checked-in patient list to CSV
   const handleExportCheckedIn = () => {
     if (checkedInAppointments.length === 0) {
       showError('Không có dữ liệu để xuất');
@@ -1016,13 +968,11 @@ const ReceptionistCheckIn = () => {
       ];
     });
 
-    // Convert to CSV
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
-    // Create download link
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -1036,7 +986,6 @@ const ReceptionistCheckIn = () => {
     showSuccess('Đã xuất danh sách thành công!');
   };
 
-  // Print checked-in patient list
   const handlePrintCheckedIn = () => {
     const printWindow = window.open('', '_blank');
     const printContent = `
@@ -1094,29 +1043,25 @@ const ReceptionistCheckIn = () => {
   };
 
   const handleViewDetail = async (appointment) => {
-    // Fetch appointment details and resolve doctor/shift metadata
     try {
       let enrichedAppointment = { ...appointment };
 
-      // Try to fetch latest appointment data
       if (appointment.id || appointment.appointmentId || appointment.AppointmentId) {
         try {
           const appointmentId = appointment.id || appointment.appointmentId || appointment.AppointmentId;
           const resp = await appointmentService.getAppointmentById(appointmentId);
           if (resp.success && resp.data) {
-            // Preserve TestPackageId and TestPackageName from fetched data - backend returns both (PascalCase)
             enrichedAppointment = {
               ...enrichedAppointment,
               ...resp.data,
-              // Ensure TestPackageId is preserved with all variations
+
               TestPackageId: resp.data.TestPackageId || resp.data.testPackageId || enrichedAppointment.TestPackageId || enrichedAppointment.testPackageId,
               testPackageId: resp.data.testPackageId || resp.data.TestPackageId || enrichedAppointment.testPackageId || enrichedAppointment.TestPackageId,
-              // CRITICAL: Preserve TestPackageName from backend - this is the package name from DB
+
               TestPackageName: resp.data.TestPackageName || resp.data.testPackageName || enrichedAppointment.TestPackageName || enrichedAppointment.testPackageName,
               testPackageName: resp.data.testPackageName || resp.data.TestPackageName || enrichedAppointment.testPackageName || enrichedAppointment.TestPackageName
             };
 
-            // Resolve TestPackageName if missing
             const hasPackageId = enrichedAppointment.TestPackageId || enrichedAppointment.testPackageId;
             const hasPackageName = enrichedAppointment.TestPackageName || enrichedAppointment.testPackageName;
 
@@ -1142,7 +1087,6 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Try to resolve doctor from shift if available
       const shiftKey = enrichedAppointment.doctorShiftId || enrichedAppointment.DoctorShiftId || enrichedAppointment.shiftId || enrichedAppointment.shift_id;
       if (shiftKey) {
         try {
@@ -1151,14 +1095,11 @@ const ReceptionistCheckIn = () => {
           if (shiftResp.success && shiftResp.data) {
             const shift = shiftResp.data;
 
-            // Backend returns PascalCase ShiftDate (DateOnly) and ShiftStart (TimeOnly)
-            // Populate appointmentDate from shift
             if (!enrichedAppointment.appointmentDate) {
               const shiftDate = shift.ShiftDate || shift.shiftDate || shift.date || shift.Date;
 
               if (shiftDate) {
                 try {
-                  // DateOnly is serialized as YYYY-MM-DD string
                   const date = new Date(shiftDate);
                   if (!isNaN(date.getTime())) {
                     const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -1171,16 +1112,13 @@ const ReceptionistCheckIn = () => {
               }
             }
 
-            // Populate appointmentTime from shift
             if (!enrichedAppointment.appointmentTime) {
-              // TimeOnly is serialized as HH:MM:SS or HH:MM string
               const shiftStart = shift.ShiftStart || shift.shiftStart || shift.start || shift.Start;
 
               if (shiftStart) {
                 try {
                   if (typeof shiftStart === 'string') {
-                    // Handle TimeOnly format (HH:MM:SS or HH:MM)
-                    enrichedAppointment.appointmentTime = shiftStart.substring(0, 5); // Take HH:MM
+                    enrichedAppointment.appointmentTime = shiftStart.substring(0, 5);
                   } else {
                     enrichedAppointment.appointmentTime = String(shiftStart).substring(0, 5);
                   }
@@ -1190,12 +1128,9 @@ const ReceptionistCheckIn = () => {
               }
             }
 
-            // Get doctor ID from shift
-            // Backend returns DoctorId (PascalCase) in DoctorShiftDto
             const doctorId = shift.DoctorId || shift.doctor_id || shift.doctorId || enrichedAppointment.doctorId || enrichedAppointment.doctor_id;
 
             if (doctorId) {
-              // Find doctor in doctors list - check multiple field variations
               const doctor = doctors.find(d => {
                 const dId = d.id || d.Id || d.doctorId || d.DoctorId;
                 return dId === doctorId ||
@@ -1206,7 +1141,6 @@ const ReceptionistCheckIn = () => {
               if (doctor) {
                 enrichedAppointment.resolvedDoctor = doctor;
               } else {
-                // Fallback: Use DoctorName from shift if available
                 const doctorName = shift.DoctorName || shift.doctorName || shift.doctor_name;
                 if (doctorName) {
                   enrichedAppointment.resolvedDoctor = {
@@ -1217,15 +1151,13 @@ const ReceptionistCheckIn = () => {
                 }
               }
             }
-            // Extract room from shift: prioritize RoomName, fallback to mapped RoomId
+
             const roomId = shift.RoomId || shift.roomId || shift.room;
             const roomNameFromShift = shift.RoomName || shift.roomName || shift.room;
 
             if (roomNameFromShift) {
               enrichedAppointment.resolvedRoom = roomNameFromShift;
             } else if (roomId) {
-              // Map RoomId to room name if available
-              // Fallback to RoomId if rooms state is not yet loaded
               const room = rooms.find(r =>
                 (r.id || r.Id || r.roomId || r.RoomId) === roomId ||
                 String(r.id || r.Id || r.roomId || r.RoomId) === String(roomId)
@@ -1233,7 +1165,7 @@ const ReceptionistCheckIn = () => {
               if (room) {
                 enrichedAppointment.resolvedRoom = room.roomName || room.RoomName || room.name || room.Name || roomId;
               } else {
-                enrichedAppointment.resolvedRoom = roomId; // Fallback to RoomId
+                enrichedAppointment.resolvedRoom = roomId;
               }
             }
           }
@@ -1241,7 +1173,6 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Resolve doctor metadata
       const resolvedDoc = resolveDoctorInfo(enrichedAppointment);
       enrichedAppointment.resolvedDoctor = resolvedDoc;
       if (!enrichedAppointment.doctorName || enrichedAppointment.doctorName.startsWith('ID:')) {
@@ -1251,7 +1182,6 @@ const ReceptionistCheckIn = () => {
         enrichedAppointment.appointmentTime = resolveTimeSlot(enrichedAppointment);
       }
 
-      // If appointment has direct doctorId, try to find doctor
       const doctorId = enrichedAppointment.DoctorId || enrichedAppointment.doctorId || enrichedAppointment.doctor_id;
       if (doctorId && !enrichedAppointment.resolvedDoctor) {
         const doctor = doctors.find(d => {
@@ -1265,7 +1195,6 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Ensure patient info is available
       const appointmentPatientId = enrichedAppointment.patientId || enrichedAppointment.patient_id || enrichedAppointment.createdBy;
       if (appointmentPatientId) {
         let patient = patients.find(p => doesPatientMatchId(p, appointmentPatientId));
@@ -1304,7 +1233,6 @@ const ReceptionistCheckIn = () => {
     setLabAssignmentInfo(null);
   };
 
-  // Auto-load lab assignment from DB on detail modal open for checked-in appointment
   useEffect(() => {
     if (showDetailModal && detailAppointment && detailAppointment.status === 'checked_in') {
       loadLabAssignmentInfo();
@@ -1313,7 +1241,6 @@ const ReceptionistCheckIn = () => {
     }
   }, [showDetailModal, detailAppointment]);
 
-  // Load lab assignment details from database
   const loadLabAssignmentInfo = async () => {
     if (!detailAppointment) return;
 
@@ -1322,7 +1249,6 @@ const ReceptionistCheckIn = () => {
       let assignment = null;
       const currentLabAssignmentId = detailAppointment.labAssignmentId || detailAppointment.LabAssignmentId;
 
-      // Method 1: Load directly via existing LabAssignmentId
       if (currentLabAssignmentId) {
         const assignmentResult = await shiftService.getLabAssignmentById(currentLabAssignmentId);
         if (assignmentResult.success && assignmentResult.data) {
@@ -1330,13 +1256,11 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Method 2: Match assignment based on appointment date and time
       if (!assignment) {
         const appointmentDate = detailAppointment.appointmentDate || detailAppointment.appointment_date;
         const appointmentTime = detailAppointment.appointmentTime || detailAppointment.time;
 
         if (appointmentDate && appointmentTime) {
-          // Normalize date
           const normalizeDate = (dateValue) => {
             if (!dateValue) return null;
             if (typeof dateValue === 'string') {
@@ -1354,11 +1278,9 @@ const ReceptionistCheckIn = () => {
             return null;
           };
 
-          // Normalize time to HH:MM format (convert HH:mm:ss to HH:MM)
           const normalizeTime = (timeValue) => {
             if (!timeValue) return null;
             if (typeof timeValue === 'string') {
-              // Extract HH:MM from time string (handles both HH:mm and HH:mm:ss)
               const match = timeValue.match(/(\d{1,2}):(\d{2})/);
               if (match) {
                 const hours = match[1].padStart(2, '0');
@@ -1369,7 +1291,6 @@ const ReceptionistCheckIn = () => {
             return null;
           };
 
-          // Convert time string to minutes for proper comparison
           const timeToMinutes = (timeStr) => {
             if (!timeStr) return null;
             const match = timeStr.match(/(\d{1,2}):(\d{2})/);
@@ -1384,11 +1305,9 @@ const ReceptionistCheckIn = () => {
           const targetTimeMinutes = timeToMinutes(appointmentTime);
 
           if (targetDate && targetTime) {
-            // Retrieve all lab assignments
             const allAssignmentsResult = await shiftService.getAllLabAssignments();
 
             if (allAssignmentsResult.success && allAssignmentsResult.data && Array.isArray(allAssignmentsResult.data)) {
-              // Match lab assignment by date and time window
               const matchedAssignment = allAssignmentsResult.data.find(la => {
                 const laDate = normalizeDate(la.AssignmentDate || la.assignmentDate || la.assignment_date);
                 const laStartRaw = la.ShiftStart || la.shiftStart || la.shift_start;
@@ -1398,11 +1317,8 @@ const ReceptionistCheckIn = () => {
                 const laStartMinutes = timeToMinutes(laStartRaw);
                 const laEndMinutes = timeToMinutes(laEndRaw);
 
-                // Match date
                 if (laDate !== targetDate) return false;
 
-                // Check if appointment time falls within assignment shift interval
-                // Compare in minutes for exact boundary checking
                 if (laStartMinutes !== null && laEndMinutes !== null && targetTimeMinutes !== null) {
                   const isInRange = targetTimeMinutes >= laStartMinutes && targetTimeMinutes <= laEndMinutes;
                   if (isInRange) {
@@ -1410,7 +1326,6 @@ const ReceptionistCheckIn = () => {
                   }
                 }
 
-                // Fallback: match exact time string against shift start
                 if (laStart && targetTime && laStart === targetTime) {
                   return true;
                 }
@@ -1421,7 +1336,6 @@ const ReceptionistCheckIn = () => {
               if (matchedAssignment) {
                 assignment = matchedAssignment;
               } else {
-                // Log nearby lab assignments for diagnostic verification
                 const sameDateAssignments = allAssignmentsResult.data.filter(la => {
                   const laDate = normalizeDate(la.AssignmentDate || la.assignmentDate || la.assignment_date);
                   return laDate === targetDate;
@@ -1432,12 +1346,10 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Load complete details for matched assignment
       if (assignment) {
         const labUserId = assignment.labUserId || assignment.LabUserId;
         const labRoomId = assignment.labRoomId || assignment.LabRoomId;
 
-        // Load lab technician user details
         let labUserInfo = null;
         if (labUserId) {
           const usersResult = await testOrderService.getAllLabUserProfiles();
@@ -1449,19 +1361,16 @@ const ReceptionistCheckIn = () => {
           }
         }
 
-        // Load lab room details
         let labRoomInfo = null;
         const roomsResult = await testOrderService.getAllLabRooms();
 
         if (labRoomId && roomsResult.success && roomsResult.data) {
-          // Resolve room entity via LabRoomId
           labRoomInfo = roomsResult.data.find(r => {
             const rId = r.roomId || r.RoomId || r.id || r.Id || r.labRoomId || r.LabRoomId;
             return rId && String(rId) === String(labRoomId);
           });
         }
 
-        // Fallback: resolve room from lab user defaultRoomId
         if (!labRoomInfo && labUserInfo && roomsResult.success && roomsResult.data) {
           const defaultRoomId = labUserInfo.defaultRoomId || labUserInfo.DefaultRoomId;
           if (defaultRoomId) {
@@ -1493,17 +1402,14 @@ const ReceptionistCheckIn = () => {
     }
   };
 
-  // Print room assignment routing slip
   const handlePrintAppointmentSlip = async () => {
     if (!detailAppointment) return;
 
-    // Ensure lab assignment info is loaded
     if (loadingLabAssignment) {
       showError('Vui lòng đợi hệ thống tải thông tin phân công...');
       return;
     }
 
-    // Retry loading lab assignment if not yet resolved
     if (!labAssignmentInfo) {
       const currentLabAssignmentId = detailAppointment.labAssignmentId || detailAppointment.LabAssignmentId;
       if (currentLabAssignmentId) {
@@ -1533,7 +1439,6 @@ const ReceptionistCheckIn = () => {
     const patientPhone = patient?.phone || patient?.Phone || 'N/A';
     const patientEmail = patient?.email || patient?.Email || 'N/A';
 
-    // Display lab user and room info using resolved assignment
     let currentLabAssignmentInfo = labAssignmentInfo;
     if (!currentLabAssignmentInfo) {
       currentLabAssignmentInfo = {
@@ -1554,7 +1459,6 @@ const ReceptionistCheckIn = () => {
       ? (currentLabAssignmentInfo.labUser.jobTitle || currentLabAssignmentInfo.labUser.JobTitle || 'Kỹ thuật viên Xét nghiệm')
       : 'Kỹ thuật viên Phân tích Tự động';
 
-    // Resolve room name with fallbacks
     let labRoomName = currentLabAssignmentInfo?.labRoom?.roomName
       || currentLabAssignmentInfo?.labRoom?.RoomName
       || currentLabAssignmentInfo?.labRoom?.name
@@ -1584,19 +1488,18 @@ const ReceptionistCheckIn = () => {
     return appointment?.appointmentCode || appointment?.code || appointment?.id || '';
   };
 
-  // Generate QR code data in the same format as patient side (JSON format)
   const generateQRCodeData = (appointment) => {
     const appointmentCode = getAppointmentCode(appointment);
     const patient = getPatientInfo(appointment?.patientId);
 
     return JSON.stringify({
-      t: 'checkin', // type
-      c: appointmentCode, // code - this is what scanner looks for
-      id: appointment?.id || '', // appointment ID
-      n: appointment?.patientName || patient?.fullName || patient?.name || '', // patient name
-      s: appointment?.service || '', // Service or test package name
-      d: appointment?.appointmentDate || '', // date (YYYY-MM-DD)
-      tm: appointment?.appointmentTime || appointment?.time || '' // time (HH:MM)
+      t: 'checkin',
+      c: appointmentCode,
+      id: appointment?.id || '',
+      n: appointment?.patientName || patient?.fullName || patient?.name || '',
+      s: appointment?.service || '',
+      d: appointment?.appointmentDate || '',
+      tm: appointment?.appointmentTime || appointment?.time || ''
     });
   };
 
@@ -1606,12 +1509,10 @@ const ReceptionistCheckIn = () => {
 
   const getPackageInfo = (appointment) => {
     const safePackages = Array.isArray(testPackages) ? testPackages : (testPackages?.items || testPackages?.data || []);
-    // Backend now returns TestPackageName (PascalCase) in AppointmentReadDto
-    // If TestPackageName is available, use it directly (no need to match)
+
     const testPackageName = appointment?.TestPackageName || appointment?.testPackageName || appointment?.test_package_name || null;
 
     if (testPackageName) {
-      // Try to find package in testPackages to get price
       const pkgId = appointment?.TestPackageId || appointment?.testPackageId || appointment?.test_package_id || null;
       let matchedPkg = null;
       if (pkgId) {
@@ -1625,16 +1526,10 @@ const ReceptionistCheckIn = () => {
       return { name: testPackageName, price, package: matchedPkg };
     }
 
-    // Fallback: Try to match by ID if TestPackageName is not available
-    // Backend returns TestPackageId (PascalCase) in AppointmentReadDto
-    // normalizeAppointment preserves both TestPackageId (PascalCase) and testPackageId (camelCase)
     const pkgId = appointment?.TestPackageId || appointment?.testPackageId || appointment?.test_package_id || appointment?.packageId || appointment?.package_id || null;
     const pkgCode = appointment?.testPackageCode || appointment?.test_package_code || appointment?.package_code || appointment?.packageCode || null;
 
     if (!pkgId && !pkgCode) {
-      // Fallback: Try to find package from other sources
-
-      // Try to find package by name if service name is available
       if (appointment?.serviceName || appointment?.service) {
         const serviceName = appointment?.serviceName || appointment?.service;
         const matchedByName = safePackages.find(p => {
@@ -1652,20 +1547,12 @@ const ReceptionistCheckIn = () => {
         }
       }
 
-      // Final fallback: Try to find package from TestResults if available
-      // Note: This is a workaround for appointments that don't have TestPackageId in DB
-      // The proper solution is to update the database to set TestPackageId for old appointments
       if (appointment?.id || appointment?.appointmentId || appointment?.AppointmentId) {
         try {
-          // Try to fetch test results to see if we can infer package
-          // This is async, so we'll need to handle it differently
-          // For now, just log a warning
         } catch (err) {
-          // Ignore errors in fallback
         }
       }
 
-      // Final fallback
       const service = appointment?.service || appointment?.serviceName || '';
       return {
         name: service || 'Chưa xác định (Appointment không có TestPackageId trong database. Vui lòng cập nhật database để hiển thị tên gói dịch vụ.)',
@@ -1674,23 +1561,18 @@ const ReceptionistCheckIn = () => {
       };
     }
 
-    // Backend returns PackageId (PascalCase) and PackageName (PascalCase) in TestPackageDto
-    // Database uses package_id like P001, P002, etc.
-    // Try to match by ID first (most reliable)
     let matchedPkg = null;
 
     if (pkgId) {
       matchedPkg = safePackages.find(p => {
-        // Backend returns PackageId (PascalCase) - this is the primary field
         const pId = p.PackageId || p.packageId || p.id || p.Id || p.serviceId || p.ServiceId;
-        // Match by exact string comparison (case-insensitive for safety)
+
         const idMatch = pId && String(pId).toLowerCase() === String(pkgId).toLowerCase();
 
         return idMatch;
       });
     }
 
-    // If not found by ID, try by code
     if (!matchedPkg && pkgCode) {
       matchedPkg = safePackages.find(p => {
         const pCode = p.code || p.Code || p.serviceCode || p.ServiceCode || p.packageCode || p.PackageCode;
@@ -1703,7 +1585,6 @@ const ReceptionistCheckIn = () => {
       return { name: appointment?.service || 'Chưa xác định', price: null, package: null };
     }
 
-    // Backend returns PackageName (PascalCase) and Price (PascalCase)
     const price = matchedPkg.Price || matchedPkg.price || matchedPkg.servicePrice || matchedPkg.packagePrice || matchedPkg.amount || null;
     const name = matchedPkg.PackageName || matchedPkg.packageName || matchedPkg.name || matchedPkg.serviceName || matchedPkg.packageName || matchedPkg.title || appointment?.service || 'Chưa xác định';
 
@@ -1753,7 +1634,7 @@ const ReceptionistCheckIn = () => {
         `}
       </style>
       <div className="w-100 py-1">
-        {/* 1. Master Luxury Page Header Card */}
+
         <div className="bms-page-header-card mb-4">
           <div className="bms-page-header-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
             <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill small fw-semibold mb-2 d-inline-flex align-items-center gap-1">
@@ -1787,7 +1668,6 @@ const ReceptionistCheckIn = () => {
           </div>
         </div>
 
-        {/* 2. KPI Metrics Quad Cards */}
         <Row className="g-3 mb-4">
           <Col xs={12} sm={6} md={3}>
             <div className="bms-kpi-quad-card">
@@ -1831,7 +1711,6 @@ const ReceptionistCheckIn = () => {
           </Col>
         </Row>
 
-        {/* 3. Unified Card Section: Sổ Lịch Hẹn Chờ Check-in */}
         <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
           <Card.Header className="bg-white border-bottom py-3 px-4">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
@@ -1869,7 +1748,6 @@ const ReceptionistCheckIn = () => {
             </div>
           </Card.Header>
 
-          {/* Slot Filtering Toolbar Strip */}
           <div className="px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2" style={{ background: '#F8FAFC' }}>
             <div className="d-flex flex-wrap align-items-center gap-2">
               <span className="fw-semibold text-dark small">
@@ -2055,7 +1933,6 @@ const ReceptionistCheckIn = () => {
           </Card.Body>
         </Card>
 
-        {/* 4. Unified Card Section: Danh Sách Bệnh Nhân Đã Check-in */}
         <Card className="border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden">
           <Card.Header className="bg-white border-bottom py-3 px-4">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 w-100">
@@ -2203,16 +2080,12 @@ const ReceptionistCheckIn = () => {
         </Card>
       </div>
 
-      {/* Quick QR Code Check-in Modal */}
       <Modal
         show={showQuickQRModal}
         onHide={handleCloseQuickQRModal}
         onEntered={() => {
-          // Ensure modal is fully mounted before camera initialization
-          // Component auto-initializes when isModalOpen is true
         }}
         onExited={() => {
-          // Reset state when modal is dismissed
         }}
         size={isMobile ? undefined : "lg"}
         fullscreen={isMobile}
@@ -2245,7 +2118,6 @@ const ReceptionistCheckIn = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Appointment Detail Modal - Designed to BMS Medical Management Standard */}
       <Modal
         show={showDetailModal}
         onHide={handleCloseDetailModal}
@@ -2294,7 +2166,7 @@ const ReceptionistCheckIn = () => {
 
             return (
               <div className="d-flex flex-column gap-3">
-                {/* 1. Operational Identity Banner */}
+
                 <div className="d-flex flex-wrap align-items-center justify-content-between p-3 bg-white rounded-3 border shadow-sm gap-2">
                   <div className="d-flex align-items-center gap-2">
                     <span className="badge bg-primary px-3 py-2 fs-6 font-monospace shadow-sm">
@@ -2319,9 +2191,8 @@ const ReceptionistCheckIn = () => {
                   </div>
                 </div>
 
-                {/* 2. Main 2-Column Content */}
                 <Row className="g-3">
-                  {/* Left Column: QR Code & Check-in Verification */}
+
                   <Col xs={12} lg={4}>
                     <Card className="h-100 border shadow-sm rounded-3 text-center p-3 bg-white">
                       <div className="small fw-semibold text-muted text-uppercase mb-2">
@@ -2362,7 +2233,6 @@ const ReceptionistCheckIn = () => {
                     </Card>
                   </Col>
 
-                  {/* Right Column: Clinical Consultation & Doctor Details */}
                   <Col xs={12} lg={8}>
                     <Card className="h-100 border shadow-sm rounded-3 bg-white">
                       <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
@@ -2433,7 +2303,6 @@ const ReceptionistCheckIn = () => {
                   </Col>
                 </Row>
 
-                {/* 3. Patient Administrative Info Card (MOH Đề án 06 Standard) */}
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
@@ -2495,7 +2364,6 @@ const ReceptionistCheckIn = () => {
                   </Card.Body>
                 </Card>
 
-                {/* 4. Service Package & Clinical Order Details */}
                 <Card className="border shadow-sm rounded-3 bg-white">
                   <Card.Header className="bg-white border-bottom py-2 px-3 fw-bold text-dark d-flex justify-content-between align-items-center">
                     <span>
@@ -2535,7 +2403,6 @@ const ReceptionistCheckIn = () => {
                   </Card.Body>
                 </Card>
 
-                {/* 5. Assigned Lab Technician Info if Checked In */}
                 {isCheckedIn && (
                   <Card className="border shadow-sm rounded-3 bg-white border-primary-subtle">
                     <Card.Header className="bg-primary-subtle border-bottom py-2 px-3 fw-bold text-primary d-flex justify-content-between align-items-center">
@@ -2607,7 +2474,6 @@ const ReceptionistCheckIn = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Unified POS K80 Appointment & Reception Slip Modal */}
       {posAppointmentSlip && (
         <PosThermalModal
           show={Boolean(posAppointmentSlip)}
@@ -2666,7 +2532,6 @@ const ReceptionistCheckIn = () => {
         />
       )}
 
-      {/* Unified POS K80 Queue STT Ticket Modal */}
       {issuedTicketData && (
         <PosThermalModal
           show={showTicketModal}
@@ -2735,4 +2600,3 @@ const ReceptionistCheckIn = () => {
 };
 
 export default ReceptionistCheckIn;
-

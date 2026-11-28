@@ -1,9 +1,3 @@
-/* ==========================================================================
-   CalculateFeesPage.css – BMS Clinical Fee Calculation & BHYT Estimator
-   Standards: Clean Medical UI, ISO 15189, Decree 123/2020/ND-CP
-   Theme: Soft Medical Telehealth UI Specification (MEDLINE-class)
-   ========================================================================== */
-
 .calc-fees-page {
   background-color: var(--bg-page, #F4F7F9);
   min-height: 100vh;

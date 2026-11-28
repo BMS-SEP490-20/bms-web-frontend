@@ -151,11 +151,11 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
   };
 
   return (
-    <Modal 
-      show={isOpen} 
-      onHide={onClose} 
-      size="lg" 
-      centered 
+    <Modal
+      show={isOpen}
+      onHide={onClose}
+      size="lg"
+      centered
       backdrop="static"
       keyboard={false}
       className="bms-medical-modal"
@@ -181,7 +181,6 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
             </Alert>
           )}
 
-          {/* Section 1: Medical Identification */}
           <div className="mb-4">
             <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
               <Badge bg="primary" pill className="px-2 py-1">1</Badge>
@@ -263,7 +262,6 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
             </Row>
           </div>
 
-          {/* Section 2: Units & Value Type */}
           <div className="mb-4">
             <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
               <Badge bg="primary" pill className="px-2 py-1">2</Badge>
@@ -320,7 +318,6 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
             </Row>
           </div>
 
-          {/* Section 3: Reference Ranges & Panic Alert Limits */}
           <div className="mb-3">
             <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
               <Badge bg="primary" pill className="px-2 py-1">3</Badge>
@@ -329,7 +326,7 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
 
             {formData.valueType === 'Numeric' ? (
               <>
-                {/* Normal Biological Range */}
+
                 <Card className="border border-success bg-success bg-opacity-10 mb-3 rounded-3 shadow-none">
                   <Card.Body className="p-3">
                     <div className="d-flex align-items-center gap-2 mb-2">
@@ -370,7 +367,6 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
                   </Card.Body>
                 </Card>
 
-                {/* Panic Alert Limits */}
                 <Card className="border border-danger bg-danger bg-opacity-10 rounded-3 shadow-none">
                   <Card.Body className="p-3">
                     <div className="d-flex align-items-center gap-2 mb-2">
@@ -440,7 +436,6 @@ export default function TestCriterionFormModal({ isOpen, mode = 'create', criter
             )}
           </div>
 
-          {/* Section 4: Activation Status */}
           <div className="pt-2">
             <Form.Check
               type="switch"

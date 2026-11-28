@@ -130,7 +130,7 @@ export default function ConfigureIotThresholdsPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header Card FIRST, then IotNavigationTabs below */}
+
             <div className="bms-page-header-card mb-3">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -177,7 +177,6 @@ export default function ConfigureIotThresholdsPage() {
 
             <IotNavigationTabs />
 
-            {/* Thông báo Alert */}
             {errorMessage && (
                 <div className="alert alert-danger d-flex align-items-center mb-3" style={{ borderRadius: '14px', fontSize: '13.5px' }}>
                     <AlertOctagon size={16} className="me-2 flex-shrink-0" />
@@ -191,7 +190,6 @@ export default function ConfigureIotThresholdsPage() {
                 </div>
             )}
 
-            {/* Standalone Independent Table Section */}
             <div className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>

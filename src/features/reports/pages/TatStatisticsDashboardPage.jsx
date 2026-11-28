@@ -31,15 +31,13 @@ const DEPARTMENTS = [
 ];
 
 export default function TatStatisticsDashboardPage() {
-    // Filter states
     const [selectedTimeframe, setSelectedTimeframe] = useState("MONTH");
     const [selectedDepartment, setSelectedDepartment] = useState("ALL");
     const [selectedPriority, setSelectedPriority] = useState("ALL");
-    const [activeTab, setActiveTab] = useState("PRIORITY"); // PRIORITY, PHASES, DEPARTMENTS, TRENDS, VIOLATIONS
+    const [activeTab, setActiveTab] = useState("PRIORITY");
     const [isLoading, setIsLoading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
 
-    // Data state
     const [report, setReport] = useState({
         summary: {
             totalCompletedTests: 0,
@@ -93,7 +91,6 @@ export default function TatStatisticsDashboardPage() {
         loadData();
     }, [loadData]);
 
-    // Handle CSV Export
     const handleExportCsv = async () => {
         setIsExporting(true);
         try {
@@ -128,7 +125,7 @@ export default function TatStatisticsDashboardPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* Page Header Card */}
+
             <div className="bms-page-header-card mb-4">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -164,7 +161,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             </div>
 
-            {/* Single-Line Flat Filter Bar */}
             <div className="bms-filter-bar mb-3">
                 <div className="btn-group" role="group">
                     {TIMEFRAMES.map(tf => (
@@ -221,7 +217,6 @@ export default function TatStatisticsDashboardPage() {
                 </span>
             </div>
 
-            {/* KPI Quad Cards */}
             <div className="row g-3 mb-4">
                 <div className="col-12 col-sm-6 col-xl-3">
                     <div className="bms-kpi-quad-card">
@@ -276,7 +271,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             </div>
 
-            {/* Navigation Pill Tabs (No Outer Box-in-Box Card) */}
             <div className="d-flex flex-wrap gap-2 mb-3 bg-white p-2 rounded-4" style={{ border: '1px solid #e2e8f0' }}>
                 {[
                     { key: "PRIORITY", label: "Phân Tích Độ Ưu Tiên (SLA)", icon: Zap },
@@ -309,7 +303,6 @@ export default function TatStatisticsDashboardPage() {
                 })}
             </div>
 
-            {/* TAB 1: Priority Breakdown */}
             {activeTab === "PRIORITY" && (
                 <div>
                     <div className="bms-sla-grid">
@@ -346,7 +339,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             )}
 
-            {/* TAB 2: Phase Breakdown */}
             {activeTab === "PHASES" && (
                 <div className="bg-white p-4 rounded-4" style={{ border: '1px solid #e2e8f0' }}>
                     <h5 className="fw-bold mb-1 text-dark">Phân Rã Thời Gian Theo 3 Giai Đoạn Quy Trình Xét Nghiệm</h5>
@@ -395,7 +387,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             )}
 
-            {/* TAB 3: Department Breakdown (Standalone Table Section) */}
             {activeTab === "DEPARTMENTS" && (
                 <div className="bms-table-standalone-section">
                     <div className="bms-table-standalone-header">
@@ -475,7 +466,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             )}
 
-            {/* TAB 4: Daily Trends */}
             {activeTab === "TRENDS" && (
                 <div>
                     <div className="row g-3">
@@ -500,7 +490,6 @@ export default function TatStatisticsDashboardPage() {
                 </div>
             )}
 
-            {/* TAB 5: Violations (Standalone Table Section) */}
             {activeTab === "VIOLATIONS" && (
                 <div className="bms-table-standalone-section">
                     <div className="bms-table-standalone-header">

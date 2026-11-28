@@ -110,20 +110,17 @@ export default function SpecimenHistoryPage() {
 
     const paramBarcode = searchParams.get("barcode") || "";
 
-    // Master DB list (loaded once per refresh so KPI counts & instant filters are 100% accurate)
     const [allSpecimens, setAllSpecimens] = useState([]);
     const [loadingList, setLoadingList] = useState(false);
     const [statusFilter, setStatusFilter] = useState("ALL");
     const [searchInput, setSearchInput] = useState("");
 
-    // Detail modal state
     const [showDetailModal, setShowDetailModal] = useState(Boolean(paramBarcode));
     const [activeBarcode, setActiveBarcode] = useState(paramBarcode);
     const [currentSpecimen, setCurrentSpecimen] = useState(null);
     const [loadingSpecimen, setLoadingSpecimen] = useState(false);
     const [specimenError, setSpecimenError] = useState(null);
 
-    // Sub-modals & feedback
     const [showEventModal, setShowEventModal] = useState(false);
     const [showStorageModal, setShowStorageModal] = useState(false);
     const [toastMessage, setToastMessage] = useState(null);
@@ -184,7 +181,6 @@ export default function SpecimenHistoryPage() {
         }
     }, [paramBarcode, loadSpecimenDetail]);
 
-    // Real DB counts per status
     const statusCounts = useMemo(() => {
         const counts = {
             ALL: allSpecimens.length,
@@ -272,7 +268,7 @@ export default function SpecimenHistoryPage() {
 
     return (
         <div className="w-100 py-1">
-            {/* 1. Header chuẩn quản lý */}
+
             <div className="bms-page-header-card mb-3">
                 <div className="bms-page-header-content flex-column align-items-start">
                     <div className="bms-page-title-row">
@@ -298,7 +294,6 @@ export default function SpecimenHistoryPage() {
                 </div>
             </div>
 
-            {/* 2. 4 KPI Cards tóm tắt thực từ DB (click để lọc nhanh) */}
             <Row className="g-3 mb-3">
                 <Col md={3} sm={6}>
                     <div
@@ -382,7 +377,6 @@ export default function SpecimenHistoryPage() {
                 </Col>
             </Row>
 
-            {/* Toast */}
             {toastMessage && (
                 <Alert
                     variant={toastMessage.type}
@@ -395,7 +389,6 @@ export default function SpecimenHistoryPage() {
                 </Alert>
             )}
 
-            {/* 3. Thanh lọc 1 dòng gọn (Status pills theo DB thực + Tìm kiếm / Quét Barcode) */}
             <div className="bms-filter-bar mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <div className="d-flex align-items-center gap-1.5 flex-wrap">
                     {STATUS_TABS.map((tab) => {
@@ -452,7 +445,6 @@ export default function SpecimenHistoryPage() {
                 </form>
             </div>
 
-            {/* 4. Bảng quản lý danh sách mẫu bệnh phẩm toàn màn hình + Phân trang */}
             <section className="bms-table-standalone-section">
                 <div className="bms-table-standalone-header">
                     <div>
@@ -593,7 +585,6 @@ export default function SpecimenHistoryPage() {
                 </div>
             </section>
 
-            {/* 5. XL Modal: Hồ sơ truy vết vòng đời & Lưu kho lạnh (100% dữ liệu DB) */}
             <Modal
                 show={showDetailModal}
                 onHide={closeSpecimenDetail}
@@ -627,7 +618,7 @@ export default function SpecimenHistoryPage() {
                         </Alert>
                     ) : currentSpecimen ? (
                         <>
-                            {/* Thẻ tóm tắt thông tin thực từ DB */}
+
                             <div className="p-3 bg-white rounded-4 border mb-3 shadow-xs" style={{ borderColor: "#E2E8F0" }}>
                                 <Row className="g-3 small">
                                     <Col md={4}>
@@ -687,7 +678,6 @@ export default function SpecimenHistoryPage() {
                                 )}
                             </div>
 
-                            {/* Nhật ký sự kiện + Lưu kho lạnh */}
                             <Row className="g-3">
                                 <Col xl={7}>
                                     <SpecimenLifecycleTimeline
@@ -741,7 +731,6 @@ export default function SpecimenHistoryPage() {
                 </Modal.Footer>
             </Modal>
 
-            {/* Sub-modals (chỉ dành cho vai trò Lab) */}
             {canEditSpecimen && (
                 <>
                     <AddTrackingEventModal

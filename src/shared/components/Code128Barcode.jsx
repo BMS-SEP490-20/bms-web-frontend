@@ -22,7 +22,7 @@ export default function Code128Barcode({
     try {
       JsBarcode(svgRef.current, text, {
         format: 'CODE128',
-        displayValue: false, // Render crisp text cleanly below SVG (no duplicate/clipping)
+        displayValue: false,
         height: compact ? Math.min(height, 28) : height,
         width: compact ? Math.min(width, 1.05) : width,
         margin: compact ? 2 : 4,

@@ -94,7 +94,6 @@ export function BookAppointmentPage({
     return Boolean(name && String(pkg.packageName || '').trim().toLowerCase() === name);
   };
 
-  // Pure dynamic state from database (cấm hardcode fallback)
   const [packages, setPackages] = useState(() => {
     if (propPackages && propPackages.length > 0) return propPackages;
     return [];
@@ -148,7 +147,6 @@ export function BookAppointmentPage({
   const [patientProfile, setPatientProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
-  // Load patient profile (Patient role) or searchable patient directory from DB (Receptionist role).
   useEffect(() => {
     let isMounted = true;
 
@@ -174,7 +172,6 @@ export function BookAppointmentPage({
                   setPatientOptions((prev) => [matched, ...prev.filter((x) => x.id !== matched.id)]);
                 }
               } catch {
-                // Keep manual selection available if preselected patient is not found
               }
             }
             if (matched && isMounted) {
@@ -216,7 +213,6 @@ export function BookAppointmentPage({
         }
       })
       .catch(() => {
-        // Fallback to stored user
       })
       .finally(() => {
         if (isMounted) setProfileLoading(false);
@@ -256,7 +252,6 @@ export function BookAppointmentPage({
 
   const [validationError, setValidationError] = useState('');
 
-  // Quick dates for 1-click pill navigation to prevent dead-end traps (suggests next upcoming days)
   const quickDates = useMemo(() => {
     const list = [];
     const base = date ? new Date(date + 'T00:00:00') : new Date();
@@ -272,7 +267,6 @@ export function BookAppointmentPage({
     return list;
   }, [date]);
 
-  // Patient identity validation: Receptionist must pick a target patient; Patient uses own profile.
   const isProfileComplete = useMemo(() => {
     if (isReceptionist) {
       return Boolean(patientInfo.patientId && patientInfo.name.trim());
@@ -284,10 +278,6 @@ export function BookAppointmentPage({
 
   const { book, loading, error, result, reset } = useBookAppointment();
 
-  // Load live packages from database:
-  // - Receptionist: load directly from Admin's Quản Lý Danh Mục Gói Dịch Vụ & Bảng Giá Viện Phí (/service-packages)
-  //   and hydrate legacy criteria/metadata from catalog so downstream Lab & Test Results get exact biomarkers.
-  // - Patient: load from unified catalog (/api/v1/catalog/services, synchronized with service_packages).
   useEffect(() => {
     let isMounted = true;
     setPackagesLoading(true);
@@ -436,7 +426,6 @@ export function BookAppointmentPage({
           });
         }
       } catch {
-        // Keep current packages state if request fails
       } finally {
         if (isMounted) setPackagesLoading(false);
       }
@@ -449,7 +438,6 @@ export function BookAppointmentPage({
     };
   }, [isReceptionist, preselectedPkgId, preselectedName]);
 
-  // Sync preselected package from URL whenever preselectedPkgId or packages changes
   useEffect(() => {
     if (!hasPreselectedFromUrl || isReceptionist) {
       setShowPackagePicker(true);
@@ -462,12 +450,10 @@ export function BookAppointmentPage({
       setSelectedPackageId(match.packageId);
       setShowPackagePicker(false);
     } else if (!packagesLoading) {
-      // Redirect patient back to /services if URL packageId does not match any active package
       navigate('/services', { replace: true });
     }
   }, [hasPreselectedFromUrl, isReceptionist, preselectedPkgId, preselectedName, packages, packagesLoading, navigate]);
 
-  // Load Doctor Shifts & Assigned Rooms for selected date
   const loadDoctorShifts = useCallback(async () => {
     if (!date) return;
     setLoadingShifts(true);
@@ -521,7 +507,6 @@ export function BookAppointmentPage({
     );
   }, [packages, selectedPackageId]);
 
-  // Khớp Tam Giác Y Khoa Chuẩn (Auto-Allocation): Gói xét nghiệm -> Bác sĩ Chuyên khoa -> Phòng khám chuyên khoa
   const shiftDoctors = useMemo(() => {
     if (!availableShifts || availableShifts.length === 0) return [];
     const inShift = availableShifts.filter(
@@ -531,7 +516,6 @@ export function BookAppointmentPage({
 
     const pkgCat = (selectedPackage?.category || '').toLowerCase().trim();
     if (pkgCat) {
-      // 1. Ưu tiên 1: Khớp chính xác chuyên khoa y tế
       const exactMatched = inShift.filter((s) => {
         const spec = (s.specialty || '').toLowerCase();
         const dept = (s.department || '').toLowerCase();
@@ -550,7 +534,6 @@ export function BookAppointmentPage({
       });
       if (exactMatched.length > 0) return exactMatched;
 
-      // 2. Ưu tiên 2: Bác sĩ Đa khoa Tổng quát tiếp nhận tư vấn
       const generalMatched = inShift.filter((s) => {
         const spec = (s.specialty || '').toLowerCase();
         const dept = (s.department || '').toLowerCase();
@@ -559,7 +542,6 @@ export function BookAppointmentPage({
       });
       if (generalMatched.length > 0) return generalMatched;
 
-      // 3. Các gói dịch vụ đa chuyên khoa / tổng quát do Admin tạo (General Checkup, Chronic Disease, Specialized...)
       const isBroadPackage =
         pkgCat.includes('general') ||
         pkgCat.includes('tổng quát') ||
@@ -574,14 +556,12 @@ export function BookAppointmentPage({
         pkgCat.includes('khác');
       if (isBroadPackage) return inShift;
 
-      // Tuyệt đối không fallback sang bác sĩ chuyên khoa khác cho gói chuyên khoa hẹp
       return [];
     }
 
     return inShift;
   }, [availableShifts, selectedShiftId, selectedPackage]);
 
-  // Real doctors on duty from MongoDB doctor_shifts (user can pick if multiple doctors work the shift)
   const activeShiftData = useMemo(() => {
     if (shiftDoctors.length === 0) return null;
     if (selectedDoctorId) {
@@ -591,7 +571,6 @@ export function BookAppointmentPage({
     return shiftDoctors[0];
   }, [shiftDoctors, selectedDoctorId]);
 
-  // Keep selectedDoctorId synced with available real doctors in this shift
   useEffect(() => {
     if (shiftDoctors.length === 0) {
       setSelectedDoctorId('');
@@ -602,7 +581,6 @@ export function BookAppointmentPage({
     }
   }, [shiftDoctors, selectedDoctorId]);
 
-  // If the currently chosen shift has no real on-duty doctor on the selected date, auto-switch to a shift that does
   useEffect(() => {
     if (loadingShifts || availableShifts.length === 0) return;
     const hasCurrentShift = availableShifts.some(
@@ -623,7 +601,6 @@ export function BookAppointmentPage({
     }
   }, [availableShifts, loadingShifts, date]);
 
-  // Fasting clinical warning indicator
   const requiresFasting = useMemo(() => {
     const rule = (selectedPackage?.fastingRule || '').toLowerCase();
     const cat = (selectedPackage?.category || '').toLowerCase();
@@ -633,7 +610,6 @@ export function BookAppointmentPage({
 
   const showFastingWarning = requiresFasting && (selectedShiftId === 'Afternoon' || selectedShiftId === 'Evening');
 
-  // Load slots for the active doctor and date
   useEffect(() => {
     if (!activeShiftData?.doctorId || !date) {
       setAllSlots([]);
@@ -660,7 +636,6 @@ export function BookAppointmentPage({
     };
   }, [activeShiftData?.doctorId, date]);
 
-  // Filter slots strictly inside active shift time window
   const shiftSlots = useMemo(() => {
     if (!activeShiftData) return [];
     const start = activeShiftData.shiftStart || '07:00';
@@ -689,7 +664,6 @@ export function BookAppointmentPage({
     return normalized;
   }, [allSlots, activeShiftData, date]);
 
-  // Auto-select first AVAILABLE slot of the shift
   useEffect(() => {
     const availableSlots = shiftSlots.filter((s) => s.isAvailable);
     const currentIsValid = availableSlots.some((s) => s.slotTime === slotTime);
@@ -823,7 +797,7 @@ export function BookAppointmentPage({
 
         <form onSubmit={onSubmit}>
           <div className="row g-4">
-            {/* Left Column: Form Fields */}
+
             <div className="col-lg-8">
               {error && (
                 <div className="alert alert-danger py-3 px-3 rounded-3 border-0 shadow-sm mb-4">
@@ -831,7 +805,6 @@ export function BookAppointmentPage({
                 </div>
               )}
 
-              {/* SECTION 1: Patient Information */}
               <section className="bms-book-patient">
                 <h2>{isReceptionist ? '1. Chọn Bệnh Nhân Tạo Lịch Hẹn (CSDL)' : 'Thông tin bệnh nhân'}</h2>
                 {isReceptionist && (
@@ -878,7 +851,6 @@ export function BookAppointmentPage({
                 </dl>
               </section>
 
-              {/* SECTION 2: Test Package Selection (hidden when preselected from /services) */}
               {showPackagePicker && (
                 <div className="card border-0 shadow-sm rounded-3 mb-4">
                   <div className="card-header bg-white border-bottom py-3 px-3">
@@ -1007,7 +979,6 @@ export function BookAppointmentPage({
                 </div>
               )}
 
-              {/* SECTION 3: Shift, Doctor & Room Management */}
               <div className="card border-0 shadow-sm rounded-3 mb-4">
                 <div className="card-header bg-white border-bottom py-3 px-3">
                   <h5 className="mb-0 fw-bold text-dark">Chọn ngày và ca</h5>
@@ -1119,7 +1090,6 @@ export function BookAppointmentPage({
                     </div>
                   )}
 
-                  {/* Real On-Duty Clinical Doctor Selector (100% from DB doctor_shifts) */}
                   {shiftDoctors.length > 1 && (
                     <div className="mb-2 d-flex align-items-center gap-2 flex-wrap">
                       <span className="small text-muted fw-semibold">Chọn bác sĩ đang trực ({shiftDoctors.length}):</span>
@@ -1195,7 +1165,6 @@ export function BookAppointmentPage({
                     ))}
                   </div>
 
-                  {/* CLINICAL NOTES */}
                   <div className="mt-4">
                     <label className="form-label text-muted small fw-semibold">
                       Ghi chú lâm sàng / Dặn dò chuẩn bị
@@ -1226,7 +1195,6 @@ export function BookAppointmentPage({
               </div>
             </div>
 
-            {/* Right Column: Appointment Summary & Hospital Standards */}
             <div className="col-lg-4">
               <div className="card border-0 shadow-sm rounded-3 mb-4 sticky-top" style={{ top: '90px' }}>
                 <div className="card-header bg-white border-bottom py-3 px-3">
@@ -1255,7 +1223,7 @@ export function BookAppointmentPage({
                     </div>
                   ) : selectedPackage ? (
                     <div style={{ paddingBottom: '20px', marginBottom: '20px', borderBottom: '1px solid #E2E8F0' }}>
-                      {/* Package header: icon + code + category + title */}
+
                       <div className="d-flex align-items-start gap-3">
                         <span className="bms-pkg-icon flex-shrink-0" style={{ width: '42px', height: '42px' }}>
                           <BmsPackageIcon name={packageIconKey(selectedPackage)} size={42} />
@@ -1279,7 +1247,6 @@ export function BookAppointmentPage({
                         </div>
                       </div>
 
-                      {/* Description & target audience with generous breathing room */}
                       {selectedPackage.description && (
                         <p className="mb-0" style={{ marginTop: '14px', color: 'var(--ink-secondary)', fontSize: '13px', lineHeight: 1.65 }}>
                           {selectedPackage.description}
@@ -1292,7 +1259,6 @@ export function BookAppointmentPage({
                         </div>
                       )}
 
-                      {/* Structured 2-col specs + prep note in flat surface */}
                       {(selectedPackage.sampleTube || selectedPackage.tat || selectedPackage.fastingRule) && (
                         <div
                           style={{
@@ -1342,7 +1308,6 @@ export function BookAppointmentPage({
                         </div>
                       )}
 
-                      {/* Biomarker criteria chips */}
                       {Array.isArray(selectedPackage.criteria) && selectedPackage.criteria.length > 0 && (
                         <div style={{ marginTop: '16px' }}>
                           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-secondary)', marginBottom: '8px' }}>
@@ -1370,7 +1335,6 @@ export function BookAppointmentPage({
                         </div>
                       )}
 
-                      {/* Listed Price: 1.5x larger font + airy separation from section above */}
                       <div
                         className="d-flex align-items-baseline justify-content-between gap-2 flex-wrap"
                         style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #E2E8F0' }}

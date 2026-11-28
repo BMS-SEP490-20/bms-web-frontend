@@ -19,7 +19,6 @@ import TablePagination, { usePagination } from '../../../components/ui/TablePagi
 import { userManagementService } from '../../../services/userManagementService';
 import { ROLES, ROLE_LABELS, ALL_ROLES, resolveRoleId, getStoredUser } from '../../../constants/roles';
 
-// Vietnamese standardized clinical and administrative role names
 const VIETNAMESE_ROLES = Object.freeze({
   [ROLES.ADMIN]: 'Quản Trị Viên Hệ Thống',
   [ROLES.MANAGER]: 'Quản Lý Phòng Xét Nghiệm',
@@ -63,22 +62,18 @@ export default function UserManagementPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
-  // Stats
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0, byRole: {} });
 
-  // Detail / Edit Modal
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [labRooms, setLabRooms] = useState([]);
 
-  // Create Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({
     fullName: '',
@@ -93,15 +88,12 @@ export default function UserManagementPage() {
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  // Delete Confirm Modal
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Status Toggle Modal
   const [userToToggle, setUserToToggle] = useState(null);
   const [toggleLoading, setToggleLoading] = useState(false);
 
-  // Load user data and stats
   const loadData = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -110,8 +102,8 @@ export default function UserManagementPage() {
       if (usersRes?.success) {
         let rawList = usersRes.data;
         if (!Array.isArray(rawList)) {
-          rawList = Array.isArray(rawList?.items) 
-            ? rawList.items 
+          rawList = Array.isArray(rawList?.items)
+            ? rawList.items
             : (Array.isArray(rawList?.data) ? rawList.data : []);
         }
         setUsers(rawList);
@@ -149,10 +141,8 @@ export default function UserManagementPage() {
     loadData();
   }, [loadData]);
 
-  // Safe users array guard
   const safeUsers = useMemo(() => (Array.isArray(users) ? users : []), [users]);
 
-  // Filtered users
   const filteredUsers = useMemo(() => {
     return safeUsers.filter(user => {
       const matchSearch =
@@ -178,7 +168,6 @@ export default function UserManagementPage() {
 
   const usersPag = usePagination(filteredUsers, 10);
 
-  // Handle open user details
   const handleOpenUserDetail = async (user) => {
     setSelectedUser(user);
     setShowDetailModal(true);
@@ -196,7 +185,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Save account info from Modal
   const handleSaveAccount = async (updatedData) => {
     const res = await userManagementService.updateUser(updatedData.id, updatedData);
     if (res.success) {
@@ -210,7 +198,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Save password from Modal
   const handleSavePassword = async (newPassword) => {
     if (!selectedUser) return;
     const res = await userManagementService.changePassword(selectedUser.id, newPassword, selectedUser);
@@ -221,7 +208,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Create new user
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setCreateError('');
@@ -278,7 +264,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Toggle status
   const handleConfirmToggleStatus = async () => {
     if (!userToToggle) return;
     setToggleLoading(true);
@@ -296,7 +281,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Delete user
   const handleConfirmDelete = async () => {
     if (!userToDelete) return;
     setDeleteLoading(true);
@@ -313,7 +297,6 @@ export default function UserManagementPage() {
     }
   };
 
-  // Helper render role badge
   const renderRoleBadge = (role, roleId) => {
     const id = resolveRoleId(roleId) ?? resolveRoleId(role);
     if (!id) return <Badge bg="light" className="text-dark border">Chưa phân vai trò</Badge>;
@@ -327,17 +310,17 @@ export default function UserManagementPage() {
 
   return (
     <div className="w-100 py-2">
-      {/* 1. Master Luxury Page Header Card */}
+
       <div className="bms-page-header-card">
         <div className="bms-page-header-content">
-          
+
           <div className="bms-page-title-row">
-            
+
             <h1 className="bms-page-title">
               Quản Lý Nhân Sự &amp; Phân Quyền Tài Khoản (IAM)
             </h1>
           </div>
-          
+
         </div>
         <div className="bms-page-actions">
           <Button
@@ -358,7 +341,6 @@ export default function UserManagementPage() {
         </div>
       </div>
 
-      {/* Alerts */}
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')} className="shadow-sm mb-4" style={{ borderRadius: 14 }}>
           {error}
@@ -370,7 +352,6 @@ export default function UserManagementPage() {
         </Alert>
       )}
 
-      {/* 2. KPI Stats Row */}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
           <div className="bms-kpi-quad-card">
@@ -582,7 +563,6 @@ export default function UserManagementPage() {
         </div>
       </div>
 
-      {/* Unified User Info Modal */}
       {selectedUser && (
         <UnifiedUserInfoModal
           show={showDetailModal}
@@ -594,7 +574,6 @@ export default function UserManagementPage() {
         />
       )}
 
-      {/* Create Account Modal */}
       <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered size="lg">
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fs-5">
@@ -709,7 +688,6 @@ export default function UserManagementPage() {
         </Form>
       </Modal>
 
-      {/* Lock/Unlock Confirm Modal */}
       <Modal show={Boolean(userToToggle)} onHide={() => setUserToToggle(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title className="fs-5">
@@ -735,7 +713,6 @@ export default function UserManagementPage() {
         </Modal.Footer>
       </Modal>
 
-      {/* Delete Confirm Modal */}
       <Modal show={Boolean(userToDelete)} onHide={() => setUserToDelete(null)} centered>
         <Modal.Header closeButton className="bg-danger bg-opacity-10 text-danger">
           <Modal.Title className="fs-5">
